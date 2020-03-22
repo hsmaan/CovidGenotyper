@@ -13,10 +13,10 @@ loadRData <- function(fileName){
 
 setwd("data")
 
-pre_aligned <- loadRData("02_covid_93_aligned.RData")
+pre_aligned <- loadRData("dec_aligned_fastas.RData")
 pre_meta <- loadRData("02_covid_dataframe.RData")
-countries <- pre_meta[,c("Geo_Location")]
-rownames(countries) <- pre_meta$Accession
+pre_dist <- loadRData("dec_fasta_dist.RData")
+countries <- as.data.frame(pre_meta[,c("Accession", "Geo_Location")])
 
 setwd("..")
 
@@ -42,14 +42,28 @@ kev_palette <- c(
 
 source_python("bin/umap_get.py")
 source("bin/clustal_dist.R")
+source("bin/cmds.R")
 
 # RShiny 
 
 ui <- fluidPage(
     
-  fileInput(inputId = "input_fasta", label = "Add fasta files"),
+  titlePanel("Tabsets"),
   
-  plotOutput("umap")
+  sidebarLayout(
+    
+    sidebarPanel(
+    
+      fileInput(inputId = "input_fasta", label = "Add fasta files")
+      
+    ),
+  
+    mainPanel(
+    
+    tabsetPanel(type = "tabs", tabPanel("MDS", plotOutput("umap")))
+    
+  )
+  )
                   
 )
 
@@ -57,14 +71,12 @@ server <- function(input, output) {
   
   dat <- reactive({
     if (is.null(input$input_fasta)) {
-      dist <- dist_get_null(pre_aligned)
-      umap_res <- umap_process(dist)
-      rownames(umap_res) <- pre_meta$Accession
-      umap_res <- cbind(umap_res, countries)
-      colnames(umap_res) <- c("UMAP_1", "UMAP_2", "Country")
-      return(umap_res)
+      dist <- pre_dist
+      cmds <- multi_dim_scale(dist)
+      cmds <- merge(cmds, countries)
+      return(cmds)
     } else {
-      dist <- dist_get(input$input_fasta$datapath, pre_aligned, pre_meta$Accession)
+      dist <- dist_get(input$input_fasta$datapath, pre_aligned)
       umap_res <- umap_process(dist)
       novel <- (length(umap_res[,1]) - length(countries))
       countries <- c(countries, rep("Novel", novel))
@@ -76,12 +88,12 @@ server <- function(input, output) {
   
   output$umap <- renderPlot({ 
     
-    ggplot(data = dat(), aes(x = UMAP_1, y = UMAP_2)) +
+    ggplot(data = dat(), aes(x = MDS_1, y = MDS_2)) +
       theme_few() +
-      geom_point(aes(color = Country), size = 2) +
+      geom_point(aes(color = Geo_Location), size = 2) +
       scale_color_manual(name = "Country", values = kev_palette[1:length(unique(dat()[,3]))]) +
-      geom_point(data = dat()[dat()[,3] %in% c("Novel"), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 3) +
-      labs(x = "UMAP 1", y = "UMAP 2") +
+      geom_point(data = dat()[dat()[,3] %in% c("Novel"), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+      labs(x = "MDS 1", y = "MDS 2") +
       theme(axis.ticks.x = element_blank()) +
       theme(axis.ticks.y = element_blank()) +
       theme(axis.text.y = element_blank()) +
