@@ -7,6 +7,8 @@ library(ggthemes)
 library(dendextend)
 library(plyr)
 library(colorspace)
+library(RColorBrewer)
+library(shinycssloaders)
 
 # Load testing data 
 
@@ -17,10 +19,12 @@ loadRData <- function(fileName){
 
 setwd("data")
 
-pre_aligned <- loadRData("dec_aligned_fastas.RData")
-pre_meta <- loadRData("02_covid_dataframe.RData")
-pre_dist <- loadRData("dec_fasta_dist.RData")
-countries <- as.data.frame(pre_meta[,c("Accession", "Geo_Location")])
+file_list <- list.files() 
+
+pre_aligned <- loadRData(grep("dec_aligned_fastas", file_list, value = TRUE))
+pre_meta <- loadRData(grep("covid_meta", file_list, value = TRUE))
+pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
+countries <- as.data.frame(pre_meta[,c("Accession", "Region")])
 
 setwd("..")
 
@@ -41,6 +45,9 @@ kev_palette <- c(
   "darkturquoise", "green1", "yellow4", "yellow3",
   "darkorange4", "brown"
 )
+
+qual_palettes = brewer.pal.info[brewer.pal.info$category == "qual", ]
+qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_palettes)))
 
 # Source scripts
 
@@ -68,10 +75,22 @@ ui <- fluidPage(theme = shinytheme("flatly"),
       
       fileInput(inputId = "input_fasta", label = "Upload fasta"),
       
+      h4(strong("Details")),
+      
       p(
-        "Developed by Hassaan Maan",
+        strong("MDS"), "- Parametric Multidimensional Scaling",
         br(),
-        "Bo Wang Lab",
+        strong("UMAP"), "- Uniform Manifold Approximation and Projection",
+        br(),
+        strong("HClust"), "- Agglomerative Hierarchical Clustering",
+      ),
+      
+      p(
+        "All methods approximate genomic differences using DNA distance determined by multiple-sequence alignment and the Kimura-80 model of DNA evolution."
+      ),
+      
+      p(
+        a("Bo Wang Lab", href="https://wanglab.ml/"),
         br(),
         "University Health Network",
         br(),
@@ -82,7 +101,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
   
     mainPanel(
     
-      tabsetPanel(type = "tabs", tabPanel("MDS", plotOutput("cmds")), tabPanel("UMAP", plotOutput("umap")), tabPanel("HClust", plotOutput("dend")))
+      tabsetPanel(type = "tabs", tabPanel("MDS", withSpinner(plotOutput("cmds"))), tabPanel("UMAP", withSpinner(plotOutput("umap"))), tabPanel("HClust", withSpinner(plotOutput("dend"))))
     
   )
   )
@@ -106,7 +125,7 @@ server <- function(input, output) {
       return(countries)
     } else {
       new_accessions <- rownames(dist_reac())[(nrow(countries)+1):nrow(dist_reac())]
-      countries_new <- data.frame("Accession" = new_accessions, "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)))
+      countries_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)))
       new_countries <- rbind(countries, countries_new)
       return(new_countries)
     }
@@ -142,8 +161,8 @@ server <- function(input, output) {
   output$cmds <- renderPlot ({
     ggplot(data = mds(), aes(x = MDS_1, y = MDS_2)) +
       theme_few() +
-      geom_point(aes(color = Geo_Location), size = 2) +
-      scale_color_manual(name = "Country", values = kev_palette[1:length(unique(mds()[,4]))]) +
+      geom_point(aes(color = Region), size = 2) +
+      scale_color_manual(name = "Region", values = kev_palette[1:length(unique(mds()[,4]))]) +
       geom_point(data = mds()[grep("Novel", mds()[,4]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
       labs(x = "MDS 1", y = "MDS 2") +
       theme(axis.ticks.x = element_blank()) +
@@ -160,8 +179,8 @@ server <- function(input, output) {
   output$umap <- renderPlot ({
     ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
       theme_few() +
-      geom_point(aes(color = Geo_Location), size = 2) +
-      scale_color_manual(name = "Country", values = kev_palette[1:length(unique(umap()[,4]))]) +
+      geom_point(aes(color = Region), size = 2) +
+      scale_color_manual(name = "Region", values = kev_palette[1:length(unique(umap()[,4]))]) +
       geom_point(data = umap()[grep("Novel", umap()[,4]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
       labs(x = "UMAP 1", y = "UMAP 2") +
       theme(axis.ticks.x = element_blank()) +
@@ -179,7 +198,7 @@ server <- function(input, output) {
     par(mar = c(6,6,1,1))
     dend() %>% set("labels_cex", NA) %>% plot()
     legend("topright", legend = levels(factor(new_countries()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
-    colored_bars(dend_cols(), dend = dend(), rowLabels = c("Country"), cex.rowLabels = 1.25)
+    colored_bars(dend_cols(), dend = dend(), rowLabels = c("Region"), cex.rowLabels = 1.25)
   })
   
 
