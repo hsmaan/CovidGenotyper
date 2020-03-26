@@ -9,6 +9,7 @@ library(plyr)
 library(colorspace)
 library(RColorBrewer)
 library(shinycssloaders)
+library(circlize)
 
 # Load testing data 
 
@@ -22,7 +23,7 @@ setwd("data")
 file_list <- list.files() 
 
 pre_aligned <- loadRData(grep("dec_aligned_fastas", file_list, value = TRUE))
-pre_meta <- loadRData(grep("covid_meta", file_list, value = TRUE))
+pre_meta <- loadRData(grep("covid_meta_filtered", file_list, value = TRUE))
 pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
 countries <- as.data.frame(pre_meta[,c("Accession", "Region")])
 
@@ -52,8 +53,10 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 # Source scripts
 
 source_python("bin/umap_get.py")
+source("bin/align.R")
 source("bin/clustal_dist.R")
 source("bin/cmds.R")
+source("bin/mst_graph.R")
 
 # RShiny 
 
@@ -101,7 +104,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
   
     mainPanel(
     
-      tabsetPanel(type = "tabs", tabPanel("MDS", withSpinner(plotOutput("cmds"))), tabPanel("UMAP", withSpinner(plotOutput("umap"))), tabPanel("HClust", withSpinner(plotOutput("dend"))))
+      tabsetPanel(type = "tabs", tabPanel("MDS", withSpinner(plotOutput("cmds", height = "600px", width = "1000px"))), tabPanel("UMAP", withSpinner(plotOutput("umap", height = "600px", width = "1000px"))), tabPanel("HClust", withSpinner(plotOutput("dend", height = "600px", width = "1000px"))), tabPanel("Graph", withSpinner(plotOutput("mst", height = "600px", width = "1000px"))))
     
   )
   )
@@ -110,12 +113,22 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
 server <- function(input, output) {
   
+  align <- reactive ({
+    if (is.null(input$input_fasta)) {
+      align <- pre_aligned
+      return(align)
+    } else {
+      align <- align_get(input$input_fasta$datapath, pre_aligned)
+      return(align)
+    }
+  })
+  
   dist_reac <- reactive ({
     if (is.null(input$input_fasta)) {
       dist <- pre_dist
       return(dist)
     } else {
-      dist <- dist_get(input$input_fasta$datapath, pre_aligned)
+      dist <- dist_get(align())
       return(dist)
     }
   })
@@ -148,7 +161,7 @@ server <- function(input, output) {
   dend <- reactive ({
     h_clust <- hclust(as.dist(dist_reac()))
     h_dend <- as.dendrogram(h_clust)
-    h_dend <- raise.dendrogram(h_dend, median(get_branches_heights(h_dend)))
+    h_dend <- raise.dendrogram(h_dend, 0.5*(max(get_branches_heights(h_dend))))
     return(h_dend)
   })
   
@@ -156,6 +169,11 @@ server <- function(input, output) {
     cols_unique <- kev_palette[1:length(unique(new_countries()[,2]))]
     cols_assigned <- cols_unique[factor(new_countries()[,2])]
     return(cols_assigned)
+  })
+  
+  graph_m <- reactive ({
+    g <- mst_graph(dist_reac(), new_countries(), kev_palette)
+    return(g)
   })
 
   output$cmds <- renderPlot ({
@@ -195,13 +213,18 @@ server <- function(input, output) {
   })
   
   output$dend <- renderPlot ({
-    par(mar = c(6,6,1,1))
-    dend() %>% set("labels_cex", NA) %>% plot()
-    legend("topright", legend = levels(factor(new_countries()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
-    colored_bars(dend_cols(), dend = dend(), rowLabels = c("Region"), cex.rowLabels = 1.25)
+    par(mar = c(1,1,1,1))
+    dend() %>% set("labels_cex", NA) %>% set("branches_lwd", 0.5) %>% color_branches(k = 4) %>% circlize_dendrogram(labels = FALSE)
+    # legend("topright", legend = levels(factor(new_countr  ies()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
+    # colored_bars(dend_cols(), dend = dend(), rowLabels = c("Region"), cex.rowLabels = 1.25)
   })
   
-
+  output$mst <- renderPlot ({
+    lay <- layout_with_graphopt(graph_m(), niter = 1000)
+    plot.igraph(graph_m(), vertex.label = NA, vertex.size = 3, edge.width = 0.5, layout = lay, edge.color = "gray25")
+    legend("topleft", legend = levels(factor(new_countries()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
+  })
+  
 }
 
 shinyApp(ui = ui, server = server)
