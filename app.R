@@ -22,8 +22,9 @@ setwd("data")
 
 file_list <- list.files() 
 
-pre_aligned <- loadRData(grep("dec_aligned_fastas", file_list, value = TRUE))
-pre_meta <- loadRData(grep("covid_meta_filtered", file_list, value = TRUE))
+pre_aligned_filtered <- loadRData(grep("dec_aligned_filtered", file_list, value = TRUE))
+pre_aligned <- loadRData(grep("dec_unfiltered_aligned", file_list, value = TRUE))
+pre_meta <- loadRData(grep("covid_filtered_meta", file_list, value = TRUE))
 pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
 countries <- as.data.frame(pre_meta[,c("Accession", "Region")])
 
@@ -55,6 +56,7 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 source_python("bin/umap_get.py")
 source("bin/align.R")
 source("bin/clustal_dist.R")
+source("bin/snps.R")
 source("bin/cmds.R")
 source("bin/mst_graph.R")
 
@@ -81,11 +83,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
       h4(strong("Details")),
       
       p(
-        strong("MDS"), "- Parametric Multidimensional Scaling",
+        strong("UMAP"), "- Uniform manifold approximation and projection",
         br(),
-        strong("UMAP"), "- Uniform Manifold Approximation and Projection",
+        strong("MST"), "- Minimum spanning tree of sequence network",
         br(),
-        strong("HClust"), "- Agglomerative Hierarchical Clustering",
+        strong("SNP"), "- Allele frequencies of prevalent single-nucleotide variants",
       ),
       
       p(
@@ -104,7 +106,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
   
     mainPanel(
     
-      tabsetPanel(type = "tabs", tabPanel("MDS", withSpinner(plotOutput("cmds", height = "600px", width = "1000px"))), tabPanel("UMAP", withSpinner(plotOutput("umap", height = "600px", width = "1000px"))), tabPanel("HClust", withSpinner(plotOutput("dend", height = "600px", width = "1000px"))), tabPanel("Graph", withSpinner(plotOutput("mst", height = "600px", width = "1000px"))))
+      tabsetPanel(type = "tabs", tabPanel("UMAP", withSpinner(plotOutput("umap", height = "600px", width = "1000px"))), tabPanel("MST", withSpinner(plotOutput("mst", height = "600px", width = "1000px"))), tabPanel("SNP", withSpinner(plotOutput("snps", height = "600px", width = "1000px"))))
     
   )
   )
@@ -115,7 +117,7 @@ server <- function(input, output) {
   
   align <- reactive ({
     if (is.null(input$input_fasta)) {
-      align <- pre_aligned
+      align <- pre_aligned_filtered
       return(align)
     } else {
       align <- align_get(input$input_fasta$datapath, pre_aligned)
@@ -144,10 +146,9 @@ server <- function(input, output) {
     }
   })
   
-  mds <- reactive ({
-      cmds <- multi_dim_scale(dist_reac())
-      cmds <- merge(cmds, new_countries())
-      return(cmds)
+  snps <- reactive ({
+    snp_df <- snps_get(align(), new_countries())
+    return(snp_df)
   })
   
   umap <- reactive ({
@@ -158,46 +159,15 @@ server <- function(input, output) {
     return(umap_df)
   })
   
-  dend <- reactive ({
-    h_clust <- hclust(as.dist(dist_reac()))
-    h_dend <- as.dendrogram(h_clust)
-    h_dend <- raise.dendrogram(h_dend, 0.5*(max(get_branches_heights(h_dend))))
-    return(h_dend)
-  })
-  
-  dend_cols <- reactive ({
-    cols_unique <- kev_palette[1:length(unique(new_countries()[,2]))]
-    cols_assigned <- cols_unique[factor(new_countries()[,2])]
-    return(cols_assigned)
-  })
-  
   graph_m <- reactive ({
     g <- mst_graph(dist_reac(), new_countries(), kev_palette)
     return(g)
   })
-
-  output$cmds <- renderPlot ({
-    ggplot(data = mds(), aes(x = MDS_1, y = MDS_2)) +
-      theme_few() +
-      geom_point(aes(color = Region), size = 2) +
-      scale_color_manual(name = "Region", values = kev_palette[1:length(unique(mds()[,4]))]) +
-      geom_point(data = mds()[grep("Novel", mds()[,4]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
-      labs(x = "MDS 1", y = "MDS 2") +
-      theme(axis.ticks.x = element_blank()) +
-      theme(axis.ticks.y = element_blank()) +
-      theme(axis.text.y = element_blank()) +
-      theme(axis.text.x = element_blank()) +
-      theme(axis.title.y = element_text(size = 14, face = "bold")) +
-      theme(axis.title.x = element_text(size = 14, face = "bold")) +
-      theme(legend.title = element_text(size = 14, face = "bold")) +
-      theme(legend.text = element_text(size = 12)) +
-      theme(aspect.ratio = 0.6)
-    })
   
   output$umap <- renderPlot ({
     ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
       theme_few() +
-      geom_point(aes(color = Region), size = 2) +
+      geom_jitter(aes(color = Region), size = 2, position = "jitter") +
       scale_color_manual(name = "Region", values = kev_palette[1:length(unique(umap()[,4]))]) +
       geom_point(data = umap()[grep("Novel", umap()[,4]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
       labs(x = "UMAP 1", y = "UMAP 2") +
@@ -205,24 +175,33 @@ server <- function(input, output) {
       theme(axis.ticks.y = element_blank()) +
       theme(axis.text.y = element_blank()) +
       theme(axis.text.x = element_blank()) +
-      theme(axis.title.y = element_text(size = 14, face = "bold")) +
-      theme(axis.title.x = element_text(size = 14, face = "bold")) +
-      theme(legend.title = element_text(size = 14, face = "bold")) +
-      theme(legend.text = element_text(size = 12)) +
+      theme(axis.title.y = element_text(size = 16, face = "bold")) +
+      theme(axis.title.x = element_text(size = 16, face = "bold")) +
+      theme(legend.title = element_text(size = 15, face = "bold")) +
+      theme(legend.text = element_text(size = 14)) +
       theme(aspect.ratio = 0.6)
   })
-  
-  output$dend <- renderPlot ({
-    par(mar = c(1,1,1,1))
-    dend() %>% set("labels_cex", NA) %>% set("branches_lwd", 0.5) %>% color_branches(k = 4) %>% circlize_dendrogram(labels = FALSE)
-    # legend("topright", legend = levels(factor(new_countr  ies()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
-    # colored_bars(dend_cols(), dend = dend(), rowLabels = c("Region"), cex.rowLabels = 1.25)
-  })
-  
+
   output$mst <- renderPlot ({
     lay <- layout_with_graphopt(graph_m(), niter = 1000)
     plot.igraph(graph_m(), vertex.label = NA, vertex.size = 3, edge.width = 0.5, layout = lay, edge.color = "gray25")
     legend("topleft", legend = levels(factor(new_countries()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
+  })
+  
+  output$snps <- renderPlot ({
+    ggplot(data = snps(), aes(x = Allele, y = Freq)) +
+      theme_few () +
+      geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
+      scale_fill_manual(values = kev_palette[1:length(unique(new_countries()[,2]))]) +
+      facet_wrap(~Position, scales = "free") +
+      theme(axis.text.y = element_text(size = 12)) +
+      theme(axis.text.x = element_text(size = 12)) +
+      theme(axis.title.y = element_text(size = 14, face = "bold")) +
+      theme(axis.title.x = element_text(size = 14, face = "bold")) +
+      theme(legend.title = element_text(size = 14, face = "bold")) +
+      theme(legend.title = element_text(size = 14, face = "bold")) +
+      theme(legend.text = element_text(size = 12)) +
+      theme(strip.text = element_text(size = 14, face = "bold"))
   })
   
 }
