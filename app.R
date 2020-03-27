@@ -63,12 +63,12 @@ source("bin/mst_graph.R")
 # RShiny 
 
 ui <- fluidPage(theme = shinytheme("flatly"),
-    
-  titlePanel("Covid-19 Genotyping Tool (CGT)"),
   
   sidebarLayout(
     
     sidebarPanel(
+      
+      h2(strong("Covid-19 Genotyping Tool (CGT)")),
       
       h4(strong("Instructions")), 
       
@@ -105,13 +105,15 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     ),
   
     mainPanel(
-    
-      tabsetPanel(type = "tabs", tabPanel("UMAP", withSpinner(plotOutput("umap", height = "600px", width = "1000px"))), tabPanel("MST", withSpinner(plotOutput("mst", height = "600px", width = "1000px"))), tabPanel("SNP", withSpinner(plotOutput("snps", height = "600px", width = "1000px"))))
-    
+      
+      navbarPage(title = NULL, tabPanel("UMAP", withSpinner(plotOutput("umap", height = "600px", width = "1000px"))), tabPanel("MST", withSpinner(plotOutput("mst", height = "600px", width = "1000px"))), tabPanel("SNP", withSpinner(plotOutput("snps", height = "600px", width = "1000px"))))
+
+   
   )
   )
                   
 )
+
 
 server <- function(input, output) {
   
@@ -120,7 +122,7 @@ server <- function(input, output) {
       align <- pre_aligned_filtered
       return(align)
     } else {
-      align <- align_get(input$input_fasta$datapath, pre_aligned)
+      align <- align_get(input$input_fasta$datapath, pre_aligned_filtered)
       return(align)
     }
   })
@@ -181,28 +183,33 @@ server <- function(input, output) {
       theme(legend.text = element_text(size = 14)) +
       theme(aspect.ratio = 0.6)
   })
+  
+  outputOptions(output, "umap", suspendWhenHidden = FALSE)
 
   output$mst <- renderPlot ({
     lay <- layout_with_graphopt(graph_m(), niter = 1000)
-    plot.igraph(graph_m(), vertex.label = NA, vertex.size = 3, edge.width = 0.5, layout = lay, edge.color = "gray25")
+    plot.igraph(graph_m(), vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
     legend("topleft", legend = levels(factor(new_countries()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
   })
+  
+  outputOptions(output, "mst", suspendWhenHidden = FALSE)
   
   output$snps <- renderPlot ({
     ggplot(data = snps(), aes(x = Allele, y = Freq)) +
       theme_few () +
       geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
-      scale_fill_manual(values = kev_palette[1:length(unique(new_countries()[,2]))]) +
+      scale_fill_manual(name = "Region", values = kev_palette[1:length(unique(new_countries()[,2]))]) +
       facet_wrap(~Position, scales = "free") +
       theme(axis.text.y = element_text(size = 12)) +
       theme(axis.text.x = element_text(size = 12)) +
-      theme(axis.title.y = element_text(size = 14, face = "bold")) +
-      theme(axis.title.x = element_text(size = 14, face = "bold")) +
-      theme(legend.title = element_text(size = 14, face = "bold")) +
-      theme(legend.title = element_text(size = 14, face = "bold")) +
-      theme(legend.text = element_text(size = 12)) +
+      theme(axis.title.y = element_text(size = 16, face = "bold")) +
+      theme(axis.title.x = element_text(size = 16, face = "bold")) +
+      theme(legend.title = element_text(size = 15, face = "bold")) +
+      theme(legend.text = element_text(size = 14)) +
       theme(strip.text = element_text(size = 14, face = "bold"))
   })
+
+  outputOptions(output, "snps", suspendWhenHidden = FALSE)
   
 }
 
