@@ -4,13 +4,13 @@ library(shinythemes)
 library(reticulate)
 library(ggplot2)
 library(ggthemes)
-library(dendextend)
 library(plyr)
-library(colorspace)
 library(RColorBrewer)
 library(shinycssloaders)
-library(circlize)
-
+library(shinyWidgets)
+library(BiocManager)
+options(repos = BiocManager::repositories())
+  
 # Load testing data 
 
 loadRData <- function(fileName){
@@ -23,7 +23,6 @@ setwd("data")
 file_list <- list.files() 
 
 pre_aligned_filtered <- loadRData(grep("dec_aligned_filtered", file_list, value = TRUE))
-pre_aligned <- loadRData(grep("dec_unfiltered_aligned", file_list, value = TRUE))
 pre_meta <- loadRData(grep("covid_filtered_meta", file_list, value = TRUE))
 pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
 countries <- as.data.frame(pre_meta[,c("Accession", "Region")])
@@ -63,19 +62,19 @@ source("bin/mst_graph.R")
 # RShiny 
 
 ui <- fluidPage(theme = shinytheme("flatly"),
-  
+                
+  titlePanel(title = strong("COVID-19 GENOTYPING TOOL (ALPHA)")),
+
   sidebarLayout(
     
     sidebarPanel(
       
-      h2(strong("Covid-19 Genotyping Tool (CGT)")),
+      h4(strong("Please note that the tools and UI are under development, but analyses are functional.")), 
       
       h4(strong("Instructions")), 
       
       p(
-        "Add covid-19 sequences in fasta format, in one file.",
-        br(),
-        "Please ensure fasta sequences have headers."
+        "Add complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers."
       ),
       
       fileInput(inputId = "input_fasta", label = "Upload fasta"),
@@ -83,17 +82,21 @@ ui <- fluidPage(theme = shinytheme("flatly"),
       h4(strong("Details")),
       
       p(
+        "Input fasta sequences are aligned to pre-aligned Covid-19 sequences uploaded to", a("GISAID.", href= "https://www.gisaid.org/"), "Each fasta sequence is assigned a name", strong("(Novel, number)"), "and is presented with respect to the public sequencing data. The following visualizations are done to determine sequence variation:", .noWS = c("after-begin", "before-end")
+      ),
+      
+      p(
         strong("UMAP"), "- Uniform manifold approximation and projection",
         br(),
         strong("MST"), "- Minimum spanning tree of sequence network",
         br(),
-        strong("SNP"), "- Allele frequencies of prevalent single-nucleotide variants",
+        strong("SNP"), "- Prevalent single-nucleotide polymorphisms",
       ),
       
       p(
-        "All methods approximate genomic differences using DNA distance determined by multiple-sequence alignment and the Kimura-80 model of DNA evolution."
+        "All methods approximate genomic differences using DNA distance determined by the Kimura-80 model of DNA evolution."
       ),
-      
+        
       p(
         a("Bo Wang Lab", href="https://wanglab.ml/"),
         br(),
@@ -106,15 +109,14 @@ ui <- fluidPage(theme = shinytheme("flatly"),
   
     mainPanel(
       
-      navbarPage(title = NULL, tabPanel("UMAP", withSpinner(plotOutput("umap", height = "600px", width = "1000px"))), tabPanel("MST", withSpinner(plotOutput("mst", height = "600px", width = "1000px"))), tabPanel("SNP", withSpinner(plotOutput("snps", height = "600px", width = "1000px"))))
+      navbarPage(title = NULL, tabPanel("UMAP", withSpinner(plotOutput("umap", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))), tabPanel("MST", withSpinner(plotOutput("mst", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))), tabPanel("SNP", withSpinner(plotOutput("snps", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))))
 
-   
+    
   )
   )
                   
 )
-
-
+  
 server <- function(input, output) {
   
   align <- reactive ({
@@ -166,53 +168,52 @@ server <- function(input, output) {
     return(g)
   })
   
-  output$umap <- renderPlot ({
-    ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
-      theme_few() +
-      geom_jitter(aes(color = Region), size = 2, position = "jitter") +
-      scale_color_manual(name = "Region", values = kev_palette[1:length(unique(umap()[,4]))]) +
-      geom_point(data = umap()[grep("Novel", umap()[,4]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
-      labs(x = "UMAP 1", y = "UMAP 2") +
-      theme(axis.ticks.x = element_blank()) +
-      theme(axis.ticks.y = element_blank()) +
-      theme(axis.text.y = element_blank()) +
-      theme(axis.text.x = element_blank()) +
-      theme(axis.title.y = element_text(size = 16, face = "bold")) +
-      theme(axis.title.x = element_text(size = 16, face = "bold")) +
-      theme(legend.title = element_text(size = 15, face = "bold")) +
-      theme(legend.text = element_text(size = 14)) +
-      theme(aspect.ratio = 0.6)
-  })
+  observe ({
   
-  outputOptions(output, "umap", suspendWhenHidden = FALSE)
-
-  output$mst <- renderPlot ({
-    lay <- layout_with_graphopt(graph_m(), niter = 1000)
-    plot.igraph(graph_m(), vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-    legend("topleft", legend = levels(factor(new_countries()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
-  })
+    output$umap <- renderPlot ({
+      ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
+        theme_few() +
+        geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+        scale_fill_manual(name = "Region", values = kev_palette[1:length(unique(umap()[,4]))]) +
+        geom_point(data = umap()[grep("Novel", umap()[,4]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+        labs(x = "UMAP 1", y = "UMAP 2") +
+        theme(axis.ticks.x = element_blank()) +
+        theme(axis.ticks.y = element_blank()) +
+        theme(axis.text.y = element_blank()) +
+        theme(axis.text.x = element_blank()) +
+        theme(axis.title.y = element_text(size = 16, face = "bold")) +
+        theme(axis.title.x = element_text(size = 16, face = "bold")) +
+        theme(legend.title = element_text(size = 15, face = "bold")) +
+        theme(legend.text = element_text(size = 14)) +
+        theme(aspect.ratio = 0.6)
+    })
   
-  outputOptions(output, "mst", suspendWhenHidden = FALSE)
-  
-  output$snps <- renderPlot ({
-    ggplot(data = snps(), aes(x = Allele, y = Freq)) +
-      theme_few () +
-      geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
-      scale_fill_manual(name = "Region", values = kev_palette[1:length(unique(new_countries()[,2]))]) +
-      facet_wrap(~Position, scales = "free") +
-      theme(axis.text.y = element_text(size = 12)) +
-      theme(axis.text.x = element_text(size = 12)) +
-      theme(axis.title.y = element_text(size = 16, face = "bold")) +
-      theme(axis.title.x = element_text(size = 16, face = "bold")) +
-      theme(legend.title = element_text(size = 15, face = "bold")) +
-      theme(legend.text = element_text(size = 14)) +
-      theme(strip.text = element_text(size = 14, face = "bold"))
+    output$mst <- renderPlot ({
+      lay <- layout_with_graphopt(graph_m(), niter = 1000)
+      plot.igraph(graph_m(), vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
+      legend("topleft", legend = levels(factor(new_countries()[,2])), fill = kev_palette[1:length(unique(new_countries()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
+    })
+    
+    output$snps <- renderPlot ({
+      ggplot(data = snps(), aes(x = Allele, y = Freq)) +
+        theme_few () +
+        geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
+        scale_fill_manual(name = "Region", values = kev_palette[1:length(unique(new_countries()[,2]))]) +
+        facet_wrap(~Position, scales = "free") +
+        labs(x = "Allele", y = "Frequency") + 
+        theme(axis.text.y = element_text(size = 12)) +
+        theme(axis.text.x = element_text(size = 12)) +
+        theme(axis.title.y = element_text(size = 16, face = "bold")) +
+        theme(axis.title.x = element_text(size = 16, face = "bold")) +
+        theme(legend.title = element_text(size = 15, face = "bold")) +
+        theme(legend.text = element_text(size = 14)) +
+        theme(strip.text = element_text(size = 14, face = "bold"))
+    })
+    
   })
-
-  outputOptions(output, "snps", suspendWhenHidden = FALSE)
   
 }
-
+  
 shinyApp(ui = ui, server = server)
 
 
