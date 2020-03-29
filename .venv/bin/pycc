@@ -1,3 +1,0 @@
-#!/home/hmaan/Documents/covid_shiny/.venv/bin/python
-from numba.pycc import main
-main()

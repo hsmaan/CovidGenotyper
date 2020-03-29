@@ -1,7 +1,6 @@
 library(data.table)
 library(shiny)
 library(shinythemes)
-library(reticulate)
 library(ggplot2)
 library(ggthemes)
 library(plyr)
@@ -50,13 +49,11 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 
 # Source scripts
 
-#source_python("bin/umap_get.py")
 source("bin/align.R")
 source("bin/clustal_dist.R")
 source("bin/umap_get.R")
-source("bin/snps.R")
-source("bin/cmds.R")
 source("bin/mst_graph.R")
+source("bin/snps.R")
 
 # RShiny 
 
@@ -73,7 +70,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
       h4(strong("Instructions")), 
       
       p(
-        "Add complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers."
+        "Add complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers. Files are not stored in any way."
       ),
       
       fileInput(inputId = "input_fasta", label = "Upload fasta"),
