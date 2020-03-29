@@ -50,9 +50,10 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 
 # Source scripts
 
-source_python("bin/umap_get.py")
+#source_python("bin/umap_get.py")
 source("bin/align.R")
 source("bin/clustal_dist.R")
+source("bin/umap_get.R")
 source("bin/snps.R")
 source("bin/cmds.R")
 source("bin/mst_graph.R")
