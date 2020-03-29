@@ -8,9 +8,7 @@ library(plyr)
 library(RColorBrewer)
 library(shinycssloaders)
 library(shinyWidgets)
-library(BiocManager)
-options(repos = BiocManager::repositories())
-  
+
 # Load testing data 
 
 loadRData <- function(fileName){
@@ -29,7 +27,7 @@ countries <- as.data.frame(pre_meta[,c("Accession", "Region")])
 
 setwd("..")
 
-# Load color palette 
+# Load color palette    
 
 kev_palette <- c(
   "dodgerblue2", "#E31A1C",
