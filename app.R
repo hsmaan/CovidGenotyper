@@ -59,7 +59,7 @@ source("bin/snps.R")
 
 ui <- fluidPage(theme = shinytheme("flatly"),
                 
-  titlePanel(title = strong("COVID-19 GENOTYPING TOOL (ALPHA)")),
+  titlePanel(title = strong("COVID-19 GENOTYPING TOOL (Alpha Testing)")),
 
   sidebarLayout(
     
