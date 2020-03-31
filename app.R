@@ -56,7 +56,7 @@ source("global.R")
 ui <- fluidPage(theme = shinytheme("flatly"),
                 
   titlePanel(title = strong("COVID-19 GENOTYPING TOOL (Alpha Testing)")),
-
+      
   sidebarLayout(
     
     tabsetPanel(
@@ -185,9 +185,10 @@ server <- function(input, output) {
     }
   })
   
-  meta <- reactive ({
+  meta_reac <- reactive ({
     if (is.null(input$input_fasta)) {
-      return(meta)
+      new_meta <- meta
+      return(new_meta)
     } else {
       new_accessions <- rownames(dist_reac())[(nrow(meta)+1):nrow(dist_reac())]
       meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)))
@@ -197,7 +198,7 @@ server <- function(input, output) {
   })
   
   snps <- reactive ({
-    snp_df <- snps_get(align(), meta())
+    snp_df <- snps_get(align(), meta_reac(), input$metatype)
     return(snp_df)
   })
   
@@ -205,24 +206,33 @@ server <- function(input, output) {
     umap_res <- umap_process(dist_reac())
     acc_names = rownames(dist_reac())
     umap_df <- data.frame("Accession" = acc_names, "UMAP_1" = umap_res[,1], "UMAP_2" = umap_res[,2])
-    umap_df <- merge(umap_df, meta())
+    umap_df <- merge(umap_df, meta_reac())
     return(umap_df)
   })
   
   graph_m <- reactive ({
-    g <- mst_graph(dist_reac(), meta(), kev_palette)
-    return(g)
+    
+    if (input$metatype == 2) { 
+      g <- mst_graph(dist_reac(), meta_reac(), qual_vector, input$metatype)
+      return(g)
+    } else {
+      g <- mst_graph(dist_reac(), meta_reac(), kev_palette, input$metatype)
+      return(g)
+    }
+
   })
   
   observe ({
     
-    if (input$metaype == 1) {
+    if (input$metatype == 1) {
+      
+      pal_choice = kev_palette
       
       output$umap <- renderPlot ({
         ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
           theme_few() +
           geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-          scale_fill_manual(name = "Region", values = kev_palette[1:length(unique(umap()[,4]))]) +
+          scale_fill_manual(name = "", values = pal_choice[1:length(unique(umap()[,4]))]) +
           geom_point(data = umap()[grep("Novel", umap()[,4]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
           labs(x = "UMAP 1", y = "UMAP 2") +
           theme(axis.ticks.x = element_blank()) +
@@ -239,14 +249,14 @@ server <- function(input, output) {
       output$mst <- renderPlot ({
         lay <- layout_with_graphopt(graph_m(), niter = 1000)
         plot.igraph(graph_m(), vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-        legend("topleft", legend = levels(factor(meta()[,2])), fill = kev_palette[1:length(unique(meta()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
+        legend("topleft", legend = levels(factor(meta_reac()[,2])), fill = pal_choice[1:length(unique(meta_reac()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
       })
       
       output$snps <- renderPlot ({
         ggplot(data = snps(), aes(x = Allele, y = Freq)) +
           theme_few () +
           geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
-          scale_fill_manual(name = "Region", values = kev_palette[1:length(unique(meta()[,2]))]) +
+          scale_fill_manual(name = "Region", values = pal_choice[1:length(unique(meta_reac()[,2]))]) +
           facet_wrap(~Position, scales = "free") +
           labs(x = "Allele", y = "Frequency") + 
           theme(axis.text.y = element_text(size = 12)) +
@@ -257,6 +267,51 @@ server <- function(input, output) {
           theme(legend.text = element_text(size = 14)) +
           theme(strip.text = element_text(size = 14, face = "bold"))
       })
+      
+    } else if (input$metatype == 2) {
+      
+      pal_choice = qual_vector
+      
+      output$umap <- renderPlot ({
+        ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
+          theme_few() +
+          geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+          scale_fill_manual(name = "", values = pal_choice[1:length(unique(umap()[,5]))]) +
+          geom_point(data = umap()[grep("Novel", umap()[,5]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+          labs(x = "UMAP 1", y = "UMAP 2") +
+          theme(axis.ticks.x = element_blank()) +
+          theme(axis.ticks.y = element_blank()) +
+          theme(axis.text.y = element_blank()) +
+          theme(axis.text.x = element_blank()) +
+          theme(axis.title.y = element_text(size = 16, face = "bold")) +
+          theme(axis.title.x = element_text(size = 16, face = "bold")) +
+          theme(legend.title = element_text(size = 15, face = "bold")) +
+          theme(legend.text = element_text(size = 14)) +
+          theme(aspect.ratio = 0.6)
+      })
+      
+      output$mst <- renderPlot ({
+        lay <- layout_with_graphopt(graph_m(), niter = 1000)
+        plot.igraph(graph_m(), vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
+        legend("topleft", legend = levels(factor(meta_reac()[,3])), fill = pal_choice[1:length(unique(meta_reac()[,3]))], pt.cex = 1, cex = 1, text.font = 2)
+      })
+      
+      output$snps <- renderPlot ({
+        ggplot(data = snps(), aes(x = Allele, y = Freq)) +
+          theme_few () +
+          geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
+          scale_fill_manual(name = "", values = pal_choice[1:length(unique(meta_reac()[,2]))]) +
+          facet_wrap(~Position, scales = "free") +
+          labs(x = "Allele", y = "Frequency") + 
+          theme(axis.text.y = element_text(size = 12)) +
+          theme(axis.text.x = element_text(size = 12)) +
+          theme(axis.title.y = element_text(size = 16, face = "bold")) +
+          theme(axis.title.x = element_text(size = 16, face = "bold")) +
+          theme(legend.title = element_text(size = 15, face = "bold")) +
+          theme(legend.text = element_text(size = 14)) +
+          theme(strip.text = element_text(size = 14, face = "bold"))
+      })
+    } else if (input$metatype == 3) {
       
     }
     

@@ -27,24 +27,26 @@ dist_get <- function(align) {
   
 }
 
-mst_graph <- function(covid_dist, meta_data, vertex_cols) {
+mst_graph <- function(covid_dist, meta_data, vertex_cols, meta_num) {
   
+  meta_num <- as.numeric(meta_num)
   g <- graph.adjacency(covid_dist, mode = "undirected", weighted = TRUE, diag = FALSE)
   g_mst <- mst(g)
   acc_ordering <- match(meta_data[,1], names(V(g_mst)[[]]))
   meta_ordered <- meta_data[order(acc_ordering), ]
-  meta_colors <- (vertex_cols[1:length(unique(meta_ordered[,2]))])[factor(meta_ordered[,2])]
+  meta_colors <- (vertex_cols[1:length(unique(meta_ordered[,(meta_num+1)]))])[factor(meta_ordered[,(meta_num+1)])]
   V(g_mst)$color <- meta_colors
   return(g_mst)
   
 }
 
-snps_get <- function(alignment, metadata) {
+snps_get <- function(alignment, metadata, meta_num) {
   
+  meta_num <- as.numeric(meta_num)
   align <- alignment
   pos <- c(1059,1190, 3037, 17858, 18060, 23403, 25563, 27046)
   acc <- metadata[,1]
-  meta_var <- metadata[,2]
+  meta_var <- metadata[,(meta_num+1)]
   align_df <- as.data.frame(as.matrix(align))
   meta_order <- match(rownames(align_df), acc)
   align_df <- align_df[order(meta_order),]

@@ -33,5 +33,6 @@ orig_time <- unclass(orig_time)
 sample_time <- sample_time - orig_time
 
 meta_sub$Datetime <- sample_time
+meta_sub <- meta_sub[(meta_sub$Datetime >= 0), ]
 
 save(meta_sub, file = paste("covid_meta_", Sys.Date(), ".RData", sep = ""))
