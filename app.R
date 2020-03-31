@@ -90,8 +90,6 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     tabPanel(strong("Details"),
                  
        sidebarPanel(
-             
-          h4(strong("Details")),
                   
           p(
             "Input fasta sequences are aligned to pre-aligned Covid-19 sequences uploaded to", a("GISAID.", href= "https://www.gisaid.org/"), "Each fasta sequence is assigned a name", strong("(Novel, number)"), "and is presented with respect to the public sequencing data. The following visualizations are done to determine sequence variation:", .noWS = c("after-begin", "before-end")
@@ -109,6 +107,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
             "All methods approximate genomic differences using DNA distance determined by the Kimura-80 model of DNA evolution."
           ),
           
+          p(
+            "Further information and detailed documentation are available at", a("hsmaan/CovidGenotyper.", href="https://github.com/hsmaan/CovidGenotyper")
+          ),
           p(
             a("Bo Wang Lab", href="https://wanglab.ml/"),
             br(),
@@ -191,7 +192,7 @@ server <- function(input, output) {
       return(new_meta)
     } else {
       new_accessions <- rownames(dist_reac())[(nrow(meta)+1):nrow(dist_reac())]
-      meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)))
+      meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)), "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)), "Datetime" = paste("Novel", seq(1, length(new_accessions), 1)))
       new_meta <- rbind(meta, meta_new)
       return(new_meta)
     }
@@ -293,14 +294,14 @@ server <- function(input, output) {
       output$mst <- renderPlot ({
         lay <- layout_with_graphopt(graph_m(), niter = 1000)
         plot.igraph(graph_m(), vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-        legend("topleft", legend = levels(factor(meta_reac()[,3])), fill = pal_choice[1:length(unique(meta_reac()[,3]))], pt.cex = 1, cex = 1, text.font = 2)
+        legend("topleft", legend = levels(factor(meta_reac()[,3])), fill = pal_choice[1:length(unique(meta_reac()[,3]))], pt.cex = 1, cex = 0.75, text.font = 1)
       })
       
       output$snps <- renderPlot ({
         ggplot(data = snps(), aes(x = Allele, y = Freq)) +
           theme_few () +
-          geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
-          scale_fill_manual(name = "", values = pal_choice[1:length(unique(meta_reac()[,2]))]) +
+          geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta)) +
+          scale_fill_manual(name = "", values = pal_choice[1:length(unique(meta_reac()[,3]))]) +
           facet_wrap(~Position, scales = "free") +
           labs(x = "Allele", y = "Frequency") + 
           theme(axis.text.y = element_text(size = 12)) +
@@ -313,6 +314,25 @@ server <- function(input, output) {
       })
     } else if (input$metatype == 3) {
       
+      pal_choice = kev_palette
+      
+      output$umap <- renderPlot ({
+        ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
+          theme_few() +
+          geom_jitter(aes(fill = Datetime), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+          scale_fill_gradientn(name = "", colours = rainbow(5)) +
+          geom_point(data = umap()[grep("Novel", umap()[,6]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+          labs(x = "UMAP 1", y = "UMAP 2") +
+          theme(axis.ticks.x = element_blank()) +
+          theme(axis.ticks.y = element_blank()) +
+          theme(axis.text.y = element_blank()) +
+          theme(axis.text.x = element_blank()) +
+          theme(axis.title.y = element_text(size = 16, face = "bold")) +
+          theme(axis.title.x = element_text(size = 16, face = "bold")) +
+          theme(legend.title = element_text(size = 15, face = "bold")) +
+          theme(legend.text = element_text(size = 14)) +
+          theme(aspect.ratio = 0.6)
+      })
     }
     
   })
