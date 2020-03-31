@@ -1,11 +1,11 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-.tsv
-.csv
-.fa
-.fasta
-.aln
-.pdf
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+*.tsv
+*.csv
+*.fa
+*.fasta
+*.aln
+*.pdf
 
