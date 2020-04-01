@@ -7,6 +7,7 @@ library(plyr)
 library(RColorBrewer)
 library(shinycssloaders)
 library(shinyWidgets)
+library(Cairo)
 
 # Load testing data 
 
@@ -73,8 +74,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           h4(strong("Instructions")), 
           
           p(
-            "Add complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers. Files are not stored in any way."
-          ),
+            "Add complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers.", strong("Allow up to 5 minutes for processing.")
+            ),
           
           fileInput(inputId = "input_fasta", label = h4(strong("Upload fasta"))),
           
@@ -113,6 +114,11 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           p(
             "Further information and detailed documentation are available at", a("hsmaan/CovidGenotyper.", href="https://github.com/hsmaan/CovidGenotyper")
           ),
+          
+          p(
+            strong("Author:"), "Hassaan Maan",
+            a("(Github)", href = "https://github.com/hsmaan")
+          ),
           p(
             a("Bo Wang Lab", href="https://wanglab.ml/"),
             br(),
@@ -127,23 +133,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
          
        sidebarPanel(
            
-           h4(strong("Details")),
-           
-           p(
-             "Input fasta sequences are aligned to pre-aligned Covid-19 sequences uploaded to", a("GISAID.", href= "https://www.gisaid.org/"), "Each fasta sequence is assigned a name", strong("(Novel, number)"), "and is presented with respect to the public sequencing data. The following visualizations are done to determine sequence variation:", .noWS = c("after-begin", "before-end")
-           ),
-           
-           p(
-             strong("UMAP"), "- Uniform manifold approximation and projection",
-             br(),
-             strong("MST"), "- Minimum spanning tree of sequence network",
-             br(),
-             strong("SNP"), "- Prevalent single-nucleotide polymorphisms",
-           ),
-           
-           p(
-             "All methods approximate genomic differences using DNA distance determined by the Kimura-80 model of DNA evolution."
-           ),
+           h2(strong("To be completed")),
            
            p(
              a("Bo Wang Lab", href="https://wanglab.ml/"),

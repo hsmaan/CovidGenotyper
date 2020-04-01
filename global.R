@@ -161,7 +161,7 @@ umap_plotter <- function(umap_df) {
   p3 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
     geom_jitter(aes(fill = Datetime), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-    scale_fill_gradientn(name = "", colours = c("dodgerblue2", "white", "firebrick1"), labels = c("Early", "Mid" , "Late")) +
+    scale_fill_gradientn(name = "", colours = c("dodgerblue2", "white", "firebrick1"), breaks = c(min(umap_df$Datetime), median(umap_df$Datetime), max(umap_df$Datetime)), labels = c("Early", "Mid" , "Late")) +
     geom_point(data = umap_df[grep("Novel", umap_df$Geo_Location), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +
@@ -194,7 +194,7 @@ mst_plotter <- function(mst_list, meta_df) {
   plot.new()
 
   plot.igraph(graph_m2, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  legend("topleft", legend = levels(factor(meta_df$Geo_Location)), fill = qual_vector[1:length(unique(meta_df$Geo_Location))], pt.cex = 1, cex = 1, text.font = 1, inset = c(0, -0.2))
+  legend("topleft", legend = levels(factor(meta_df$Geo_Location)), fill = qual_vector[1:length(unique(meta_df$Geo_Location))], pt.cex = 1, cex = 0.6, text.font = 1, inset = c(0, -0.05))
   
   p2 <- recordPlot()
   
