@@ -32,7 +32,10 @@ orig_time <- as.Date("2019-12-01", format = "%Y-%m-%d")
 orig_time <- unclass(orig_time)
 sample_time <- sample_time - orig_time
 
+current_orig <- (unclass(Sys.Date())) - (unclass(as.Date("2019-12-01", format = "%Y-%m-%d")))
+
 meta_sub$Datetime <- sample_time
 meta_sub <- meta_sub[(meta_sub$Datetime >= 0), ]
+meta_sub <- meta_sub[(meta_sub$Datetime <= current_orig), ]
 
 save(meta_sub, file = paste("covid_meta_", Sys.Date(), ".RData", sep = ""))

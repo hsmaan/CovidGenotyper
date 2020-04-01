@@ -23,6 +23,9 @@ pre_aligned_filtered <- loadRData(grep("dec_aligned_filtered", file_list, value 
 pre_meta <- loadRData(grep("covid_filtered_meta", file_list, value = TRUE))
 pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
 meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime")])
+pre_umap <- loadRData(grep("umap_preloaded", file_list, value = TRUE))
+pre_mst <- loadRData(grep("mst_preloaded", file_list, value = TRUE))
+pre_snp <- loadRData(grep("snps_preloaded", file_list, value = TRUE))
 
 setwd("..")
 
@@ -192,148 +195,70 @@ server <- function(input, output) {
       return(new_meta)
     } else {
       new_accessions <- rownames(dist_reac())[(nrow(meta)+1):nrow(dist_reac())]
-      meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)), "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)), "Datetime" = paste("Novel", seq(1, length(new_accessions), 1)))
+      meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)), "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)), "Datetime" = rep((unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))), length(new_accessions)))
       new_meta <- rbind(meta, meta_new)
       return(new_meta)
     }
   })
   
-  snps <- reactive ({
-    snp_df <- snps_get(align(), meta_reac(), input$metatype)
-    return(snp_df)
-  })
-  
   umap <- reactive ({
-    umap_res <- umap_process(dist_reac())
-    acc_names = rownames(dist_reac())
-    umap_df <- data.frame("Accession" = acc_names, "UMAP_1" = umap_res[,1], "UMAP_2" = umap_res[,2])
-    umap_df <- merge(umap_df, meta_reac())
-    return(umap_df)
+    if (is.null(input$input_fasta)) {
+      umap_df <- pre_umap
+      return(umap_df)
+    } else {
+      umap_df <- umap_process(dist_reac(), meta_reac())
+      return(umap_df)
+    }
   })
   
   graph_m <- reactive ({
-    
-    if (input$metatype == 2) { 
-      g <- mst_graph(dist_reac(), meta_reac(), qual_vector, input$metatype)
+    if (is.null(input$input_fasta)) { 
+      g <- pre_mst
       return(g)
     } else {
-      g <- mst_graph(dist_reac(), meta_reac(), kev_palette, input$metatype)
+      g <- mst_graph(dist_reac(), meta_reac())
       return(g)
     }
-
+  })
+  
+  snps <- reactive ({
+    if (is.null(input$input_fasta)) { 
+      snp_dfs <- pre_snp
+      return(snp_dfs)
+    } else {
+      snp_dfs <- snps_get(align(), meta_reac())
+      return(snp_dfs)
+    }
+  })
+  
+  umap_plots <- reactive ({
+    plots <- umap_plotter(umap())
+    return(plots)
+  })
+  
+  mst_plots <- reactive ({
+    plots <- mst_plotter(graph_m(), meta_reac())
+    return(plots)
+  })
+  
+  snp_plots <- reactive ({
+    plots <- snp_plotter(snps(), meta_reac())
+    return(plots)
   })
   
   observe ({
     
-    if (input$metatype == 1) {
-      
-      pal_choice = kev_palette
-      
-      output$umap <- renderPlot ({
-        ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
-          theme_few() +
-          geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-          scale_fill_manual(name = "", values = pal_choice[1:length(unique(umap()[,4]))]) +
-          geom_point(data = umap()[grep("Novel", umap()[,4]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
-          labs(x = "UMAP 1", y = "UMAP 2") +
-          theme(axis.ticks.x = element_blank()) +
-          theme(axis.ticks.y = element_blank()) +
-          theme(axis.text.y = element_blank()) +
-          theme(axis.text.x = element_blank()) +
-          theme(axis.title.y = element_text(size = 16, face = "bold")) +
-          theme(axis.title.x = element_text(size = 16, face = "bold")) +
-          theme(legend.title = element_text(size = 15, face = "bold")) +
-          theme(legend.text = element_text(size = 14)) +
-          theme(aspect.ratio = 0.6)
-      })
+    output$umap <- renderPlot ({
+      umap_plots()[as.numeric(input$metatype)]
+    })
+  
+    output$mst <- renderPlot ({
+      mst_plots()[as.numeric(input$metatype)]
+    })
     
-      output$mst <- renderPlot ({
-        lay <- layout_with_graphopt(graph_m(), niter = 1000)
-        plot.igraph(graph_m(), vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-        legend("topleft", legend = levels(factor(meta_reac()[,2])), fill = pal_choice[1:length(unique(meta_reac()[,2]))], pt.cex = 1, cex = 1, text.font = 2)
-      })
-      
-      output$snps <- renderPlot ({
-        ggplot(data = snps(), aes(x = Allele, y = Freq)) +
-          theme_few () +
-          geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
-          scale_fill_manual(name = "Region", values = pal_choice[1:length(unique(meta_reac()[,2]))]) +
-          facet_wrap(~Position, scales = "free") +
-          labs(x = "Allele", y = "Frequency") + 
-          theme(axis.text.y = element_text(size = 12)) +
-          theme(axis.text.x = element_text(size = 12)) +
-          theme(axis.title.y = element_text(size = 16, face = "bold")) +
-          theme(axis.title.x = element_text(size = 16, face = "bold")) +
-          theme(legend.title = element_text(size = 15, face = "bold")) +
-          theme(legend.text = element_text(size = 14)) +
-          theme(strip.text = element_text(size = 14, face = "bold"))
-      })
-      
-    } else if (input$metatype == 2) {
-      
-      pal_choice = qual_vector
-      
-      output$umap <- renderPlot ({
-        ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
-          theme_few() +
-          geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-          scale_fill_manual(name = "", values = pal_choice[1:length(unique(umap()[,5]))]) +
-          geom_point(data = umap()[grep("Novel", umap()[,5]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
-          labs(x = "UMAP 1", y = "UMAP 2") +
-          theme(axis.ticks.x = element_blank()) +
-          theme(axis.ticks.y = element_blank()) +
-          theme(axis.text.y = element_blank()) +
-          theme(axis.text.x = element_blank()) +
-          theme(axis.title.y = element_text(size = 16, face = "bold")) +
-          theme(axis.title.x = element_text(size = 16, face = "bold")) +
-          theme(legend.title = element_text(size = 15, face = "bold")) +
-          theme(legend.text = element_text(size = 14)) +
-          theme(aspect.ratio = 0.6)
-      })
-      
-      output$mst <- renderPlot ({
-        lay <- layout_with_graphopt(graph_m(), niter = 1000)
-        plot.igraph(graph_m(), vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-        legend("topleft", legend = levels(factor(meta_reac()[,3])), fill = pal_choice[1:length(unique(meta_reac()[,3]))], pt.cex = 1, cex = 0.75, text.font = 1)
-      })
-      
-      output$snps <- renderPlot ({
-        ggplot(data = snps(), aes(x = Allele, y = Freq)) +
-          theme_few () +
-          geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta)) +
-          scale_fill_manual(name = "", values = pal_choice[1:length(unique(meta_reac()[,3]))]) +
-          facet_wrap(~Position, scales = "free") +
-          labs(x = "Allele", y = "Frequency") + 
-          theme(axis.text.y = element_text(size = 12)) +
-          theme(axis.text.x = element_text(size = 12)) +
-          theme(axis.title.y = element_text(size = 16, face = "bold")) +
-          theme(axis.title.x = element_text(size = 16, face = "bold")) +
-          theme(legend.title = element_text(size = 15, face = "bold")) +
-          theme(legend.text = element_text(size = 14)) +
-          theme(strip.text = element_text(size = 14, face = "bold"))
-      })
-    } else if (input$metatype == 3) {
-      
-      pal_choice = kev_palette
-      
-      output$umap <- renderPlot ({
-        ggplot(data = umap(), aes(x = UMAP_1, y = UMAP_2)) +
-          theme_few() +
-          geom_jitter(aes(fill = Datetime), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-          scale_fill_gradientn(name = "", colours = rainbow(5)) +
-          geom_point(data = umap()[grep("Novel", umap()[,6]), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
-          labs(x = "UMAP 1", y = "UMAP 2") +
-          theme(axis.ticks.x = element_blank()) +
-          theme(axis.ticks.y = element_blank()) +
-          theme(axis.text.y = element_blank()) +
-          theme(axis.text.x = element_blank()) +
-          theme(axis.title.y = element_text(size = 16, face = "bold")) +
-          theme(axis.title.x = element_text(size = 16, face = "bold")) +
-          theme(legend.title = element_text(size = 15, face = "bold")) +
-          theme(legend.text = element_text(size = 14)) +
-          theme(aspect.ratio = 0.6)
-      })
-    }
+    output$snps <- renderPlot ({
+      snp_plots()[as.numeric(input$metatype)]
+    })
     
   })
   
