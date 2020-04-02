@@ -8,4 +8,9 @@
 *.fasta
 *.aln
 *.pdf
+*.GFF3
+*.ld
+*.vcf
+*.log
+*.frq
 

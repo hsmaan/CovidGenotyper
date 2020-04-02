@@ -46,10 +46,30 @@ var_freq_filtered <- data.frame("Pos" = var_freq_pos, "A1" = var_freq_mj_a1, "AF
 
 var_ranges <- GRanges(seqnames = rep(1, length(var_freq_filtered$Pos)), ranges = IRanges(start = var_freq_filtered$Pos, end = var_freq_filtered$Pos))
 
-var_freq_sub <- var_freq_filtered[which((var_freq_filtered$AF2 >= 0.005) & (var_freq_filtered$AF1 >= 0.005)), ]
+# Overlap var freq ranges with annotations and remerge
+
+var_overlap <- as.data.frame(mergeByOverlaps(var_ranges, gff_ranges))
+
+var_overlap_sub <- var_overlap[, c("var_ranges.start", "gene")]
+colnames(var_overlap_sub) <- c("Pos", "Gene")
+
+var_freq_overlap <- merge(var_freq_filtered, var_overlap_sub)
+
+# Subset for structural proteins
+
+var_freq_structural <- var_freq_overlap[var_freq_overlap$Gene %in% c("E", "M", "N", "S"),]
+
+# Subset for top maf
+
+var_freq_sub <- var_freq_structural[which((var_freq_structural$AF2 >= 0.005) & (var_freq_structural$AF1 >= 0.005)), ]
+
+# Select top 9
 
 var_freq_sub_9 <- (var_freq_sub[order(var_freq_sub$AF2, decreasing = TRUE),])[1:9,]
 
+# Output data
+
+save(var_freq_sub_9, file = paste("var_freq_sub_9_", Sys.Date(), ".RData")) 
 
 
   
