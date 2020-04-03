@@ -7,6 +7,8 @@ library(igraph)
 library(reshape2)
 library(dplyr)
 library(uwot)
+library(ggplot2)
+library(ggthemes)
 
 # Load color palettes    
 
@@ -89,10 +91,10 @@ mst_graph <- function(covid_dist, meta_data) {
   
 }
 
-snps_get <- function(alignment, metadata) {
+snps_get <- function(alignment, metadata, positions) {
   
   align <- alignment
-  pos <- c(1059,1190, 3037, 17858, 18060, 23403, 25563, 27046)
+  pos <- paste(positions$Pos, positions$Gene, sep = "_")
   acc <- metadata[,1]
   meta_vars <- metadata[,-1]
   align_df <- as.data.frame(as.matrix(align))
@@ -109,11 +111,14 @@ snps_get <- function(alignment, metadata) {
   }
   
   table_get <- function(df, position, meta_num) {
-    align_pos <- df[,c(position, (ncol(df) - as.numeric(meta_num) + 1))] # Backward ordering
+    pos_full <- position
+    pos_name <- str_split_fixed(position, "_", 2)[,2][1]
+    pos_num <- as.numeric(str_split_fixed(position, "_", 2)[,1][1])
+    align_pos <- df[,c(pos_num, (ncol(df) - as.numeric(meta_num) + 1))] # Backward ordering
     colnames(align_pos) <- c("position", "meta")
     align_grouped <- group_by(.data = align_pos, meta) 
     align_tables <- as.data.frame(do(.data = align_grouped, data.frame(val = freq_pct(.[,1]))))
-    align_final <- data.frame("Position" = rep(position, length(align_tables[,1])), "Meta" = align_tables[,1], "Allele" = align_tables[,2], "Freq" = align_tables[,3])
+    align_final <- data.frame("Position" = rep(pos_full, length(align_tables[,1])), "Meta" = align_tables[,1], "Allele" = align_tables[,2], "Freq" = align_tables[,3])
     return(align_final)
   }
   

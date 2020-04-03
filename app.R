@@ -27,6 +27,7 @@ meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Dateti
 pre_umap <- loadRData(grep("umap_preloaded", file_list, value = TRUE))
 pre_mst <- loadRData(grep("mst_preloaded", file_list, value = TRUE))
 pre_snp <- loadRData(grep("snps_preloaded", file_list, value = TRUE))
+vars_freq <- loadRData(grep("var_freq_sub*", file_list, value = TRUE))
 
 setwd("..")
 
@@ -216,7 +217,7 @@ server <- function(input, output) {
       snp_dfs <- pre_snp
       return(snp_dfs)
     } else {
-      snp_dfs <- snps_get(align(), meta_reac())
+      snp_dfs <- snps_get(align(), meta_reac(), vars_freq)
       return(snp_dfs)
     }
   })
