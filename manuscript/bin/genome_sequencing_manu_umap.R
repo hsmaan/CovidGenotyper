@@ -71,6 +71,8 @@ iran_align <- align_get(iran_seq_concat, pre_aligned)
 
 names(iran_align)[1901] <- "Novel_Iran1_LN"
 
+writeXStringSet(iran_align, file = "manuscript/data/iran_align_full.fasta")
+
 # Trim off ends and get seq distances
 
 dist_get <- function(align) { # another tweak of an app function 
@@ -158,7 +160,6 @@ iran_plots <- umap_plotter(iran_umap)
 
 iran_plots[1]
 
-
 # Sequence falls within a smaller cluster - get umap coords 
 
 ggplot(data = iran_umap, aes(x = UMAP_1, y = UMAP_2)) +
@@ -215,3 +216,92 @@ ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
 
 ggsave("manuscript/data/figures/Iran1_LN_UMAP_Country_Zoom.pdf", device = cairo_pdf, width = 12, height = 6)
 
+# Plots no circle 
+
+ggplot(data = iran_umap, aes(x = UMAP_1, y = UMAP_2)) +
+  theme_few() +
+  geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+  scale_fill_manual(name = "", values = kev_palette[1:length(unique(iran_umap$Region))]) +
+  labs(x = "UMAP 1", y = "UMAP 2") +
+  theme(axis.title.y = element_text(size = 16, face = "bold")) +
+  theme(axis.title.x = element_text(size = 16, face = "bold")) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.6)
+
+ggsave("manuscript/data/figures/Iran1_LN_No_Circle_Raw_UMAP.pdf", device = cairo_pdf, width = 12, height = 6)
+
+ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
+  theme_few() +
+  geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+  scale_fill_manual(name = "", values = kev_palette[1:length(unique(iran_umap$Region))], drop = FALSE) +
+  labs(x = "UMAP 1", y = "UMAP 2") +
+  theme(axis.title.y = element_text(size = 16, face = "bold")) +
+  theme(axis.title.x = element_text(size = 16, face = "bold")) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.6)
+
+ggsave("manuscript/data/figures/Iran1_LN_No_Circle_UMAP_Reg_Zoom.pdf", device = cairo_pdf, width = 12, height = 6)
+
+ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
+  theme_few() +
+  geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+  scale_fill_manual(name = "", values = qual_vector[1:length(unique(iran_umap_sub$Geo_Location))]) +
+  labs(x = "UMAP 1", y = "UMAP 2") +
+  theme(axis.title.y = element_text(size = 16, face = "bold")) +
+  theme(axis.title.x = element_text(size = 16, face = "bold")) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.6)
+
+ggsave("manuscript/data/figures/Iran1_LN_No_Circle_UMAP_Country_Zoom.pdf", device = cairo_pdf, width = 12, height = 6)
+
+# Output dataframe and coordinates for iran cluster and umap full
+
+fwrite(as.data.table(iran_umap), file = "manuscript/data/iran_umap_full.csv", sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+fwrite(as.data.table(iran_umap_sub), file = "manuscript/data/iran_umap_sub.csv", sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+# Get cluster for iran isolate and output 
+
+iran_umap_cluster <- iran_umap_sub[(iran_umap_sub$UMAP_1) > -87 & (iran_umap_sub$UMAP_1 < -80) & (iran_umap_sub$UMAP_2 > -20) & (iran_umap_sub$UMAP_2 < -12), ]
+
+ggplot(data = iran_umap_cluster, aes(x = UMAP_1, y = UMAP_2)) +
+  theme_few() +
+  geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+  scale_fill_manual(name = "", values = kev_palette[1:length(unique(iran_umap$Region))]) +
+  labs(x = "UMAP 1", y = "UMAP 2") +
+  coord_cartesian(xlim = c(-100, -70), ylim = c(-30, 0)) +
+  theme(axis.title.y = element_text(size = 16, face = "bold")) +
+  theme(axis.title.x = element_text(size = 16, face = "bold")) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.6)
+
+fwrite(as.data.table(iran_umap_cluster), file = "manuscript/data/iran_umap_cluster.csv", sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
+
+# Different palette for iran sub 
+
+ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
+  theme_few() +
+  geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+  scale_fill_manual(name = "", values = kev_palette[1:length(unique(iran_umap_sub$Geo_Location))]) +
+  labs(x = "UMAP 1", y = "UMAP 2") +
+  theme(axis.title.y = element_text(size = 16, face = "bold")) +
+  theme(axis.title.x = element_text(size = 16, face = "bold")) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.text = element_text(size = 14)) +
+  theme(aspect.ratio = 0.6)
+
+ggsave("manuscript/data/figures/Iran1_LN_No_Circle_KevPalette_UMAP_Country_Zoom.pdf", device = cairo_pdf, width = 12, height = 6)

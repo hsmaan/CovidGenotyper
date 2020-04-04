@@ -8,6 +8,8 @@
 *.fasta
 *.aln
 *.pdf
+*.png
+*.svg
 *.GFF3
 *.ld
 *.vcf

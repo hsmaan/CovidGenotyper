@@ -60,7 +60,7 @@ source("global.R")
 
 ui <- fluidPage(theme = shinytheme("flatly"),
                 
-  titlePanel(title = strong("COVID-19 GENOTYPING TOOL (Alpha Testing)")),
+  titlePanel(title = strong("COVID-19 GENOTYPING TOOL (Beta Testing)")),
       
   sidebarLayout(
     
@@ -70,7 +70,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
       
         sidebarPanel(
         
-          h4(strong(strong("Please note that the tools and UI are under development, but analyses are functional."))), 
+          h4(strong(strong("Please note that tha application is under continuous development, but analyses are functional."))), 
           
           h4(strong("Instructions")), 
           
