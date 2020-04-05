@@ -9,8 +9,8 @@ library(shinycssloaders)
 library(shinyWidgets)
 library(Cairo)
 library(plotly)
-library(GGally)
 library(intergraph)
+library(ggnetwork)
 
 # Load testing data 
 
@@ -63,7 +63,7 @@ source("global.R")
 
 ui <- fluidPage(theme = shinytheme("flatly"),
                 
-  titlePanel(title = strong("COVID-19 GENOTYPING TOOL (Beta Testing)")),
+  titlePanel(title = strong("COVID-19 GENOTYPING TOOL (Alpha Testing)")),
       
   sidebarLayout(fluid = TRUE,
     
@@ -78,7 +78,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           h4(strong("Instructions")), 
           
           p(
-            "Add complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers.", strong("Allow up to 5 minutes for processing.")
+            "Add complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers.", strong("Allow up to 5 minutes for processing."), "Use the plotly interface to navigate visualizations. Plots can be saved as a png using plotly, but for best quality we encourage users to save the webpage as a pdf and crop accordingly. Metadata can be toggled from below."
             ),
           
           fileInput(inputId = "input_fasta", label = h4(strong("Upload fasta"))),
@@ -108,11 +108,23 @@ ui <- fluidPage(theme = shinytheme("flatly"),
             br(),
             strong("MST"), "- Minimum spanning tree of sequence network",
             br(),
-            strong("SNP"), "- Prevalent single-nucleotide polymorphisms",
+            strong("SNP"), "- Prevalent non-synonymous coding single-nucleotide polymorphisms",
           ),
           
           p(
-            "All methods approximate genomic differences using DNA distance determined by the Kimura-80 model of DNA evolution."
+            "All methods approximate genomic differences using DNA distance determined by the Kimura-80 model of DNA evolution.",
+          ),
+          
+          p(
+            "Details on metadata:"
+          ),
+          
+          p(
+            strong("Region"), "- Major geographic region where sample was processed",
+            br(),
+            strong("Country"), "- Country where sample was processed",
+            br(),
+            strong("Collection date"), "- Sample collection date in terms of days since first case (Dec 1, 2019)",
           ),
           
           p(
@@ -137,8 +149,35 @@ ui <- fluidPage(theme = shinytheme("flatly"),
          
        sidebarPanel(
            
-           h2(strong("To be completed")),
+           h4(
+             strong("GISAID data:"),
+           ),
            
+           p(
+             "COVID-19 viral genome sequences from GISAID are downloaded daily and processed using the CGT computational pipeline. No sequence information is published on the website, as per the", 
+             a("GISAID data usage policy.", href = "https://www.gisaid.org/registration/terms-of-use"),
+             "We thank all of the GISAID contributers for sharing their data. Full acknowledgements of COVID-19 sequence resources are available",
+             a("here.", href = "404")
+           ),
+           
+           h4(
+             strong("Nextstrain metadata:")
+           ),
+           
+           p(
+             "Metadata for GISAID sequences from",
+             a("Nextstrain's ncov repository", href = "https://github.com/nextstrain/ncov/tree/master/data"),
+             "is utilized in conjunction with the up-to-date GISAID data. All credit goes to the Nextstrain team for curating this data."
+           ),
+           
+           h4(
+             strong("User privacy:")
+           ),
+           
+           p(
+             "CGT does not perform any server-side storage of user uploaded sequence data. Visualizations of user analyzed data are downloadable as png images. CGT simply processes user sequence data to create the visualizations using the R-Shiny reactive framework."
+           ),
+
            p(
              a("Bo Wang Lab", href="https://wanglab.ml/"),
              br(),
@@ -243,15 +282,18 @@ server <- function(input, output) {
   observe ({
     
     output$umap <- renderPlotly ({
-      ggplotly(umap_plots()[[as.numeric(input$metatype)]])
+      ggplotly(umap_plots()[[as.numeric(input$metatype)]]) %>% 
+        layout(legend = list(font = list(size = 15)))
     })
   
     output$mst <- renderPlotly ({
-      ggplotly(mst_plots()[[as.numeric(input$metatype)]])
+      ggplotly(mst_plots()[[as.numeric(input$metatype)]]) %>%
+        layout(legend = list(font = list(size = 15)))
     })
     
     output$snps <- renderPlotly ({
-      ggplotly(snp_plots()[[as.numeric(input$metatype)]])
+      ggplotly(snp_plots()[[as.numeric(input$metatype)]]) %>%
+        layout(legend = list(font = list(size = 15)))
     })
     
   })

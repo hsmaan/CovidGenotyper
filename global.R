@@ -9,7 +9,7 @@ library(dplyr)
 library(uwot)
 library(ggplot2)
 library(ggthemes)
-library(ggplotly)
+library(plotly)
 library(ggnetwork)
 
 # Load color palettes    
@@ -63,6 +63,7 @@ umap_process <- function(covid_dist, meta_df) {
   covid_umap_df <- as.data.frame(covid_umap)
   umap_df_final <- data.frame("Accession" = acc_names, "UMAP_1" = covid_umap_df[,1], "UMAP_2" = covid_umap_df[,2])
   umap_df_final <- merge(umap_df_final, meta_df)
+  colnames(umap_df_final) <- c("Accession", "UMAP_1", "UMAP_2", "Region", "Country", "Date")
   return(umap_df_final)
   
 }
@@ -87,9 +88,9 @@ mst_graph <- function(covid_dist, meta_data) {
   V(g_mst_2)$color <- meta_colors_2
   V(g_mst_3)$color <- meta_colors_3
   
-  V(g_mst_1)$meta <- meta_ordered[,(ncol(meta_ordered)-2)]
-  V(g_mst_2)$meta <- meta_ordered[,(ncol(meta_ordered)-1)]
-  V(g_mst_3)$meta <- meta_ordered[,(ncol(meta_ordered))]
+  V(g_mst_1)$Region <- meta_ordered[,(ncol(meta_ordered)-2)]
+  V(g_mst_2)$Country <- meta_ordered[,(ncol(meta_ordered)-1)]
+  V(g_mst_3)$Date <- meta_ordered[,(ncol(meta_ordered))]
   
   lay <- layout_with_graphopt(g_mst_1, niter = 1000)
   
@@ -142,7 +143,6 @@ umap_plotter <- function(umap_df) {
     theme_few() +
     geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
     scale_fill_manual(name = "", values = kev_palette[1:length(unique(umap_df$Region))]) +
-    geom_point(data = umap_df[grep("Novel", umap_df$Region), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +
     theme(axis.ticks.y = element_blank()) +
@@ -155,9 +155,8 @@ umap_plotter <- function(umap_df) {
   
   p2 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
-    geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-    scale_fill_manual(name = "", values = qual_vector[1:length(unique(umap_df$Geo_Location))]) +
-    geom_point(data = umap_df[grep("Novel", umap_df$Geo_Location), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+    geom_jitter(aes(fill = Country), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(umap_df$Country))]) +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +
     theme(axis.ticks.y = element_blank()) +
@@ -170,9 +169,8 @@ umap_plotter <- function(umap_df) {
   
   p3 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
-    geom_jitter(aes(fill = Datetime), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-    scale_fill_gradientn(name = "", colours = c("dodgerblue2", "white", "firebrick1"), breaks = c(min(umap_df$Datetime), median(umap_df$Datetime), max(umap_df$Datetime)), labels = c("Early", "Mid" , "Late")) +
-    geom_point(data = umap_df[grep("Novel", umap_df$Geo_Location), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+    geom_jitter(aes(color = Date), size = 3, position = "jitter", alpha = 0.8) +
+    scale_color_gradient(name = "Days from \nfirst case", low = "#b92b27", high = "#1565C0") +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +
     theme(axis.ticks.y = element_blank()) +
@@ -195,30 +193,56 @@ mst_plotter <- function(mst_list, meta_df) {
   graph_m3 <- mst_list[[3]]
   lay <- mst_list[[4]]
   
-  
-  # plot.igraph(graph_m1, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  # legend("topleft", legend = levels(factor(meta_df$Region)), fill = kev_palette[1:length(unique(meta_df$Region))], pt.cex = 1, cex = 1, text.font = 2)
-  
-  ggnet1 <- ggnetwork(graph_m1, )
-  p1 <- ggnet2(graph_m1, node.size = 2, color = V(graph_m1)$color, color.legend = V(graph_m1)$meta) 
-
-  # plot.igraph(graph_m2, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  # legend("topleft", legend = levels(factor(meta_df$Geo_Location)), fill = qual_vector[1:length(unique(meta_df$Geo_Location))], pt.cex = 1, cex = 0.6, text.font = 1, inset = c(0, -0.05))
-  
-  p2 <- ggnet2(graph_m2, node.size = 2) +
-    geom_point(aes(fill = V(graph_m2)$meta)) +
-    scale_fill_manual(name = "Country", labels = unique(V(graph_m2)$meta), values = qual_vector[1:length(unique(V(graph_m2)$meta))]) +
+  ggnet_1 <- ggnetwork(graph_m1, layout = lay)
+  p1 <- ggplot(ggnet_1, aes(x = x, y = y, xend = xend, yend = yend)) +
+    theme_few() +
+    geom_edges(color = "gray") +
+    geom_nodes(aes(fill = Region), size = 3) +
+    scale_fill_manual(name = "", values = kev_palette[1:length(unique(meta_df$Region))]) +
+    theme(axis.title.x = element_blank()) +
+    theme(axis.title.y = element_blank()) +
+    theme(axis.text.x = element_blank()) +
+    theme(axis.text.y = element_blank()) +
     theme(axis.ticks.x = element_blank()) +
     theme(axis.ticks.y = element_blank()) +
+    theme(axis.line.x = element_blank()) +
+    theme(axis.line.y = element_blank()) +
+    theme(legend.title = element_text(size = 15, face = "bold")) +
+    theme(legend.text = element_text(size = 14)) 
+  
+  ggnet_2 <- ggnetwork(graph_m2, layout = lay)
+  p2 <- ggplot(ggnet_2, aes(x = x, y = y, xend = xend, yend = yend)) +
+    theme_few() +
+    geom_edges(color = "gray") +
+    geom_nodes(aes(fill = Country), size = 3) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(meta_df$Geo_Location))]) +
+    theme(axis.title.x = element_blank()) +
+    theme(axis.title.y = element_blank()) +
+    theme(axis.text.x = element_blank()) +
     theme(axis.text.y = element_blank()) +
-    theme(axis.text.x = element_blank())
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.ticks.y = element_blank()) +
+    theme(axis.line.x = element_blank()) +
+    theme(axis.line.y = element_blank()) +
+    theme(legend.title = element_text(size = 15, face = "bold")) +
+    theme(legend.text = element_text(size = 14)) 
   
-  plot.new()
-  
-  plot.igraph(graph_m3, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  legend("topleft", legend = c("Early", "Mid", "Late"), pt.bg = c("dodgerblue2", "white", "firebrick1"), pt.cex = 1, cex = 1, text.font = 1, pch = 21)
-  
-  p3 <- recordPlot()
+  ggnet_3 <- ggnetwork(graph_m3, layout = lay)
+  p3 <- ggplot(ggnet_3, aes(x = x, y = y, xend = xend, yend = yend)) +
+    theme_few() +
+    geom_edges(color = "gray") +
+    geom_nodes(aes(color = Date), size = 3) +
+    scale_color_continuous(name = "Days from \nfirst case", low = "#b92b27", high = "#1565C0") + 
+    theme(axis.title.x = element_blank()) +
+    theme(axis.title.y = element_blank()) +
+    theme(axis.text.x = element_blank()) +
+    theme(axis.text.y = element_blank()) +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.ticks.y = element_blank()) +
+    theme(axis.line.x = element_blank()) +
+    theme(axis.line.y = element_blank()) +
+    theme(legend.title = element_text(size = 15, face = "bold")) +
+    theme(legend.text = element_text(size = 14)) 
   
   plot_list <- list(p1, p2, p3)
   return(plot_list)
@@ -228,14 +252,19 @@ mst_plotter <- function(mst_list, meta_df) {
 snp_plotter <- function(snp_list, meta_df) {
   
   snps_1 <- snp_list[[1]]
+  colnames(snps_1) <- c("Position", "Region", "Allele", "Freq")
+  
   snps_2 <- snp_list[[2]]
+  colnames(snps_2) <- c("Position", "Country", "Allele", "Freq")
+  
   snps_3 <- snp_list[[3]]
+  colnames(snps_3) <- c("Position", "Date", "Allele", "Freq")
   
   p1 <- ggplot(data = snps_1, aes(x = Allele, y = Freq)) +
     theme_few () +
-    geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), color = "black") +
+    geom_bar(stat = "identity", position = "dodge2", aes(fill = Region), color = "black") +
     scale_fill_manual(name = "", values = kev_palette[1:length(unique(meta_df$Region))]) +
-    facet_wrap(~Position, scales = "free") +
+    facet_wrap(~Position, scales = "free_x") +
     labs(x = "Allele", y = "Frequency") + 
     theme(axis.text.y = element_text(size = 12)) +
     theme(axis.text.x = element_text(size = 12)) +
@@ -243,11 +272,11 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
     theme(legend.text = element_text(size = 14)) +
-    theme(strip.text = element_text(size = 14, face = "bold"))
+    theme(strip.text = element_text(size = 14, face = "bold")) 
   
   p2 <- ggplot(data = snps_2, aes(x = Allele, y = Freq)) +
     theme_few () +
-    geom_bar(stat = "identity", position = "dodge2", aes(fill = Meta), width = 1) +
+    geom_bar(stat = "identity", position = "dodge2", aes(fill = Country), width = 1) +
     scale_fill_manual(name = "", values = qual_vector[1:length(unique(meta_df$Geo_Location))]) +
     facet_wrap(~Position, scales = "free") +
     labs(x = "Allele", y = "Frequency") + 
@@ -261,17 +290,19 @@ snp_plotter <- function(snp_list, meta_df) {
   
   int_text = paste("Functionality currently not supported")
   
-  p3 <- ggplot() + 
-    annotate("text", x = 4, y = 25, size = 12, label = int_text) + 
-    theme_minimal() +
-    theme(axis.title.x = element_blank()) +
-    theme(axis.title.y = element_blank()) +
-    theme(axis.text.x = element_blank()) +
-    theme(axis.text.y = element_blank()) +
-    theme(axis.ticks.x = element_blank()) +
-    theme(axis.ticks.y = element_blank()) +
-    theme(axis.line.x = element_blank()) +
-    theme(axis.line.y = element_blank()) 
+  p3 <- ggplot(data = snps_3, aes(x = Allele, y = Freq)) +
+    theme_few () +
+    geom_bar(stat = "identity", position = "dodge2", aes(color = Date)) +
+    scale_color_continuous(name = "Days from \nfirst case", low = "#b92b27", high = "#1565C0") +
+    facet_wrap(~Position, scales = "free_x") +
+    labs(x = "Allele", y = "Frequency") + 
+    theme(axis.text.y = element_text(size = 12)) +
+    theme(axis.text.x = element_text(size = 12)) +
+    theme(axis.title.y = element_text(size = 16, face = "bold")) +
+    theme(axis.title.x = element_text(size = 16, face = "bold")) +
+    theme(legend.title = element_text(size = 15, face = "bold")) +
+    theme(legend.text = element_text(size = 14)) +
+    theme(strip.text = element_text(size = 14, face = "bold")) 
 
   plot_list <- list(p1, p2, p3)
   return(plot_list)
