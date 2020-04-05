@@ -9,6 +9,8 @@ library(dplyr)
 library(uwot)
 library(ggplot2)
 library(ggthemes)
+library(ggplotly)
+library(ggnetwork)
 
 # Load color palettes    
 
@@ -84,6 +86,11 @@ mst_graph <- function(covid_dist, meta_data) {
   V(g_mst_1)$color <- meta_colors_1
   V(g_mst_2)$color <- meta_colors_2
   V(g_mst_3)$color <- meta_colors_3
+  
+  V(g_mst_1)$meta <- meta_ordered[,(ncol(meta_ordered)-2)]
+  V(g_mst_2)$meta <- meta_ordered[,(ncol(meta_ordered)-1)]
+  V(g_mst_3)$meta <- meta_ordered[,(ncol(meta_ordered))]
+  
   lay <- layout_with_graphopt(g_mst_1, niter = 1000)
   
   g_mst_list <- list(g_mst_1, g_mst_2, g_mst_3, lay)
@@ -144,8 +151,7 @@ umap_plotter <- function(umap_df) {
     theme(axis.title.y = element_text(size = 16, face = "bold")) +
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
-    theme(legend.text = element_text(size = 14)) +
-    theme(aspect.ratio = 0.6)
+    theme(legend.text = element_text(size = 14)) 
   
   p2 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
@@ -160,8 +166,7 @@ umap_plotter <- function(umap_df) {
     theme(axis.title.y = element_text(size = 16, face = "bold")) +
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
-    theme(legend.text = element_text(size = 14)) +
-    theme(aspect.ratio = 0.6)
+    theme(legend.text = element_text(size = 14)) 
   
   p3 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
@@ -176,9 +181,8 @@ umap_plotter <- function(umap_df) {
     theme(axis.title.y = element_text(size = 16, face = "bold")) +
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
-    theme(legend.text = element_text(size = 14)) +
-    theme(aspect.ratio = 0.6)
-  
+    theme(legend.text = element_text(size = 14)) 
+
   plot_list <- list(p1, p2, p3)
   return(plot_list)
   
@@ -191,17 +195,23 @@ mst_plotter <- function(mst_list, meta_df) {
   graph_m3 <- mst_list[[3]]
   lay <- mst_list[[4]]
   
-  plot.igraph(graph_m1, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  legend("topleft", legend = levels(factor(meta_df$Region)), fill = kev_palette[1:length(unique(meta_df$Region))], pt.cex = 1, cex = 1, text.font = 2)
   
-  p1 <- recordPlot()
+  # plot.igraph(graph_m1, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
+  # legend("topleft", legend = levels(factor(meta_df$Region)), fill = kev_palette[1:length(unique(meta_df$Region))], pt.cex = 1, cex = 1, text.font = 2)
   
-  plot.new()
+  ggnet1 <- ggnetwork(graph_m1, )
+  p1 <- ggnet2(graph_m1, node.size = 2, color = V(graph_m1)$color, color.legend = V(graph_m1)$meta) 
 
-  plot.igraph(graph_m2, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  legend("topleft", legend = levels(factor(meta_df$Geo_Location)), fill = qual_vector[1:length(unique(meta_df$Geo_Location))], pt.cex = 1, cex = 0.6, text.font = 1, inset = c(0, -0.05))
+  # plot.igraph(graph_m2, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
+  # legend("topleft", legend = levels(factor(meta_df$Geo_Location)), fill = qual_vector[1:length(unique(meta_df$Geo_Location))], pt.cex = 1, cex = 0.6, text.font = 1, inset = c(0, -0.05))
   
-  p2 <- recordPlot()
+  p2 <- ggnet2(graph_m2, node.size = 2) +
+    geom_point(aes(fill = V(graph_m2)$meta)) +
+    scale_fill_manual(name = "Country", labels = unique(V(graph_m2)$meta), values = qual_vector[1:length(unique(V(graph_m2)$meta))]) +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.ticks.y = element_blank()) +
+    theme(axis.text.y = element_blank()) +
+    theme(axis.text.x = element_blank())
   
   plot.new()
   

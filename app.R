@@ -8,6 +8,9 @@ library(RColorBrewer)
 library(shinycssloaders)
 library(shinyWidgets)
 library(Cairo)
+library(plotly)
+library(GGally)
+library(intergraph)
 
 # Load testing data 
 
@@ -62,7 +65,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                 
   titlePanel(title = strong("COVID-19 GENOTYPING TOOL (Beta Testing)")),
       
-  sidebarLayout(
+  sidebarLayout(fluid = TRUE,
     
     tabsetPanel(
       
@@ -150,7 +153,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
     mainPanel(
       
-      navbarPage(title = NULL, tabPanel("UMAP", withSpinner(plotOutput("umap", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))), tabPanel("MST", withSpinner(plotOutput("mst", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))), tabPanel("SNP", withSpinner(plotOutput("snps", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))))
+      navbarPage(title = NULL, tabPanel("UMAP", withSpinner(plotlyOutput("umap", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))), tabPanel("MST", withSpinner(plotlyOutput("mst", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))), tabPanel("SNP", withSpinner(plotlyOutput("snps", height = "550px", width = "950px"), color = getOption("spinner.color", default = "#18BC9C"))))
 
     
   )
@@ -239,16 +242,16 @@ server <- function(input, output) {
   
   observe ({
     
-    output$umap <- renderPlot ({
-      umap_plots()[as.numeric(input$metatype)]
+    output$umap <- renderPlotly ({
+      ggplotly(umap_plots()[[as.numeric(input$metatype)]])
     })
   
-    output$mst <- renderPlot ({
-      mst_plots()[as.numeric(input$metatype)]
+    output$mst <- renderPlotly ({
+      ggplotly(mst_plots()[[as.numeric(input$metatype)]])
     })
     
-    output$snps <- renderPlot ({
-      snp_plots()[as.numeric(input$metatype)]
+    output$snps <- renderPlotly ({
+      ggplotly(snp_plots()[[as.numeric(input$metatype)]])
     })
     
   })
