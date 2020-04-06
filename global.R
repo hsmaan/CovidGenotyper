@@ -102,7 +102,7 @@ mst_graph <- function(covid_dist, meta_data) {
 snps_get <- function(alignment, metadata, positions) {
   
   align <- alignment
-  pos <- paste(positions$Pos, positions$Gene, sep = "_")
+  pos <- paste(positions$Pos, positions$Gene, positions$Effect, sep = " ")
   acc <- metadata[,1]
   meta_vars <- metadata[,-1]
   align_df <- as.data.frame(as.matrix(align))
@@ -120,8 +120,7 @@ snps_get <- function(alignment, metadata, positions) {
   
   table_get <- function(df, position, meta_num) {
     pos_full <- position
-    pos_name <- str_split_fixed(position, "_", 2)[,2][1]
-    pos_num <- as.numeric(str_split_fixed(position, "_", 2)[,1][1])
+    pos_num <- as.numeric(str_split_fixed(position, " ", 3)[,1][1])
     align_pos <- df[,c(pos_num, (ncol(df) - as.numeric(meta_num) + 1))] # Backward ordering
     colnames(align_pos) <- c("position", "meta")
     align_grouped <- group_by(.data = align_pos, meta) 
@@ -169,7 +168,7 @@ umap_plotter <- function(umap_df) {
   
   p3 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
-    geom_jitter(aes(color = Date), size = 3, position = "jitter", alpha = 0.8) +
+    geom_jitter(aes(color = Date), size = 3, position = "jitter", alpha = 1) +
     scale_color_gradient(name = "Days from \nfirst case", low = "#b92b27", high = "#1565C0") +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +

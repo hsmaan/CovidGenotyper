@@ -3,6 +3,9 @@ library(tidyverse)
 library(Biostrings)
 library(ape)
 library(GenomicRanges)
+library(VariantAnnotation)
+library(GenomicFeatures)
+library(stringr)
 
 # Load data
 
@@ -16,9 +19,10 @@ loadRData <- function(fileName){
 file_list <- list.files()
 
 alignment <- readDNAStringSet(grep("dec_aligned_fasta_filtered*", list.files(), value = TRUE))
-fasta_ref <- readDNAStringSet(grep("ncov_ref_NC_045512.fasta", list.files(), value = TRUE))
+fasta_ref <- readDNAStringSet(grep("ncov_ref_NC_045512.fasta$", list.files(), value = TRUE))
 gff <- read.gff(grep("ncov_NC_045512_Genes.GFF3", list.files(), value = TRUE))
 var_freq <- read.table(grep("*.frq", list.files(), value = TRUE), stringsAsFactors = FALSE, fill = TRUE, col.names = paste0("V", seq(0, 10)))
+vcf <- fread(grep("*.vcf", list.files(), value = TRUE))
 
 # Format and Convert GFF to GRanges object 
 
@@ -42,22 +46,33 @@ var_freq_mi_af2 <- as.numeric(str_split_fixed(var_freq$V5, ":", 2)[,2])
 
 var_freq_filtered <- data.frame("Pos" = var_freq_pos, "A1" = var_freq_mj_a1, "AF1" = var_freq_mj_af1, "A2" = var_freq_mj_a2, "AF2" = var_freq_mi_af2)
 
+# Format vcf metadata and add 
+
+vcf_sub <- data.frame("Pos" = vcf$POS, "Meta" = str_split_fixed(vcf$INFO, stringr::fixed("|"), 4)[,2])
+
+var_freq_filtered <- merge(var_freq_filtered, vcf_sub, by = "Pos")
+
 # Covert to GRanges object
 
 var_ranges <- GRanges(seqnames = rep(1, length(var_freq_filtered$Pos)), ranges = IRanges(start = var_freq_filtered$Pos, end = var_freq_filtered$Pos))
+
+var_ranges$effect <- var_freq_filtered$Meta
 
 # Overlap var freq ranges with annotations and remerge
 
 var_overlap <- as.data.frame(mergeByOverlaps(var_ranges, gff_ranges))
 
-var_overlap_sub <- var_overlap[, c("var_ranges.start", "gene")]
-colnames(var_overlap_sub) <- c("Pos", "Gene")
+var_overlap_sub <- var_overlap[, c("var_ranges.start", "gene", "effect")]
+colnames(var_overlap_sub) <- c("Pos", "Gene", "Effect")
+var_overlap_sub$Effect <- gsub("_", " ", var_overlap_sub$Effect)
 
 var_freq_overlap <- merge(var_freq_filtered, var_overlap_sub)
 
+var_freq_overlap_non_syn <- var_freq_overlap[which(var_freq_overlap$Effect != "synonymous_variant"), ]
+
 # Subset for structural proteins
 
-var_freq_structural <- var_freq_overlap[var_freq_overlap$Gene %in% c("E", "M", "N", "S"),]
+var_freq_structural <- var_freq_overlap_non_syn[var_freq_overlap_non_syn$Gene %in% c("E", "M", "N", "S"),]
 
 # Subset for top maf
 
@@ -67,8 +82,11 @@ var_freq_sub <- var_freq_structural[which((var_freq_structural$AF2 >= 0.005) & (
 
 var_freq_sub_9 <- (var_freq_sub[order(var_freq_sub$AF2, decreasing = TRUE),])[1:9,]
 
+var_freq_sub_9 <- var_freq_sub_9[,c("Pos", "A1", "AF1", "A2", "AF2", "Gene", "Effect")]
+
 # Output data
 
+file.remove(grep("var_freq_sub_9*", file_list, value = TRUE))
 save(var_freq_sub_9, file = paste("var_freq_sub_9_", Sys.Date(), ".RData")) 
 
 

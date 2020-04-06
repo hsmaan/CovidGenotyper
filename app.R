@@ -1,4 +1,5 @@
 library(data.table)
+library(stringr)
 library(shiny)
 library(shinythemes)
 library(ggplot2)
@@ -31,6 +32,7 @@ pre_umap <- loadRData(grep("umap_preloaded", file_list, value = TRUE))
 pre_mst <- loadRData(grep("mst_preloaded", file_list, value = TRUE))
 pre_snp <- loadRData(grep("snps_preloaded", file_list, value = TRUE))
 vars_freq <- loadRData(grep("var_freq_sub*", file_list, value = TRUE))
+date_file <- stringr::str_split_fixed((str_split_fixed(grep("dec_aligned_filtered", file_list, value = TRUE), "_", 4)[,4][1]), stringr::fixed("."), 2)[,1][1]
 
 setwd("..")
 
@@ -78,7 +80,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           h4(strong("Instructions")), 
           
           p(
-            "Add complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers.", strong("Allow up to 5 minutes for processing."), "Use the plotly interface to navigate visualizations. Plots can be saved as a png using plotly, but for best quality we encourage users to save the webpage as a pdf and crop accordingly. Metadata can be toggled from below."
+            "Add", strong("up to 10"), "complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers.", strong("Allow up to 5 minutes for processing."), "Hover over visualizations and use the plotly interface for navigation. Plots can be saved as a png using plotly, but for best quality we encourage users to save the webpage as a pdf and crop accordingly. Metadata can be toggled from below."
             ),
           
           fileInput(inputId = "input_fasta", label = h4(strong("Upload fasta"))),
@@ -100,7 +102,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
        sidebarPanel(
                   
           p(
-            "Input fasta sequences are aligned to pre-aligned Covid-19 sequences uploaded to", a("GISAID.", href= "https://www.gisaid.org/"), "Each fasta sequence is assigned a name", strong("(Novel, number)"), "and is presented with respect to the public sequencing data. The following visualizations are done to determine sequence variation:", .noWS = c("after-begin", "before-end")
+            "CGT is a tool to visualize public COVID-19 viral genome sequence information with respect to user uploaded sequences. Input fasta sequences are aligned to pre-aligned Covid-19 sequences uploaded to", a("GISAID.", href= "https://www.gisaid.org/"), "Each fasta sequence is assigned a name", strong("(Novel, number)"), "and is presented with respect to the public sequencing data. The following visualizations are done to determine sequence variation:", .noWS = c("after-begin", "before-end")
           ),
           
           p(
@@ -108,7 +110,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
             br(),
             strong("MST"), "- Minimum spanning tree of sequence network",
             br(),
-            strong("SNP"), "- Prevalent non-synonymous coding single-nucleotide polymorphisms",
+            strong("SNP"), "- Prevalent non-synonymous coding single-nucleotide polymorphisms (Position - Protein - Variant Type)",
           ),
           
           p(
@@ -176,6 +178,10 @@ ui <- fluidPage(theme = shinytheme("flatly"),
            
            p(
              "CGT does not perform any server-side storage of user uploaded sequence data. Visualizations of user analyzed data are downloadable as png images. CGT simply processes user sequence data to create the visualizations using the R-Shiny reactive framework."
+           ),
+           
+           p(
+             strong(paste("Last data update:", date_file, sep = " "))
            ),
 
            p(
