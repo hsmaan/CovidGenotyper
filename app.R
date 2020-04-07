@@ -75,7 +75,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
       
         sidebarPanel(
         
-          h4(strong(strong("Please note that tha application is under continuous development, but analyses are functional."))), 
+          h4(strong(strong("Please note that the application is under continuous development, but analyses are functional."))), 
           
           h4(strong("Instructions")), 
           

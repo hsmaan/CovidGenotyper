@@ -68,7 +68,7 @@ var_overlap_sub$Effect <- gsub("_", " ", var_overlap_sub$Effect)
 
 var_freq_overlap <- merge(var_freq_filtered, var_overlap_sub)
 
-var_freq_overlap_non_syn <- var_freq_overlap[which(var_freq_overlap$Effect != "synonymous_variant"), ]
+var_freq_overlap_non_syn <- var_freq_overlap[which(var_freq_overlap$Effect != "synonymous variant"), ]
 
 # Subset for structural proteins
 
