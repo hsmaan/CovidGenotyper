@@ -1,17 +1,15 @@
-library(data.table)
-library(stringr)
 library(shiny)
 library(shinythemes)
-library(ggplot2)
-library(ggthemes)
 library(plyr)
-library(RColorBrewer)
 library(shinycssloaders)
 library(shinyWidgets)
 library(Cairo)
-library(plotly)
 library(intergraph)
 library(ggnetwork)
+
+# Source scripts
+
+source("R/global.R")
 
 # Load testing data 
 
@@ -56,10 +54,6 @@ kev_palette <- c(
 
 qual_palettes = brewer.pal.info[brewer.pal.info$category == "qual", ]
 qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_palettes)))
-
-# Source scripts
-
-source("global.R")
 
 # RShiny 
 
