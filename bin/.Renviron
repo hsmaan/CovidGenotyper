@@ -1,0 +1,3 @@
+GCE_AUTH_FILE="../data/gcs_key.json" 
+GCE_DEFAULT_PROJECT_ID="mcarthurlabpoc" 
+GCE_DEFAULT_ZONE="us-east1-b"

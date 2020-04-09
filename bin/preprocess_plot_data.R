@@ -44,7 +44,7 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 
 # Source global
 
-source("global.R")
+source("R/global.R")
 
 setwd("data")
 

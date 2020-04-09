@@ -19,7 +19,6 @@ loadRData <- function(fileName){
 file_list <- list.files()
 
 alignment <- readDNAStringSet(grep("dec_aligned_fasta_filtered*", list.files(), value = TRUE))
-fasta_ref <- readDNAStringSet(grep("ncov_ref_NC_045512.fasta$", list.files(), value = TRUE))
 gff <- read.gff(grep("ncov_NC_045512_Genes.GFF3", list.files(), value = TRUE))
 var_freq <- read.table(grep("*.frq", list.files(), value = TRUE), stringsAsFactors = FALSE, fill = TRUE, col.names = paste0("V", seq(0, 10)))
 vcf <- fread(grep("*.vcf", list.files(), value = TRUE))
@@ -76,7 +75,7 @@ var_freq_structural <- var_freq_overlap_non_syn[var_freq_overlap_non_syn$Gene %i
 
 # Subset for top maf
 
-var_freq_sub <- var_freq_structural[which((var_freq_structural$AF2 >= 0.005) & (var_freq_structural$AF1 >= 0.005)), ]
+var_freq_sub <- var_freq_structural[which((var_freq_structural$AF2 >= 0.000001) & (var_freq_structural$AF1 >= 0.0000001)), ]
 
 # Select top 9
 
@@ -87,7 +86,7 @@ var_freq_sub_9 <- var_freq_sub_9[,c("Pos", "A1", "AF1", "A2", "AF2", "Gene", "Ef
 # Output data
 
 file.remove(grep("var_freq_sub_9*", file_list, value = TRUE))
-save(var_freq_sub_9, file = paste("var_freq_sub_9_", Sys.Date(), ".RData")) 
+save(var_freq_sub_9, file = paste("var_freq_sub_9_", Sys.Date(), ".RData", sep = "")) 
 
 
   
