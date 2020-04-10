@@ -36,6 +36,14 @@ pre_meta <- loadRData(grep("covid_meta", all_files, value = TRUE))
 
 meta_accession <- data.frame("Accession" = as.character(pre_meta$Accession))
 
+# Remove old files
+
+file.remove(grep("dec_aligned_fasta_filtered_", all_files, value = TRUE))
+file.remove(grep("dec_unfiltered_aligned_fastas_", all_files, value = TRUE))
+file.remove(grep("dec_fasta_dist_", all_files, value = TRUE))
+file.remove(grep("dec_aligned_filtered_", all_files, value = TRUE))
+file.remove(grep("covid_filtered_meta_", all_files, value = TRUE))
+
 # Subset all files by available metadata
 
 all_fastas <- all_fastas[which(names(all_fastas) %in% meta_accession[,1])]

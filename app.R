@@ -7,6 +7,8 @@ library(Cairo)
 library(intergraph)
 library(ggnetwork)
 
+options(repos = BiocManager::repositories())
+
 # Source scripts
 
 source("R/global.R")
@@ -17,7 +19,7 @@ loadRData <- function(fileName){
   load(fileName)
   get(ls()[ls() != "fileName"])
 }
-
+  
 setwd("data")
 
 file_list <- list.files() 

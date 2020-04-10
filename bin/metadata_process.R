@@ -3,26 +3,27 @@ library(stringr)
 
 setwd("../data")
 
-all_files <- list.files()
+# Load metadata
 
+all_files <- list.files()
 meta_file <- grep("gisaid_metadata", all_files, value = TRUE)
-  
 metadata <- fread(meta_file, stringsAsFactors = FALSE)
 
+# Subset appropriate columns
+
 meta_df <- as.data.frame(metadata)
-
 meta_sub <- meta_df[,c("date", "gisaid_epi_isl", "region", "country", "length", "age", "sex")]
-
 colnames(meta_sub) <- c("Date", "Accession", "Region", "Geo_Location", "Genome_Length", "Age", "Sex")
+
+# Define negate 
 
 '%ni%' <- Negate('%in%')
 
+# Format columns 
+
 meta_sub <- meta_sub[meta_sub$Region != " ", ]
-
 meta_sub <- meta_sub[meta_sub$Geo_Location != " ", ]
-
 meta_sub <- meta_sub[(str_length(meta_sub$Date) > 9),]
-
 meta_sub <- meta_sub[(rownames(meta_sub) %ni% (grep("XX", meta_sub$Date))),]
 
 sample_time <- meta_sub$Date
@@ -38,4 +39,7 @@ meta_sub$Datetime <- sample_time
 meta_sub <- meta_sub[(meta_sub$Datetime >= 0), ]
 meta_sub <- meta_sub[(meta_sub$Datetime <= current_orig), ]
 
+# Save files
+
+file.remove(grep("covid_meta_*", all_files, value = TRUE))
 save(meta_sub, file = paste("covid_meta_", Sys.Date(), ".RData", sep = ""))
