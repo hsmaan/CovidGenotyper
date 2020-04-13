@@ -61,7 +61,7 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 
 ui <- fluidPage(theme = shinytheme("flatly"),
                 
-  titlePanel(title = strong("COVID-19 GENOTYPING TOOL (Alpha Testing)")),
+  titlePanel(title = "COVID-19 GENOTYPING TOOL (Alpha Testing)"),
       
   sidebarLayout(fluid = TRUE,
     

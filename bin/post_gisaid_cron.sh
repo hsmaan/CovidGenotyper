@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd /home/hmaan/Documents/covid_shiny/bin
+
 # Run processing scripts sequentially
 
 sh snp_sites_process.sh
