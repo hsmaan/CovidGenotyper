@@ -4,39 +4,38 @@
 ## Overview
 
 [CovidGenotyper](https://hsmaan.shinyapps.io/CovidGenotyper/) is an
-R-Shiny based web application that allows researchers to upload fasta
-sequences of Covid-19 viral genomes and compare with public sequence
-data available on [GISAID](https://www.gisaid.org/). Genomic distance is
-visualized using manifold projection and network analysis, and genotype
-information with respective to high-prevalence SNPs is determined.
+R-Shiny based web application that allows researchers to upload SARS-CoV-2 consensus genome sequences (fasta)
+and compare with publically available genome sequence
+data on [GISAID](https://www.gisaid.org/). Genomic distance is
+visualized using manifold projection (UMAP) and minimum spanning tree (MST) network analysis, and genotypes based on highly prevalent non-synonymous single nucleotide polymorphisms (SNPs) within structural genes (E, N, S, M).
 
 ## Methodology
 
 #### Sequence and metadata retrieval
 
-Processed fasta files of Covid-19 viral genome sequence are retrieved
-from the [GISAID](https://www.gisaid.org/) EpiCoV database, which is a
-public database for sharing of viral genome sequence data. Metadata for
+Processed consensus fasta files of SARS-CoV-2 viral genome sequences are retrieved
+from the [GISAID](https://www.gisaid.org/) EpiCoV database, a
+public database for sharing of viral genome consensus sequence data. Metadata for
 GISAID viral genomes are obtained from [nextstrain’s ncov
 build](https://github.com/nextstrain/ncov/blob/master/data/metadata.tsv).
 Viral genome data and metadata are updated on a daily basis.
 
 #### Genome sequence alignment
 
-GISAID sequences are subset for those that have metadata from
-nextstrain. Public sequencing data is pre-aligned before being uploaded
-to the server. Fasta sequences are read and written using the
+GISAID sequences are filtered to only include sequence data accompanied by metadata from
+nextstrain. Consensus sequences obtained from GISAID are pre-aligned before being uploaded
+to the server. GISAID consensus fasta sequences are read and written using the
 `Biostrings` package. Gap removal and multiple-sequence alignment is
 performed using `DECIPHER`. Post alignment processing is done using
 `ape`. User uploaded fasta sequences are processed similarly, with the
-exception of complete alignment - the user sequence is aligned to the
-pre-aligned public data profile using `AlignProfiles` from `DECIPHER`.
+exception of performing a complete alignment - the user sequences are aligned to the
+pre-aligned GISAID sequence alignment profile using `AlignProfiles` from `DECIPHER`.
 
 #### DNA distance
 
-For both pre-aligned and profile aligned data, DNA distance is
+For both pre-aligned and profile aligned sequence data, DNA distance is
 determined using `ape` and the Kimura-80 model of nucleotide
-substitution. Currently only Kimura-80 is supported, but integrating
+substitutions. Currently only Kimura-80 is supported, but integrating
 other evolutionary distance metrics will be part of a future release.
 
 #### Uniform manifold projection and approximation (UMAP)
@@ -67,7 +66,7 @@ outbreak epicenters.
 #### Single-nucleotide polymorphisms
 
 Genotype profiles of viral genomes are determined using high prevalence
-SNPs (minor allele frequence \> 0.05) in the public sequencing data.
+non-synonymous SNPs (minor allele frequence \> 0.05) within structural genes (E, N, S, M) present in the GISAID consensus sequence data.
 SNPs were called using *snp-sites* and linkage analysis was performed
 using *vcftools*. Both coding and non-coding variants are considered in
 the genotyping analysis, with the exception of the 3’ and 5’ UTRs. All
