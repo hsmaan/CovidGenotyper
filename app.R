@@ -61,7 +61,7 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 
 ui <- fluidPage(theme = shinytheme("flatly"),
                 
-  titlePanel(title = "COVID-19 GENOTYPING TOOL (Alpha Testing)"),
+  titlePanel(title = "COVID-19 GENOTYPING TOOL (Beta Testing)"),
       
   sidebarLayout(fluid = TRUE,
     
@@ -76,7 +76,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           h4(strong("Instructions")), 
           
           p(
-            "Add", strong("up to 10"), "complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers.", strong("Allow up to 5 minutes for processing."), "Hover over visualizations and use the plotly interface for navigation. Plots can be saved as a png using plotly, but for best quality we encourage users to save the webpage as a pdf and crop accordingly. Metadata can be toggled from below."
+            "Add", strong("up to 10"), "complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers.", strong("Allow up to 20 minutes for processing."), "Hover over visualizations and use the plotly interface for navigation. Plots can be saved as a png using plotly, but for best quality we encourage users to save the webpage as a pdf and crop accordingly. Metadata can be toggled from below."
             ),
           
           fileInput(inputId = "input_fasta", label = h4(strong("Upload fasta"))),
