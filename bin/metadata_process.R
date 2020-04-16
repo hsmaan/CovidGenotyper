@@ -39,7 +39,14 @@ meta_sub$Datetime <- sample_time
 meta_sub <- meta_sub[(meta_sub$Datetime >= 0), ]
 meta_sub <- meta_sub[(meta_sub$Datetime <= current_orig), ]
 
+# Subset ack columns
+
+meta_ack <- meta_df[,c("gisaid_epi_isl", "originating_lab", "submitting_lab", "authors", "date_submitted")]
+colnames(meta_ack) <- c("Accession", "Originating lab", "Submitting lab", "Authors", "Date submitted")
+
 # Save files
 
 file.remove(grep("covid_meta_*", all_files, value = TRUE))
+file.remove(grep("../ack/gisaid_acknowledgements_*", all_files, value = TRUE))
 save(meta_sub, file = paste("covid_meta_", Sys.Date(), ".RData", sep = ""))
+fwrite(meta_ack, file = paste("../ack/gisaid_acknowledgements_", Sys.Date(), ".csv", sep = ""), sep = ",", col.names = TRUE, row.names = FALSE, quote = FALSE)
