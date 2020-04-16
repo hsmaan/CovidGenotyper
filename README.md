@@ -1,4 +1,6 @@
 
+# COVID-19 Genotyping Tool (CGT)
+
 ### Please note that the Covid-19 Genotyping Tool backend and UI are under continuous development.
 
 ## Overview

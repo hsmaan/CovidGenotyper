@@ -154,8 +154,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
            p(
              "COVID-19 viral genome sequences from GISAID are downloaded weekly and processed using the CGT computational pipeline. No sequence information is published on the website, as per the", 
              a("GISAID data usage policy.", href = "https://www.gisaid.org/registration/terms-of-use"),
-             "We thank all of the GISAID contributers for sharing their data. Full acknowledgements of COVID-19 sequence resources are available",
-             a("here.", href = "404")
+             "We thank all of the GISAID contributers for sharing their data. Full up-to-date acknowledgements of COVID-19 sequence resources available", 
+             a("here.", href = "https://github.com/hsmaan/CovidGenotyper/ack")
            ),
            
            h4(

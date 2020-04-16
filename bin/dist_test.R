@@ -99,5 +99,21 @@ profvis({
 
 alignment_mat <- as.matrix(pre_aligned_filtered)
 
-alignment_mat_num <- sapply(alignment_mat, function(x) plyr::mapvalues(x, from = c("A", "T", "C", "G", "N"), to = c(1, 2, 3, 4, 5)))
+align_mat_num <- alignment_mat
 
+align_mat_num[align_mat_num == "A"] <- 1
+align_mat_num[align_mat_num == "G"] <- 2
+align_mat_num[align_mat_num == "T"] <- 3
+align_mat_num[align_mat_num == "C"] <- 4
+align_mat_num[align_mat_num == "N"] <- 5
+align_mat_num[align_mat_num == "-"] <- 0
+
+align_mat_sub <- align_mat_num[1:200,]
+align_mat_sub_num <- apply(align_mat_sub, 1, as.numeric)
+
+# Test paralleldist implementation
+
+profvis({
+  p_dist <- parallelDist::parallelDist(align_mat_sub_num, method = "hamming", threads = 12)
+})
+  # 
