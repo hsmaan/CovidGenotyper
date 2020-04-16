@@ -48,12 +48,6 @@ source("R/global.R")
 
 setwd("data")
 
-profvis({
-  
-  umap <- umap_process(pre_dist, meta)
-  
-})
-
 # umap
 
 umap_preloaded <- umap_process(pre_dist, meta)

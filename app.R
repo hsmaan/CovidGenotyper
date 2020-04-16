@@ -61,7 +61,7 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 
 ui <- fluidPage(theme = shinytheme("flatly"),
                 
-  titlePanel(title = "COVID-19 GENOTYPING TOOL (Beta Testing)"),
+  titlePanel(title = "COVID-19 GENOTYPING TOOL (CGT)"),
       
   sidebarLayout(fluid = TRUE,
     
@@ -71,12 +71,12 @@ ui <- fluidPage(theme = shinytheme("flatly"),
       
         sidebarPanel(
         
-          h4(strong(strong("Please note that the application is under continuous development, but analyses are functional."))), 
+          h4(strong(strong("Please note that the application is under continuous development, and new features are being routinely integrated."))), 
           
           h4(strong("Instructions")), 
           
           p(
-            "Add", strong("up to 10"), "complete Covid-19 sequences in fasta format, in one file. Please ensure fasta sequences have headers.", strong("Allow up to 20 minutes for processing."), "Hover over visualizations and use the plotly interface for navigation. Plots can be saved as a png using plotly, but for best quality we encourage users to save the webpage as a pdf and crop accordingly. Metadata can be toggled from below."
+            "Add", strong("up to 10"), "complete (>29000 bp) COVID-19 sequences in fasta format, in one file. Ensure fasta sequences have headers.", strong("Allow up to 30 minutes for processing of all components of the pipeline."), "Please", strong("DO NOT REFRESH"), "the page after uploading. Uploaded data will be lost on refresh as we do not store or cache user data in any way.", "Hover over visualizations and use the plotly interface for navigation. Plots can be saved as a png using plotly. Metadata can be toggled from below."
             ),
           
           fileInput(inputId = "input_fasta", label = h4(strong("Upload fasta"))),
@@ -98,7 +98,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
        sidebarPanel(
                   
           p(
-            "CGT is a tool to visualize public COVID-19 viral genome sequence information with respect to user uploaded sequences. Input fasta sequences are aligned to pre-aligned Covid-19 sequences uploaded to", a("GISAID.", href= "https://www.gisaid.org/"), "Each fasta sequence is assigned a name", strong("(Novel, number)"), "and is presented with respect to the public sequencing data. The following visualizations are done to determine sequence variation:", .noWS = c("after-begin", "before-end")
+            "CGT is a tool to visualize public COVID-19 viral genome sequence information with respect to user uploaded sequences. Input fasta sequences are aligned to pre-aligned COVID-19 sequences uploaded to", a("GISAID.", href= "https://www.gisaid.org/"), "Each fasta sequence is assigned a name", strong("(Novel, number)"), "and is presented with respect to the public sequencing data. The following visualizations are done to determine sequence variation:", .noWS = c("after-begin", "before-end")
           ),
           
           p(
@@ -152,7 +152,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
            ),
            
            p(
-             "COVID-19 viral genome sequences from GISAID are downloaded daily and processed using the CGT computational pipeline. No sequence information is published on the website, as per the", 
+             "COVID-19 viral genome sequences from GISAID are downloaded weekly and processed using the CGT computational pipeline. No sequence information is published on the website, as per the", 
              a("GISAID data usage policy.", href = "https://www.gisaid.org/registration/terms-of-use"),
              "We thank all of the GISAID contributers for sharing their data. Full acknowledgements of COVID-19 sequence resources are available",
              a("here.", href = "404")

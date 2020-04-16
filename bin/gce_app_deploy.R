@@ -17,7 +17,7 @@ vm <- loadRData(vm_file)
 
 # Close previous instance and delete files
 
-gce_vm_delete(vm)
+try(gce_vm_delete(vm), silent = TRUE) # Throws an error but instance deletes regardless
 
 file.remove(vm_file)
 

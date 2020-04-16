@@ -55,41 +55,6 @@ align_get <- function(fasta, align) {
   
 }
 
-dist.dna.Kimura <- function(x, y, variance = FALSE, gamma = NULL) {
-  L <- length(x)
-  d <- x != y
-  Nd <- sum(d)
-  pw.diff <- cbind(x[d], y[d])
-  PuPy <- ifelse(pw.diff == "a" | pw.diff == "g", "R", "Y")
-  Nv <- sum(PuPy[, 1] != PuPy[, 2])
-  Ns <- Nd - Nv
-  P <- Ns / L
-  Q <- Nv / L
-  a1 <- 1 - 2 * P - Q
-  a2 <- 1 - 2 * Q
-  if (is.null(gamma)) D <- -0.5 * log(a1 * sqrt(a2))
-  else {
-    b <- -1 / gamma
-    D <- gamma * (a1^b + 0.5 * a2^b - 1.5) / 2
-  }
-  if (variance) {
-    if (is.null(gamma)) {
-      c1 <- 1 / a1
-      c2 <- 1 / a2
-      c3 <- (c1 + c2) / 2
-    }
-    else {
-      b <- -(1 / gamma + 1)
-      c1 <- a1^b
-      c2 <- a2^b
-      c3 <- (c1 + c2) / 2            
-    }
-    var.D <- (c1^2 * P + c3^2 * Q - (c1 * P + c3 * Q)^2) / L
-    return(c(D, var.D))
-  }
-  else return(D)
-}
-
 dist_get <- function(align) {
   
   dec_dist <- dist.dna(as.DNAbin(align), model = "K80", as.matrix = TRUE, pairwise.deletion = FALSE)
@@ -104,7 +69,7 @@ umap_process <- function(covid_dist, meta_df) {
   acc_names = rownames(covid_dist)
   covid_dist <- dist(covid_dist)
   set.seed(2020)
-  covid_umap <- uwot::umap(covid_dist, init = "random", metric = "cosine", n_neighbors = 50, pca= 50, min_dist = 0.001, spread = 40, local_connectivity = 10)
+  covid_umap <- uwot::umap(covid_dist, init = "spectral", metric = "cosine", n_neighbors = 50, min_dist = 0.001, spread = 40, local_connectivity = 10)
   covid_umap_df <- as.data.frame(covid_umap)
   umap_df_final <- data.frame("Accession" = acc_names, "UMAP_1" = covid_umap_df[,1], "UMAP_2" = covid_umap_df[,2])
   umap_df_final <- merge(umap_df_final, meta_df)
@@ -316,7 +281,7 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
     theme(legend.text = element_text(size = 14)) +
-    theme(strip.text = element_text(size = 14, face = "bold")) 
+    theme(strip.text = element_text(size = 12, face = "bold")) 
   
   p2 <- ggplot(data = snps_2, aes(x = Allele, y = Freq)) +
     theme_few () +
@@ -330,7 +295,7 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
     theme(legend.text = element_text(size = 14)) +
-    theme(strip.text = element_text(size = 14, face = "bold"))
+    theme(strip.text = element_text(size = 12, face = "bold"))
   
   int_text = paste("Functionality currently not supported")
   
@@ -346,7 +311,7 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
     theme(legend.text = element_text(size = 14)) +
-    theme(strip.text = element_text(size = 14, face = "bold")) 
+    theme(strip.text = element_text(size = 12, face = "bold")) 
 
   plot_list <- list(p1, p2, p3)
   return(plot_list)
