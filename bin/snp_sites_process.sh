@@ -1,13 +1,15 @@
-SNPEFF=/usr/local/bin/snpEff/snpEff.jar
-  
 cd ../data
 
 DATE=`date +"%Y-%m-%d"`
 
-snp-sites -cv -o 12_aligned_$DATE.vcf dec_aligned_fasta_filtered*;
+rm *.vcf *.frq *.log *.hap.ld
 
-vcftools --vcf 12_aligned_$DATE.vcf --freq --out 12_var_freq_$DATE;
+snp-sites -cv -o aligned_$DATE.vcf dec_aligned_fasta_filtered*;
 
-vcftools --vcf 12_aligned_$DATE.vcf --hap-r2 --out 12_var_linkage_$DATE;
+java -jar /usr/local/bin/snpEff/snpEff.jar COVID aligned_$DATE.vcf > aligned_annotated_$DATE.vcf;
 
+vcftools --vcf aligned_annotated_$DATE.vcf --freq --out aligned_annotated_freq_$DATE;
 
+vcftools --vcf aligned_annotated_$DATE.vcf --hap-r2 --out aligned_annotated_linkage_$DATE;
+
+rm aligned_$DATE.vcf

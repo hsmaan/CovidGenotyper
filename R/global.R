@@ -39,6 +39,15 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 align_get <- function(fasta, align) {
   
   covid_seq <- readDNAStringSet(fasta)
+  if (length(covid_seq) > 10) {
+    stop("Too many sequences in fasta file, only up to 10 viral genomes allowed at a time.")
+  }
+  if (length(covid_seq) < 1) {
+    stop("No sequences found in fasta file.")
+  }
+  if (length(which((lapply(covid_seq, length)) < 29000)) > 0) {
+    stop("One or more sequences not complete (length < 29000 nucleotides).")
+  }
   covid_align <- align
   covid_seq <- RemoveGaps(covid_seq, removeGaps = "all", processors = NULL)
   fasta_final <- AlignProfiles(covid_align, covid_seq)
@@ -272,7 +281,7 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
     theme(legend.text = element_text(size = 14)) +
-    theme(strip.text = element_text(size = 14, face = "bold")) 
+    theme(strip.text = element_text(size = 12, face = "bold")) 
   
   p2 <- ggplot(data = snps_2, aes(x = Allele, y = Freq)) +
     theme_few () +
@@ -286,7 +295,7 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
     theme(legend.text = element_text(size = 14)) +
-    theme(strip.text = element_text(size = 14, face = "bold"))
+    theme(strip.text = element_text(size = 12, face = "bold"))
   
   int_text = paste("Functionality currently not supported")
   
@@ -302,7 +311,7 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
     theme(legend.text = element_text(size = 14)) +
-    theme(strip.text = element_text(size = 14, face = "bold")) 
+    theme(strip.text = element_text(size = 12, face = "bold")) 
 
   plot_list <- list(p1, p2, p3)
   return(plot_list)

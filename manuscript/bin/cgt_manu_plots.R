@@ -13,6 +13,8 @@ library(Cairo)
 
 # Source all functions
 
+setwd("../..")
+
 source("global.R")
 
 # Load palettes
@@ -51,82 +53,111 @@ pre_umap <- loadRData("data/umap_preloaded.RData")
 pre_mst <- loadRData("data/mst_preloaded.RData")
 pre_snp <- loadRData("data/snps_preloaded.RData")
 
-# UMAP figure
+# UMAP figures
 
-ggplot(data = pre_umap, aes(x = UMAP_1, y = UMAP_2)) +
-  theme_few() +
-  geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-  scale_fill_manual(name = "", values = kev_palette[1:length(unique(pre_umap$Region))]) +
-  geom_point(data = pre_umap[grep("Novel", pre_umap$Region), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
-  labs(x = "UMAP 1", y = "UMAP 2") +
-  theme(axis.ticks.x = element_blank()) +
-  theme(axis.ticks.y = element_blank()) +
-  theme(axis.text.y = element_blank()) +
-  theme(axis.text.x = element_blank()) +
-  theme(axis.title.y = element_text(size = 16, face = "bold")) +
-  theme(axis.title.x = element_text(size = 16, face = "bold")) +
-  theme(legend.title = element_text(size = 15, face = "bold")) +
-  theme(legend.text = element_text(size = 14)) +
-  theme(aspect.ratio = 0.8)
+umap_figs <- umap_plotter(pre_umap)
+
+umap_figs[[1]]
 
 ggsave("manuscript/data/figures/CGT_umap_region_all.png", device = "png", width = 10, height = 7)
-  
-  # MST figure
 
-mst_plotter <- function(mst_list, meta_df) {
-  
-  graph_m1 <- mst_list[[1]]
-  graph_m2 <- mst_list[[2]]
-  graph_m3 <- mst_list[[3]]
-  lay <- mst_list[[4]]
-  
-  plot.igraph(graph_m1, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  legend("topleft", legend = levels(factor(meta_df$Region)), fill = kev_palette[1:length(unique(meta_df$Region))])
-  
-  p1 <- recordPlot()
-  
-  plot.new()
-  
-  plot.igraph(graph_m2, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  legend("topleft", legend = levels(factor(meta_df$Geo_Location)), fill = qual_vector[1:length(unique(meta_df$Geo_Location))])
-  
-  p2 <- recordPlot()
-  
-  plot.new()
-  
-  plot.igraph(graph_m3, vertex.label = NA, vertex.size = 4, edge.width = 1, layout = lay, edge.color = "gray25")
-  legend("topleft", legend = c("Early", "Mid", "Late"), pt.bg = c("dodgerblue2", "white", "firebrick1"), pt.cex = 1, cex = 1, text.font = 1, pch = 21)
-  
-  p3 <- recordPlot()
-  
-  plot_list <- list(p1, p2, p3)
-  return(plot_list)
-  
-}
+umap_figs[[2]]
 
-mst_figs <- mst_plotter(pre_mst, meta)
+ggsave("manuscript/data/figures/CGT_umap_country_all.png", device = "png", width = 16, height = 7)
 
-pdf("manuscript/data/figures/CGT_mst_region_all.pdf", width = 10, height = 10)
+umap_figs[[3]]
 
-mst_figs[1]
+ggsave("manuscript/data/figures/CGT_umap_collect_all.png", device = "png", width = 10, height = 7)
 
-dev.off()
+# MST figures
 
-plot.new()
+meta_df <- meta
+mst_list <- pre_mst
+graph_m1 <- mst_list[[1]]
+graph_m2 <- mst_list[[2]]
+graph_m3 <- mst_list[[3]]
+lay <- mst_list[[4]]
 
-pdf("manuscript/data/figures/CGT_mst_region_all_legend.pdf", width = 10, height = 10)
+ggnet_1 <- ggnetwork(graph_m1, layout = lay)
+p1 <- ggplot(ggnet_1, aes(x = x, y = y, xend = xend, yend = yend)) +
+  theme_few() +
+  geom_edges(color = "gray") +
+  geom_nodes(aes(color = Region), size = 3) +
+  scale_color_manual(name = "", values = kev_palette[1:length(unique(meta_df$Region))]) +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y = element_blank()) +
+  theme(axis.text.x = element_blank()) +
+  theme(axis.text.y = element_blank()) +
+  theme(axis.ticks.x = element_blank()) +
+  theme(axis.ticks.y = element_blank()) +
+  theme(axis.line.x = element_blank()) +
+  theme(axis.line.y = element_blank()) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(legend.text = element_text(size = 14)) 
 
-plot.new()
+p1
 
-legend("topleft", legend = levels(factor(meta$Region)), fill = kev_palette[1:length(unique(meta$Region))], pt.cex = 1, cex = 1, text.font = 2)
+ggsave("manuscript/data/figures/CGT_mst_region_all.png", device = "png", width = 10, height = 7)
 
-dev.off()
+ggnet_2 <- ggnetwork(graph_m2, layout = lay)
+
+p2 <- ggplot(ggnet_2, aes(x = x, y = y, xend = xend, yend = yend)) +
+  theme_few() +
+  geom_edges(color = "gray") +
+  geom_nodes(aes(color = Country), size = 3) +
+  scale_color_manual(name = "", values = qual_vector[1:length(unique(meta_df$Geo_Location))]) +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y = element_blank()) +
+  theme(axis.text.x = element_blank()) +
+  theme(axis.text.y = element_blank()) +
+  theme(axis.ticks.x = element_blank()) +
+  theme(axis.ticks.y = element_blank()) +
+  theme(axis.line.x = element_blank()) +
+  theme(axis.line.y = element_blank()) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(legend.text = element_text(size = 14)) 
+
+p2
+
+ggsave("manuscript/data/figures/CGT_mst_country_all.png", device = "png", width = 16, height = 7)
+
+ggnet_3 <- ggnetwork(graph_m3, layout = lay)
+p3 <- ggplot(ggnet_3, aes(x = x, y = y, xend = xend, yend = yend)) +
+  theme_few() +
+  geom_edges(color = "gray") +
+  geom_nodes(aes(color = Date), size = 3) +
+  scale_color_continuous(name = "Days from \nfirst case", low = "#b92b27", high = "#1565C0") + 
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y = element_blank()) +
+  theme(axis.text.x = element_blank()) +
+  theme(axis.text.y = element_blank()) +
+  theme(axis.ticks.x = element_blank()) +
+  theme(axis.ticks.y = element_blank()) +
+  theme(axis.line.x = element_blank()) +
+  theme(axis.line.y = element_blank()) +
+  theme(legend.title = element_text(size = 15, face = "bold")) +
+  theme(legend.text = element_text(size = 14)) 
+
+p3
+
+ggsave("manuscript/data/figures/CGT_mst_collect_all.png", device = "png", width = 10, height = 7)
                                                                                   
-# SNP figure
+# SNP figures
 
 snp_figs <- snp_plotter(pre_snp, meta)
 
 snp_figs[1]
 
 ggsave("manuscript/data/figures/CGT_snp_region_all.png", device = "png", width = 10, height = 7)
+
+snp_figs[2]
+
+ggsave("manuscript/data/figures/CGT_snp_country_all.png", device = "png", width = 16, height = 7)
+
+snp_figs[3]
+
+ggsave("manuscript/data/figures/CGT_snp_collect_all.png", device = "png", width = 10, height = 7)
+
+
+
 
