@@ -12,6 +12,11 @@ library(ggplot2)
 library(ggthemes)
 library(plotly)
 library(ggnetwork)
+library(parallel)
+
+# Set core usage
+
+cores <- detectCores()
 
 # Load color palettes    
 
@@ -45,7 +50,7 @@ align_get <- function(fasta, align) {
   if (length(covid_seq) < 1) {
     stop("No sequences found in fasta file.")
   }
-  if (length(which((lapply(covid_seq, length)) < 29000)) > 0) {
+  if (length(which((mclapply(covid_seq, length, mc.cores = cores)) < 29000)) > 0) {
     stop("One or more sequences not complete (length < 29000 nucleotides).")
   }
   covid_align <- align
@@ -62,6 +67,64 @@ dist_get <- function(align) {
   rownames(dec_dist) <- (str_split_fixed(rownames(dec_dist), fixed("."), 2)[,1])
   return(dec_dist)
   
+}
+
+split_dist <- function(d1, d2) {
+  
+  d1 <- DNAStringSet(d1)
+  d2 <- DNAStringSet(d2)
+  dna_bound <- c(d1, d2)
+  bound_dist <- dist_get(dna_bound)
+  bound_df <- as.data.frame(bound_dist[2])
+  colnames(bound_df) <- names(dna_bound)[1]
+  rownames(bound_df) <- names(dna_bound)[2]
+  return(bound_df)
+  
+}
+
+align_update <- function(min_id, name, dist) {
+  
+  dist_min_row <- dist[min_id[1],]
+  dist_min_col <- c(dist_min_row, 0)
+  dist_new <- rbind(dist, dist_min_row)
+  rownames(dist_new)[nrow(dist_new)] <- name
+  dist_new <- cbind(dist_new, dist_min_col)
+  colnames(dist_new)[ncol(dist_new)] <- name
+  dist_ret <<- dist_new
+  
+}
+
+dist_get_heur <- function(align, fasta, dist) {
+  
+  dist_ret0 <- dist
+  new_length <- length(readDNAStringSet(fasta))
+  align_new <- align[(length(align) - new_length):length(align)]
+  align_minus <- align[1:(length(align) - new_length)]
+  align_new_list <- as.list(align_new)
+  
+  split_test <- mclapply(align_new, function(x) mclapply(align_minus, function(y) split_dist(x, y), mc.cores = cores), mc.cores = 8)
+  split_test_reduced <- mclapply(split_test, function(x) Reduce(cbind, x), mc.cores = cores)
+  split_test_reduced_mins <- mclapply(split_test_reduced, min, mc.cores = cores)
+  split_test_reduced_min_id <- mclapply(split_test_reduced, which.min, mc.cores = cores)
+  split_test_reduced_names <- as.list(names(split_test_reduced_mins))
+  
+  if (max(unlist(split_test_reduced_mins)) > 1e-4) {
+    dist_ret <- dist_get(align)
+    return(dist_ret)
+  } else {
+    dist_ret <- dist_ret0
+    align_update <- function(min_id, name, dist) {
+      dist_min_row <- dist[min_id[1],]
+      dist_min_col <- c(dist_min_row, 0)
+      dist_new <- rbind(dist, dist_min_row)
+      rownames(dist_new)[nrow(dist_new)] <- name
+      dist_new <- cbind(dist_new, dist_min_col)
+      colnames(dist_new)[ncol(dist_new)] <- name
+      dist_ret <<- dist_new
+    }
+    mcmapply(align_update, min_id = split_test_reduced_min_id, name = split_test_reduced_names, MoreArgs = list(dist = dist_ret0), mc.cores = cores)
+    return(dist_ret)
+  }
 }
 
 umap_process <- function(covid_dist, meta_df) {
@@ -140,8 +203,8 @@ snps_get <- function(alignment, metadata, positions) {
   }
   
   meta_nums <- list(1, 2, 3)
-  all_tables <- lapply(meta_nums, function(x) lapply(pos, function(y) table_get(align_df, y, x)))
-  table_concat <- lapply(all_tables, function(x) base::Reduce(rbind, x))
+  all_tables <- mclapply(meta_nums, function(x) mclapply(pos, function(y) table_get(align_df, y, x), mc.cores = cores), mc.cores = cores)
+  table_concat <- mclapply(all_tables, function(x) base::Reduce(rbind, x), mc.cores = cores)
   return(table_concat)
   
 }

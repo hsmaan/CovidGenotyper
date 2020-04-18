@@ -219,7 +219,7 @@ server <- function(input, output) {
       dist <- pre_dist
       return(dist)
     } else {
-      dist <- dist_get(align())
+      dist <- dist_get_heur(pre_aligned_filtered, input$input_fasta, pre_dist)
       return(dist)
     }
   })
