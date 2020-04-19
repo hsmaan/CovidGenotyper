@@ -64,7 +64,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
   tags$head(tags$link(rel = "shortcut icon", type = "image/png", href = "cgt_icon.png"),
             tags$title("Covid-19 Genotyping Tool")),
                 
-  titlePanel(title = img(height = 80, width = 80, src = "cgt_logo.png", align = "left")), h3(strong("COVID-19 GENOTYPING TOOL", align = "left")),
+  titlePanel(title = img(height = 80, width = 80, src = "cgt_logo.png", align = "left")), h3(strong("COVID-19 GENOTYPING TOOL", align = "left"), img(src = "sunnybrook.png", height = 35, align = "right"), img(src = "mcmaster_logo.png", height = 60, align = "right"), img(src = "vector_logo.png", height = 60, align = "right"), img(src = "pmcc.jpg", height = 40, align = "right")),
   
   sidebarLayout(fluid = TRUE,
     
