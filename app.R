@@ -93,6 +93,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
             br(),
             "University Health Network",
             br(),
+            "Vector Institute",
+            br(),
             "Toronto, Canada"
           )
         )
@@ -132,17 +134,19 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           ),
           
           p(
-            "Further information and detailed documentation are available at", a("hsmaan/CovidGenotyper.", href="https://github.com/hsmaan/CovidGenotyper")
+            "Further information and detailed documentation are available at", a("hsmaan/CovidGenotyper.", href="https://github.com/hsmaan/CovidGenotyper."), "Recommendations and problems with the application can be opened up as an issue on GitHub. General feedback can be forwarded to", a("hurmaan99@gmail.com", href = "mailto:hurmaan99@gmail.com")
           ),
           
           p(
-            strong("Author:"), "Hassaan Maan",
+            strong("Author/Maintainer:"), "Hassaan Maan",
             a("(Github)", href = "https://github.com/hsmaan")
           ),
           p(
             a("Bo Wang Lab", href="https://wanglab.ml/"),
             br(),
             "University Health Network",
+            br(),
+            "Vector Institute",
             br(),
             "Toronto, Canada"
           )
@@ -190,6 +194,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
              a("Bo Wang Lab", href="https://wanglab.ml/"),
              br(),
              "University Health Network",
+             br(),
+             "Vector Institute",
              br(),
              "Toronto, Canada"
            )
