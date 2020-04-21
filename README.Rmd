@@ -25,11 +25,11 @@ knitr::opts_chunk$set(
 
 #### UI and visualizations
 
-The CGT application was developed using the `shiny` R package and framework. Visualizations are generated using the `ggplot2`, `ggnetwork`, and `plotly` R packages. User uploaded fasta files are considered input, and the visualizations reactively adjust to user data. To expedite the loading of plots using public data, the alignment, DNA distance, and plot data fetching steps are all pre-processed for GISAID public sequence data. Once users upload in-house sequencing data, these steps are re-performed with the concatenation of user and public data. DNA distance calculation uses a heuristic to expedite processing time (see below). 
+The CGT application was developed using the `shiny` R package and framework. Visualizations are generated using the `ggplot2`, `ggnetwork`, and `plotly` R packages. User uploaded fasta files are considered input, and the visualizations reactively adjust to user data. To expedite the loading of plots using public data, the alignment, DNA distance, and plot data fetching steps are all pre-processed for GISAID public sequence data. Once users upload in-house sequencing data, these steps are re-performed with the concatenation of user and public data. DNA distance and UMAP calculations use a heuristic to expedite processing time (see below). 
 
 #### Sequence and metadata retrieval 
 
-Processed fasta files of Covid-19 viral genome sequence are retrieved from the  [GISAID](https://www.gisaid.org/) EpiCoV database, which is a public database for sharing of viral genome sequence data. Metadata for GISAID viral genomes are obtained from [nextstrain's ncov build](https://github.com/nextstrain/ncov/blob/master/data/metadata.tsv). Viral genome data and metadata are updated on a daily basis.
+Processed fasta files of Covid-19 viral genome sequence are retrieved from the  [GISAID](https://www.gisaid.org/) EpiCoV database, which is a public database for sharing of viral genome sequence data. Metadata for GISAID viral genomes are obtained from [nextstrain's ncov build](https://github.com/nextstrain/ncov/blob/master/data/metadata.tsv). Viral genome data and metadata are updated on a weekly basis.
 
 #### Genome sequence alignment
 
@@ -51,6 +51,8 @@ UMAP is performed to visualize DNA distances between public data and user upload
 `min_dist = 0.001`<br/> 
 `spread = 30`<br/> 
 `local_connectivity = 10`<br/>
+
+Similar to the DNA distance heuristic outlined above, if the minimum distance (<1e-4) requirements for all user-uploaded sequences are met, the UMAP coordinates of the user-uploaded sequences are imputed as the coordinates of the minimum distance matched genomes from GISAID. Otherwise, UMAP is recomputed with the added user-data.
 
 #### Network analysis and minimum spanning tree (MST)
 

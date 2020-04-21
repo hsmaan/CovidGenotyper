@@ -76,12 +76,12 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           
          
         
-          h4(strong(strong("CGT is under continuous development, and new features are being routinely integrated."))),
+          p("The COVID-19 Genotyping Tool (CGT) is a visualization toolbox for SARS-CoV-2 whole genome sequencing data. Public sequences from GISAID is preloaded for inspection, and users have the option of uploading in-house SARS-CoV-2 sequencing data for concurrent analysis with public data."),
           
           h4(strong("Instructions")), 
           
           p(
-            "Add", strong("up to 10"), "complete (>29000 bp) COVID-19 sequences in fasta format, in one file. Ensure fasta sequences have headers.", strong("Processing should take up to 15 minutes, but may be longer if uploaded sequences are sufficiently dissimilar to public domain data."), "Please", strong("DO NOT REFRESH"), "the page after uploading. Uploaded data will be lost on refresh as we do not store or cache user data in any way.", "Hover over visualizations and use the plotly interface for navigation. Plots can be saved as a png using plotly. Metadata can be toggled from below."
+            "Add", strong("up to 10"), "complete (>29000 bp) COVID-19 sequences in fasta format, in one file. Ensure fasta sequences have headers.", strong("Processing all visualizations should take up to 15 minutes, but may be longer if uploaded sequences are sufficiently dissimilar to public domain data."), "Please", strong("DO NOT REFRESH"), "the page after uploading. Uploaded data will be lost on refresh as we do not store or cache user data in any way.", "Hover over visualizations and use the plotly interface for navigation. Plots can be saved as a png using plotly. Metadata can be toggled from below."
             ),
           
           fileInput(inputId = "input_fasta", label = h4(strong("Upload fasta"))),
@@ -158,7 +158,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
            ),
            
            p(
-             "COVID-19 viral genome sequences from GISAID are downloaded daily and processed using the CGT computational pipeline. No sequence information is published on the website, as per the", 
+             "COVID-19 viral genome sequences from GISAID are downloaded and processed using the CGT computational pipeline, updated on a weekly basis. No sequence information is published on the website, as per the", 
              a("GISAID data usage policy.", href = "https://www.gisaid.org/registration/terms-of-use"),
              "We thank all of the GISAID contributers for sharing their data. Full up-to-date acknowledgements of COVID-19 sequence resources available", 
              a("here.", href = "https://github.com/hsmaan/CovidGenotyper/ack")
@@ -225,7 +225,7 @@ server <- function(input, output) {
       dist <- pre_dist
       return(dist)
     } else {
-      dist <- dist_get_heur(pre_aligned_filtered, input$input_fasta$datapath, pre_dist)
+      dist <- dist_get_heur(align(), input$input_fasta$datapath, pre_dist)
       return(dist)
     }
   })
@@ -247,7 +247,7 @@ server <- function(input, output) {
       umap_df <- pre_umap
       return(umap_df)
     } else {
-      umap_df <- umap_process(dist_reac(), meta_reac())
+      umap_df <- umap_process_heur(align(), input$input_fasta$datapath, dist_reac(), meta_reac(), pre_umap)
       return(umap_df)
     }
   })

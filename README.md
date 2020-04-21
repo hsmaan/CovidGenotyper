@@ -25,8 +25,8 @@ To expedite the loading of plots using public data, the alignment, DNA
 distance, and plot data fetching steps are all pre-processed for GISAID
 public sequence data. Once users upload in-house sequencing data, these
 steps are re-performed with the concatenation of user and public data.
-DNA distance calculation uses a heuristic to expedite processing time
-(see below).
+DNA distance and UMAP calculations use a heuristic to expedite
+processing time (see below).
 
 #### Sequence and metadata retrieval
 
@@ -35,7 +35,7 @@ from the [GISAID](https://www.gisaid.org/) EpiCoV database, which is a
 public database for sharing of viral genome sequence data. Metadata for
 GISAID viral genomes are obtained from [nextstrain’s ncov
 build](https://github.com/nextstrain/ncov/blob/master/data/metadata.tsv).
-Viral genome data and metadata are updated on a daily basis.
+Viral genome data and metadata are updated on a weekly basis.
 
 #### Genome sequence alignment
 
@@ -81,6 +81,12 @@ exception of the following parameters:
 `init = "spectral"`<br/> `metric = "cosine"`<br/> `n_neighbors
 = 50`<br/> `min_dist = 0.001`<br/> `spread = 30`<br/>
 `local_connectivity = 10`<br/>
+
+Similar to the DNA distance heuristic outlined above, if the minimum
+distance (\<1e-4) requirements for all user-uploaded sequences are met,
+the UMAP coordinates of the user-uploaded sequences are imputed as the
+coordinates of the minimum distance matched genomes from GISAID.
+Otherwise, UMAP is recomputed with the added user-data.
 
 #### Network analysis and minimum spanning tree (MST)
 

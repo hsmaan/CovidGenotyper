@@ -215,7 +215,7 @@ min(test_combine)
 align <- pre_aligned_filtered
 # new_length <- length(readDNAStringSet(fasta))
 new_length <- 4
-align_new <- align[(length(align) - new_length):length(align)]
+align_new <- align[(length(align) - new_length + 1):length(align)]
 align_minus <- align[1:(length(align) - new_length)]
 
 align_new_list <- as.list(align_new)
@@ -231,21 +231,33 @@ split_test_reduced_mins <- lapply(split_test_reduced, min)
 split_test_reduced_names <- as.list(names(split_test_reduced_mins))
 
 align_minus_up <- align_minus
-pre_dist_minus <- pre_dist[1:(nrow(pre_dist) - new_length - 1 ), 1:(ncol(pre_dist) - new_length - 1)]
+pre_dist_minus <- pre_dist[1:(nrow(pre_dist) - new_length), 1:(ncol(pre_dist) - new_length)]
 
 align_update <- function(min_id, name) {
   
   dist_min_row <- pre_dist_minus[min_id[1],]
-  dist_min_col <- c(dist_min_row, 0)
-  dist_new <- rbind(pre_dist_minus, dist_min_row)
-  rownames(dist_new)[nrow(dist_new)] <- name
-  dist_new <- cbind(dist_new, dist_min_col)
-  colnames(dist_new)[ncol(dist_new)] <- name
-  pre_dist_minus <<- dist_new
+  return(list(dist_min_row, name))
   
 }
 
-mapply(align_update, min_id = split_test_reduced_min_id, name = split_test_reduced_names)
+align_bind <- function(full_dist, row_list) {
+  
+  new_row <- row_list[[1]]
+  name <- row_list[[2]]
+  new_col <- c(new_row, 0)
+  dist_new <- rbind(full_dist, new_row)
+  rownames(dist_new)[nrow(dist_new)] <- name
+  dist_new <- cbind(dist_new, new_col)
+  colnames(dist_new)[ncol(dist_new)] <- name
+  return(dist_new)
+}
+
+test <- mapply(align_update, min_id = split_test_reduced_min_id, name = split_test_reduced_names, SIMPLIFY = FALSE)
+
+test2 <- c(list(pre_dist_minus), test)
+
+test3 <- Reduce(align_bind, test2)
+
 
 
 align_update(split_test_reduced_min_id[[1]], split_test_reduced_names[[1]])
