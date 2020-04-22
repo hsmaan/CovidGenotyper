@@ -156,9 +156,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     tabPanel(strong("Data"),
          
        sidebarPanel(
-           
+              
            h4(
-             strong("GISAID data:"),
+             strong("GISAID data"),
            ),
            
            p(
@@ -169,7 +169,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
            ),
            
            h4(
-             strong("Nextstrain metadata:")
+             strong("Nextstrain metadata")
            ),
            
            p(
@@ -179,7 +179,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
            ),
            
            h4(
-             strong("User privacy:")
+             strong("User privacy")
            ),
            
            p(
@@ -222,6 +222,7 @@ server <- function(input, output) {
       return(align)
     } else {
       align <- align_get(input$input_fasta$datapath, pre_aligned_filtered)
+      gc()
       return(align)
     }
   })
@@ -232,6 +233,7 @@ server <- function(input, output) {
       return(dist)
     } else {
       dist <- dist_get_heur(align(), input$input_fasta$datapath, pre_dist)
+      gc()
       return(dist)
     }
   })
@@ -244,6 +246,7 @@ server <- function(input, output) {
       new_accessions <- rownames(dist_reac())[(nrow(meta)+1):nrow(dist_reac())]
       meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)), "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)), "Datetime" = rep((unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))), length(new_accessions)))
       new_meta <- rbind(meta, meta_new)
+      gc()
       return(new_meta)
     }
   })
@@ -254,6 +257,7 @@ server <- function(input, output) {
       return(umap_df)
     } else {
       umap_df <- umap_process_heur(align(), input$input_fasta$datapath, dist_reac(), meta_reac(), pre_umap)
+      gc()
       return(umap_df)
     }
   })
@@ -274,6 +278,7 @@ server <- function(input, output) {
       return(snp_dfs)
     } else {
       snp_dfs <- snps_get(align(), meta_reac(), vars_freq)
+      gc()
       return(snp_dfs)
     }
   })
