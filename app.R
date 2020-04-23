@@ -134,7 +134,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           ),
           
           p(
-            "Further information and detailed documentation are available at", a("hsmaan/CovidGenotyper.", href="https://github.com/hsmaan/CovidGenotyper."), "Recommendations and problems with the application can be opened up as an issue on GitHub. General feedback can be forwarded to", a("hurmaan99@gmail.com", href = "mailto:hurmaan99@gmail.com")
+            "Further information and detailed documentation are available at", a("hsmaan/CovidGenotyper.", href="https://github.com/hsmaan/CovidGenotyper"), "Recommendations and problems with the application can be opened up as an issue on GitHub. General feedback can be forwarded to", a("hurmaan99@gmail.com", href = "mailto:hurmaan99@gmail.com")
           ),
           
           p(
