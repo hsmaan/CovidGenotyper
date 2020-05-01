@@ -94,9 +94,9 @@ align_bind <- function(full_dist, row_list) {
   return(dist_new)
 }
 
-align_update <- function(min_id, name) {
+align_update <- function(dist_mat, min_id, name) {
   
-  dist_min_row <- pre_dist_minus[min_id[1],]
+  dist_min_row <- dist_mat[min_id[1],]
   return(list(dist_min_row, name))
   
 }
@@ -120,7 +120,7 @@ dist_get_heur <- function(align, fasta, dist) {
     return(dist_ret)
   } else {
     dist_ret <- dist_ret0
-    update_rows <- mcmapply(align_update, min_id = split_test_reduced_min_id, name = split_test_reduced_names, SIMPLIFY = FALSE, mc.cores = cores)
+    update_rows <- mcmapply(align_update, min_id = split_test_reduced_min_id, name = split_test_reduced_names, MoreArgs = list(dist_mat = dist_ret), SIMPLIFY = FALSE, mc.cores = cores)
     dist_list <- c(list(dist_ret), update_rows)
     dist_concat <- Reduce(align_bind, dist_list)
     return(dist_concat)
@@ -243,8 +243,8 @@ snps_get <- function(alignment, metadata, positions) {
   }
   
   meta_nums <- list(1, 2, 3)
-  all_tables <- mclapply(meta_nums, function(x) mclapply(pos, function(y) table_get(align_df, y, x), mc.cores = cores), mc.cores = cores)
-  table_concat <- mclapply(all_tables, function(x) base::Reduce(rbind, x), mc.cores = cores)
+  all_tables <- mclapply(meta_nums, function(x) lapply(pos, function(y) table_get(align_df, y, x)), mc.cores = cores)
+  table_concat <- lapply(all_tables, function(x) base::Reduce(rbind, x))
   return(table_concat)
   
 }
