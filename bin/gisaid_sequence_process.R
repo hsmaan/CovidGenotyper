@@ -25,6 +25,10 @@ all_fastas <- readDNAStringSet(gisaid_fastas)
 
 names(all_fastas) <- (str_split_fixed(names(all_fastas), fixed("|"), 3))[,2]
 
+# Load reference fasta
+
+ref_fasta <- readDNAStringSet("ncov_ref_NC_045512.fasta")
+
 # Load metadata 
 
 loadRData <- function(fileName){
@@ -58,6 +62,12 @@ all_fastas <- all_fastas[order(accession_order)]
 
 pre_meta_sub <- pre_meta[which(pre_meta$Accession %in% names(all_fastas)),]
 
+# Remove sequences with high percentage of ambiguous nucleotides
+
+ambg_freq_sub <- which(((letterFrequency(all_fastas, "N"))/29000) > 0.05)
+
+all_fastas <- all_fastas[-ambg_freq_sub]
+
 # Remove gaps
 
 all_fastas <- RemoveGaps(all_fastas, removeGaps = "all", processors = NULL)
@@ -81,7 +91,12 @@ writeXStringSet(fasta_string, file = paste("dec_aligned_fasta_filtered_", as.cha
 
 fasta_dist <- dist.dna(as.DNAbin(fasta_final), model = "K80", as.matrix = TRUE, pairwise.deletion = FALSE)
 
-# Output both objects 
+# Append ref to alignment and output 
+
+fasta_align_ref <- c(ref_fasta, fasta_string)
+writeXStringSet(fasta_align_ref, file = paste("dec_aligned_plus_ref_filtered_", as.character(Sys.Date()), ".fasta", sep = ""))
+
+# Output all objects 
 
 save(fasta_align, file = paste("dec_unfiltered_aligned_fastas_", as.character(Sys.Date()), ".RData", sep = ""))
 save(fasta_dist, file = paste("dec_fasta_dist_", as.character(Sys.Date()), ".RData", sep = ""))

@@ -20,8 +20,9 @@ file_list <- list.files()
 
 alignment <- readDNAStringSet(grep("dec_aligned_fasta_filtered*", list.files(), value = TRUE))
 gff <- read.gff(grep("ncov_NC_045512_Genes.GFF3", list.files(), value = TRUE))
-var_freq <- read.table(grep("*.frq", list.files(), value = TRUE), stringsAsFactors = FALSE, fill = TRUE, col.names = paste0("V", seq(0, 10)))
+var_freq <- read.table(grep("*.frq", list.files(), value = TRUE), stringsAsFactors = FALSE, fill = TRUE, col.names = paste0("V", seq(0, 15)))
 vcf <- fread(grep("*.vcf", list.files(), value = TRUE))
+vcf <- vcf[-1,]
 
 # Format and Convert GFF to GRanges object 
 
@@ -87,6 +88,6 @@ var_freq_sub_9 <- var_freq_sub_9[,c("Pos", "A1", "AF1", "A2", "AF2", "Gene", "Ef
 
 file.remove(grep("var_freq_sub_9*", file_list, value = TRUE))
 save(var_freq_sub_9, file = paste("var_freq_sub_9_", Sys.Date(), ".RData", sep = "")) 
-
+  
 
   
