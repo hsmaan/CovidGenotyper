@@ -47,6 +47,7 @@ file.remove(grep("dec_unfiltered_aligned_fastas_", all_files, value = TRUE))
 file.remove(grep("dec_fasta_dist_", all_files, value = TRUE))
 file.remove(grep("dec_aligned_filtered_", all_files, value = TRUE))
 file.remove(grep("covid_filtered_meta_", all_files, value = TRUE))
+file.remove(grep("dec_aligned_plus_ref_filtered_", all_files, value = TRUE))
 
 # Subset all files by available metadata
 
@@ -64,7 +65,7 @@ pre_meta_sub <- pre_meta[which(pre_meta$Accession %in% names(all_fastas)),]
 
 # Remove sequences with high percentage of ambiguous nucleotides
 
-ambg_freq_sub <- which(((letterFrequency(all_fastas, "N"))/29000) > 0.05)
+ambg_freq_sub <- which(((letterFrequency(all_fastas, "N"))/29000) > 0.005)
 
 all_fastas <- all_fastas[-ambg_freq_sub]
 
