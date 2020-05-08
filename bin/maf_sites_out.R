@@ -46,6 +46,8 @@ var_freq_mi_af2 <- as.numeric(str_split_fixed(var_freq$V5, ":", 2)[,2])
 
 var_freq_filtered <- data.frame("Pos" = var_freq_pos, "A1" = var_freq_mj_a1, "AF1" = var_freq_mj_af1, "A2" = var_freq_mj_a2, "AF2" = var_freq_mi_af2)
 
+var_freq_filtered <- var_freq_filtered[which((var_freq_filtered$A1 %in% c("A", "T", "C", "G")) & (var_freq_filtered$A2 %in% c("A", "T", "C", "G"))), ]
+
 # Format vcf metadata and add 
 
 vcf_sub <- data.frame("Pos" = vcf$POS, "Meta" = str_split_fixed(vcf$INFO, stringr::fixed("|"), 4)[,2])
