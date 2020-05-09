@@ -68,7 +68,7 @@ all_fastas <- RemoveGaps(all_fastas, removeGaps = "all", processors = NULL)
 
 # Align 
 
-fasta_align <- AlignSeqs(all_fastas, iterations = 0, refinements = 0)
+fasta_align <- AlignSeqs(all_fastas, iterations = 0, refinements = 0, processors = NULL)
 
 # Subset and exclude UTRs and gaps 
 
