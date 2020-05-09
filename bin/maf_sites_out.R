@@ -3,7 +3,6 @@ library(tidyverse)
 library(Biostrings)
 library(ape)
 library(GenomicRanges)
-library(VariantAnnotation)
 library(GenomicFeatures)
 library(stringr)
 
