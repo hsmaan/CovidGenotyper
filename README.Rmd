@@ -62,6 +62,73 @@ Network representations of DNA distance are visualized using the `igraph` packag
 
 Genotype profiles of viral genomes are determined using high prevalence non-synonymous SNPs (based on minor allele frequency) within structural protein (E, M, N, S) genome regions in the public sequencing data. SNPs were called using `snp-sites`, annotated using `snpEff`, and frequency analysis was performed using `vcftools`. The top 9 most frequent non-synonymous (missense, nonsense) SNPs within structural protein genome regions are presented. 
 
+## Local deployment
+
+CGT can also be installed locally. Application deployment has currently only been tested on Linux systems including Ubuntu 18.04 LTS and Debian 9.0 LTS, thus we only provide installation instructions for Debian/Ubuntu systems. 
+
+##### 1) Installing CGT dependencies
+
+Clone the repository locally <br/> 
+`git clone https://github.com/hsmaan/CovidGenotyper`
+
+Install snp-sites and vcftools <br/>
+`sudo apt-get install snp-sites vctools`
+
+Download and install [snpEff](https://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip/download) and ensure it's installed in the right directory <br/>
+```
+unzip snpEff
+mv snpEff /usr/local/bin
+```
+
+Download gb and fasta files of SARS-CoV-2 reference NC_045512 (rename to `covid.gb` and `covid.fa` respectively) from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and create SARS-CoV-2 reference database for snpEff <br/>
+```
+mkdir -p /usr/local/bin/snpEff/data/COVID
+mv covid.gb covid.fa /usr/local/bin/snpEff/data/COVID
+echo COVID.genome : COVID >> /usr/local/bin/snpEff/snpEff.config
+java -jar /usr/local/bin/snpEff/snpEff.jar build -genbank -v COVID
+```
+
+Ensure R >3.5 is installed, and run the R package installation script. Ensure all packages are installed. Packages may fail due to unmet library depdendencies - check Rscript output and install <br/>
+```
+cd CovidGenotyper/bin
+Rscript --verbose packages_install.R
+```
+
+##### 2) Run preprocessing scripts
+
+CGT relies on pre-processing plot data prior to deployment to ensure visualizations can be loaded quickly. Fasta sequences should be downloaded from [GISAID's EpiCoV database](https://www.gisaid.org/) and saved as `gisaid_cov2020_sequences_[mmm_dd].fasta` in the `data` folder. Metadata from [nextstrain's ncov repository](https://github.com/nextstrain/ncov) should be saved as `gisaid_metadata_[mmm_dd].tsv`, also in the `data` folder. 
+
+The order for processing scripts is the following:
+
+```
+cd CovidGenotyper/bin
+Rscript --verbose metadata_process.R
+Rscript --verbose gisaid_sequence_process.R
+sh snp_sites_process.sh
+Rscript --verbose maf_sites_out.R
+Rscript --verbose preprocess_plot_data.R
+``` 
+
+##### 3) Deploy CGT
+
+Now that the shiny application dependencies have been installed and data has been preloaded, the shiny app can be deployed in a variety of ways, documented [here](https://shiny.rstudio.com/deploy/).
+
+We recommend creating a docker image of the shiny app, which can be deployed locally and on the cloud. First run the base docker image installation, which includes installation of the rocker shiny image, system dependencies, and R <br/>
+```
+cd CovidGenotyper
+sudo docker build -t cgt/base -f base.Dockerfile .
+```
+
+Now the shiny app can be routinely rebuilt on top of this image, after having rerun the processing scripts outlined in step *2)*. This allows for easy updating without having to rebuild the entire image from scratch <br/>
+```
+sudo docker build -t cgt/app -f app.Dockerfile .
+```
+
+The `app.Dockerfile` script modifies the config to expose port 80 instead of 3838 (shiny server default). To deploy the shiny app, run the following <br/>
+```
+docker run --rm cgt/app
+```
+
 ## Software information
 
 #### R packages
@@ -70,6 +137,7 @@ Genotype profiles of viral genomes are determined using high prevalence non-syno
 * shinyWidgets v0.5.1
 * shinycssloaders v0.3
 * shinythemes v1.1.2
+* BiocManager v1.30.10
 * Biostrings v2.54.0
 * ape v5.3
 * DECIPHER v2.14.0
