@@ -1,14 +1,7 @@
 library(ape)
-library(adephylo)
-library(ade4)
-library(phylobase)
-library(geiger)
-library(phytools)
-library(muscle)
 library(Biostrings)
 library(stringr)
 library(DECIPHER)
-library(phytools)
 library(stringi)
 library(data.table)
 library(tidyverse)
@@ -24,6 +17,10 @@ gisaid_fastas <- grep("gisaid_cov2020_sequences", all_files, value = TRUE)
 all_fastas <- readDNAStringSet(gisaid_fastas)
 
 names(all_fastas) <- (str_split_fixed(names(all_fastas), fixed("|"), 3))[,2]
+
+# Load reference fasta
+
+ref_fasta <- readDNAStringSet("ncov_ref_NC_045512.fasta")
 
 # Load metadata 
 
@@ -43,6 +40,13 @@ file.remove(grep("dec_unfiltered_aligned_fastas_", all_files, value = TRUE))
 file.remove(grep("dec_fasta_dist_", all_files, value = TRUE))
 file.remove(grep("dec_aligned_filtered_", all_files, value = TRUE))
 file.remove(grep("covid_filtered_meta_", all_files, value = TRUE))
+file.remove(grep("dec_aligned_plus_ref_filtered_", all_files, value = TRUE))
+
+# Remove sequences with high percentage of ambiguous nucleotides
+
+ambg_freq_sub <- which(((letterFrequency(all_fastas, "N"))/29000) > 0.005)
+
+all_fastas <- all_fastas[-ambg_freq_sub]
 
 # Subset all files by available metadata
 
@@ -64,7 +68,7 @@ all_fastas <- RemoveGaps(all_fastas, removeGaps = "all", processors = NULL)
 
 # Align 
 
-fasta_align <- AlignSeqs(all_fastas, iterations = 0, refinements = 0)
+fasta_align <- AlignSeqs(all_fastas, iterations = 0, refinements = 0, processors = NULL)
 
 # Subset and exclude UTRs and gaps 
 
@@ -81,7 +85,12 @@ writeXStringSet(fasta_string, file = paste("dec_aligned_fasta_filtered_", as.cha
 
 fasta_dist <- dist.dna(as.DNAbin(fasta_final), model = "K80", as.matrix = TRUE, pairwise.deletion = FALSE)
 
-# Output both objects 
+# Append ref to alignment and output 
+
+fasta_align_ref <- c(ref_fasta, fasta_string)
+writeXStringSet(fasta_align_ref, file = paste("dec_aligned_plus_ref_filtered_", as.character(Sys.Date()), ".fasta", sep = ""))
+
+# Output all objects 
 
 save(fasta_align, file = paste("dec_unfiltered_aligned_fastas_", as.character(Sys.Date()), ".RData", sep = ""))
 save(fasta_dist, file = paste("dec_fasta_dist_", as.character(Sys.Date()), ".RData", sep = ""))

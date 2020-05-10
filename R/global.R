@@ -16,7 +16,7 @@ library(parallel)
 
 # Set core usage
 
-cores <- round(detectCores()/2, 0)
+cores <- round(detectCores()/1.5, 0)
 
 # Load color palettes    
 
@@ -55,7 +55,7 @@ align_get <- function(fasta, align) {
   }
   covid_align <- align
   covid_seq <- RemoveGaps(covid_seq, removeGaps = "all", processors = NULL)
-  fasta_final <- AlignProfiles(covid_align, covid_seq)
+  fasta_final <- AlignProfiles(covid_align, covid_seq, processors = NULL)
   return(fasta_final)
   
 }

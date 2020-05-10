@@ -16,5 +16,10 @@
 *.log
 *.frq
 *.dcf
+*.json
+*.fai
+*.txt
+*.html
+gisaid_cron.sh
 slurm*
 

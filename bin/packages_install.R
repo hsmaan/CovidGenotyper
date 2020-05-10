@@ -22,6 +22,8 @@ install.packages("igraph")
 install.packages("stringi")
 install.packages("igraph")
 install.packages("ape")
+BiocManager::install("GenomicRanges")
+BiocManager::install("GenomicFeatures")
 BiocManager::install("Biostrings")
 BiocManager::install("DECIPHER")
 
