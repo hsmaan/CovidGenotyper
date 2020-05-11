@@ -2,7 +2,6 @@ library(ape)
 library(Biostrings)
 library(stringr)
 library(DECIPHER)
-library(stringi)
 library(data.table)
 library(tidyverse)
 
