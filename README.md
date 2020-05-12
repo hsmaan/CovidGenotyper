@@ -5,10 +5,10 @@
 
 ## Overview
 
-[The Covid-19 Genotyping Tool](covidgenotyper.app) (CGT) is an R-Shiny
-based web application that allows researchers to upload fasta sequences
-of Covid-19 viral genomes and compare with public sequence data
-available on [GISAID](https://www.gisaid.org/). Genomic distance is
+[The Covid-19 Genotyping Tool](https://covidgenotyper.app) (CGT) is an
+R-Shiny based web application that allows researchers to upload fasta
+sequences of Covid-19 viral genomes and compare with public sequence
+data available on [GISAID](https://www.gisaid.org/). Genomic distance is
 visualized using manifold projection and network analysis, and genotype
 information with respective to high-prevalence SNPs is determined.
 
