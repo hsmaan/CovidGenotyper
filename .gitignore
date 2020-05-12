@@ -16,5 +16,9 @@
 *.log
 *.frq
 *.dcf
+*.json
+*.fai
+*.txt
+*.html
 slurm*
 
