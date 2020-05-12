@@ -1,9 +1,7 @@
 library(Biostrings)
 library(DECIPHER)
-library(stringi)
 library(stringr)
 library(ape)
-library(igraph)
 library(reshape2)
 library(dplyr)
 library(uwot)
@@ -13,7 +11,9 @@ library(Cairo)
 
 # Source all functions
 
-source("global.R")
+setwd("../../") # main CGT dir
+
+source("R/global.R")
 
 # Load palettes
 
@@ -38,18 +38,30 @@ qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_p
 
 # Load aligned GISAID profile and metadata
 
+data_files <- list.files("data")
+
+setwd("data")
+
 loadRData <- function(fileName){
   load(fileName)
   get(ls()[ls() != "fileName"])
 }
 
-pre_aligned <- loadRData("data/dec_aligned_filtered_2020-03-31.RData")
-pre_meta <- loadRData("data/covid_filtered_meta_2020-03-31.RData")
+pre_aligned <- loadRData(grep("dec_aligned_filtered", data_files, value = TRUE))
+pre_meta <- loadRData(grep("covid_filtered_meta", data_files, value = TRUE))
 meta <- pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime")]
+
+# Subset pre_aligned data for pre mar 31 (datetime = 121) data
+
+meta_mar31 <- pre_meta[which(meta$Datetime <= 121), ]
+
+pre_aligned_sub <- pre_aligned[c(meta_mar31$Accession)]
 
 # Read fasta for Iran isolate
 
-iran_seq <- readDNAStringSet("data/Iran1-LN-unicycler-round2.fasta")
+iran_seq <- readDNAStringSet("Iran1-LN-unicycler-round2.fasta")
+
+setwd("..")
 
 # Concatenate contigs
 
@@ -67,25 +79,36 @@ align_get <- function(stringset, align) { # slight tweak of app function
   
 }
 
-iran_align <- align_get(iran_seq_concat, pre_aligned)
+iran_align <- align_get(iran_seq_concat, pre_aligned_sub)
 
-names(iran_align)[1901] <- "Novel_Iran1_LN"
+names(iran_align)[length(iran_align)] <- "Novel_Iran1_LN"
 
 writeXStringSet(iran_align, file = "manuscript/data/iran_align_full.fasta")
 
+# Test 
+
+mask_sites <- c(187, 1059, 2094, 3037, 3130, 6990, 8022, 10323, 10741, 11074, 13408, 14786, 19684, 20148, 21137, 24034, 24378, 25563, 26144, 26461, 26681, 28077, 28826, 28854, 29700, 4050, 13402, 11083, 15324, 21575)
+
+mask_sites <- unique(mask_sites)
+
 # Trim off ends and get seq distances
 
-dist_get <- function(align) { # another tweak of an app function 
+dist_get <- function(align, masked) { # another tweak of an app function
   
-  align_trim <- subseq(align, start = 316, end = 29674) # Adjusted to 316 start to accomodate missing UTR, considering doing this for all GISAID in future
+  align_mat <- as.matrix(align)
+  align_mat_sub <- align_mat[, -masked]
+  align_mat_bin <- as.DNAbin(align_mat_sub)
+  align_masked <- align_mat_bin %>% as.list %>% as.character %>% lapply(., paste0, collapse = "") %>% unlist %>% DNAStringSet
+  align_trim <- subseq(align_masked, start = 316, end = 29674) # Adjusted to 316 start to accomodate missing UTR, considering doing this for all GISAID in future
   dec_dist <- dist.dna(as.DNAbin(align_trim), model = "K80", as.matrix = TRUE, pairwise.deletion = FALSE)
   colnames(dec_dist) <- (str_split_fixed(colnames(dec_dist), fixed("."), 2)[,1])
   rownames(dec_dist) <- (str_split_fixed(rownames(dec_dist), fixed("."), 2)[,1])
+  gc()
   return(dec_dist)
   
 }
 
-iran_dist <- dist_get(iran_align)
+iran_dist <- dist_get(iran_align, mask_sites)
 
 # Adjust metadata 
 
