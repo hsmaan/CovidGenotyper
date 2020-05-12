@@ -3,7 +3,6 @@ library(tidyverse)
 library(Biostrings)
 library(ape)
 library(GenomicRanges)
-library(GenomicFeatures)
 library(stringr)
 
 # Load data

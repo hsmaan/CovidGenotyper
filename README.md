@@ -5,8 +5,7 @@
 
 ## Overview
 
-[The Covid-19 Genotyping
-Tool](https://hsmaan.shinyapps.io/CovidGenotyper/) (CGT) is an R-Shiny
+[The Covid-19 Genotyping Tool](covidgenotyper.app) (CGT) is an R-Shiny
 based web application that allows researchers to upload fasta sequences
 of Covid-19 viral genomes and compare with public sequence data
 available on [GISAID](https://www.gisaid.org/). Genomic distance is
@@ -30,23 +29,21 @@ processing time (see below).
 
 #### Sequence and metadata retrieval
 
-Processed fasta files of Covid-19 viral genome sequence are retrieved
-from the [GISAID](https://www.gisaid.org/) EpiCoV database, which is a
-public database for sharing of viral genome sequence data. Metadata for
-GISAID viral genomes are obtained from [nextstrain’s ncov
-build](https://github.com/nextstrain/ncov/blob/master/data/metadata.tsv).
+Processed fasta files and metadata of Covid-19 viral genome sequence are
+retrieved from the [GISAID](https://www.gisaid.org/) EpiCoV database,
+which is a public database for sharing of viral genome sequence data.
 Viral genome data and metadata are updated on a weekly basis.
 
 #### Genome sequence alignment
 
-GISAID sequences are subset for those that have metadata from
-nextstrain. Public sequencing data is pre-aligned before being uploaded
-to the server. Fasta sequences are read and written using the
-`Biostrings` package. Gap removal and multiple-sequence alignment is
-performed using `DECIPHER`. Post alignment processing is done using
-`ape`. User uploaded fasta sequences are processed similarly, with the
-exception of complete alignment - the user sequence is aligned to the
-pre-aligned public data profile using `AlignProfiles` from `DECIPHER`.
+GISAID sequences are subset for those that have corresponding metadata.
+Public sequencing data is pre-aligned before being uploaded to the
+server. Fasta sequences are read and written using the `Biostrings`
+package. Gap removal and multiple-sequence alignment is performed using
+`DECIPHER`. Post alignment processing is done using `ape`. User uploaded
+fasta sequences are processed similarly, with the exception of complete
+alignment - the user sequence is aligned to the pre-aligned public data
+profile using `AlignProfiles` from `DECIPHER`.
 
 #### DNA distance
 
@@ -117,7 +114,7 @@ only been tested on Linux systems including Ubuntu 18.04 LTS and Debian
 9.0 LTS, thus we only provide installation instructions for
 Debian/Ubuntu systems.
 
-##### 1\) Installing CGT dependencies
+#### 1\) Installing CGT dependencies
 
 Clone the repository locally <br/> `git clone
 https://github.com/hsmaan/CovidGenotyper`
@@ -149,15 +146,14 @@ library depdendencies - check Rscript output and install <br/>
     cd CovidGenotyper/bin
     Rscript --verbose packages_install.R
 
-##### 2\) Run preprocessing scripts
+#### 2\) Run preprocessing scripts
 
 CGT relies on pre-processing plot data prior to deployment to ensure
 visualizations can be loaded quickly. Fasta sequences should be
 downloaded from [GISAID’s EpiCoV database](https://www.gisaid.org/) and
 saved as `gisaid_cov2020_sequences_[mmm_dd].fasta` in the `data` folder.
-Metadata from [nextstrain’s ncov
-repository](https://github.com/nextstrain/ncov) should be saved as
-`gisaid_metadata_[mmm_dd].tsv`, also in the `data` folder.
+Metadata from GISAID should be saved as `gisaid_metadata_[mmm_dd].tsv`,
+also in the `data` folder.
 
 The order for processing scripts is the following:
 
@@ -168,7 +164,7 @@ The order for processing scripts is the following:
     Rscript --verbose maf_sites_out.R
     Rscript --verbose preprocess_plot_data.R
 
-##### 3\) Deploy CGT
+#### 3\) Deploy CGT
 
 Now that the shiny application dependencies have been installed and data
 has been preloaded, the shiny app can be deployed in a variety of ways,
@@ -212,6 +208,17 @@ following <br/>
   - ggplot2 v3.3.0
   - ggnetwork v0.5.8
   - plotly v4.9.2.1
+  - Cairo v1.5.11
+  - intergraph v2.0.2
+  - tidyverse v1.3.0
+  - data.table v1.12.8
+  - stringr v1.4.0
+  - reshape2 v1.4.3
+  - dplyr v0.8.5
+  - parallel v3.6.3
+  - ggthemes v4.2.0
+  - RColorBrewer v1.1.2
+  - GenomicRanges v1.38.0
 
 #### Command-line tools
 
@@ -221,9 +228,6 @@ following <br/>
 
 ## References
 
-  - Hadfield J, Megill C, Bell SM, Huddleston J, Potter B, Callender C,
-    et al. NextStrain: Real-time tracking of pathogen evolution.
-    Bioinformatics. 2018;34(23):4121–3.
   - Elbe S, Buckland-Merrett G. Data, disease and diplomacy: GISAID’s
     innovative contribution to global health. Glob Challenges.
     2017;1(1):33–46.
@@ -266,6 +270,39 @@ following <br/>
   - Danecek P, Auton A, Abecasis G, Albers CA, Banks E, DePristo MA, et
     al. The variant call format and VCFtools. Bioinformatics.
     2011;27(15):2156–8.
+  - Simon Urbanek and Jeffrey Horner (2020). Cairo: R Graphics Device
+    using Cairo Graphics Library for Creating High-Quality Bitmap (PNG,
+    JPEG, TIFF), Vector (PDF, SVG, PostScript) and Display (X11 and
+    Win32) Output. R package version 1.5-11.
+    <https://CRAN.R-project.org/package=Cairo>
+  - Bojanowski, Michal (2015) intergraph: Coercion Routines for Network
+    Data Objects. R package version 2.0-2.
+    <http://mbojan.github.io/intergraph>
+  - Wickham et al., (2019). Welcome to the tidyverse. Journal of Open
+    Source Software, 4(43), 1686, <https://doi.org/10.21105/joss.01686>
+  - Matt Dowle and Arun Srinivasan (2019). data.table: Extension of
+    `data.frame`. R package version 1.12.8.
+    <https://CRAN.R-project.org/package=data.table>
+  - Hadley Wickham (2019). stringr: Simple, Consistent Wrappers for
+    Common String Operations. R package version 1.4.0.
+    <https://CRAN.R-project.org/package=stringr>
+  - Hadley Wickham (2007). Reshaping Data with the reshape Package.
+    Journal of Statistical Software, 21(12), 1-20. URL
+    <http://www.jstatsoft.org/v21/i12/>.
+  - Hadley Wickham, Romain François, Lionel Henry and Kirill Müller
+    (2020). dplyr: A Grammar of Data Manipulation. R package version
+    0.8.5. <https://CRAN.R-project.org/package=dplyr>
+  - R Core Team (2020). R: A language and environment for statistical
+    computing. R Foundation for Statistical Computing, Vienna, Austria.
+    URL <https://www.R-project.org/>.
+  - Jeffrey B. Arnold (2019). ggthemes: Extra Themes, Scales and Geoms
+    for ‘ggplot2’. R package version 4.2.0.
+    <https://CRAN.R-project.org/package=ggthemes>
+  - Erich Neuwirth (2014). RColorBrewer: ColorBrewer Palettes. R package
+    version 1.1-2. <https://CRAN.R-project.org/package=RColorBrewer>
+  - Lawrence M, Huber W, Pages H, Aboyoun P, Carlson M, et al. (2013)
+    Software for Computing and Annotating Genomic Ranges. PLoS Comput
+    Biol 9(8): e1003118. <doi:10.1371/journal.pcbi.1003118>
 
 ## License
 

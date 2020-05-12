@@ -1,6 +1,5 @@
 library(Biostrings)
 library(DECIPHER)
-library(stringi)
 library(stringr)
 library(ape)
 library(igraph)
