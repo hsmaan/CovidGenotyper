@@ -162,20 +162,10 @@ ui <- fluidPage(theme = shinytheme("flatly"),
            ),
            
            p(
-             "COVID-19 viral genome sequences from GISAID are downloaded and processed using the CGT computational pipeline, updated on a weekly basis. No sequence information is published on the website, as per the", 
+             "COVID-19 viral genome sequences and sequence metadata from GISAID are downloaded and processed using the CGT computational pipeline, updated on a weekly basis. No sequence information is explicitly published on the website, as per the", 
              a("GISAID data usage policy.", href = "https://www.gisaid.org/registration/terms-of-use"),
              "We thank all of the GISAID contributers for sharing their data. Full up-to-date acknowledgements of COVID-19 sequence resources available", 
              a("here.", href = "https://github.com/hsmaan/CovidGenotyper/ack")
-           ),
-           
-           h4(
-             strong("Nextstrain metadata")
-           ),
-           
-           p(
-             "Metadata for GISAID sequences from",
-             a("Nextstrain's ncov repository", href = "https://github.com/nextstrain/ncov/tree/master/data"),
-             "is utilized in conjunction with the up-to-date GISAID data. All credit goes to the Nextstrain team for curating this data."
            ),
            
            h4(
