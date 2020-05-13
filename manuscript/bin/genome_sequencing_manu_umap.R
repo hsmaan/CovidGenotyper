@@ -110,15 +110,19 @@ dist_get <- function(align, masked) { # another tweak of an app function
 
 iran_dist <- dist_get(iran_align, mask_sites)
 
+save(iran_dist, file = "manuscript/data/iran_dist_aligned.RData")
+
 # Adjust metadata 
 
 new_meta <- data.frame("Accession" = c("Novel_Iran1_LN"), "Region" = c("Novel_Iran1_LN"), "Geo_Location" = c("Novel_Iran1_LN"), "Datetime" = (unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))))
 
 meta_updated <- rbind(meta, new_meta)
 
-# Get umap data
+# Get and save umap data
 
 iran_umap <- umap_process(iran_dist, meta_updated)
+
+fwrite(as.data.table(iran_umap), file = "manuscript/data/iran_umap_full.csv", sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
 # Get plots
 
@@ -286,9 +290,7 @@ ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
 
 ggsave("manuscript/data/figures/Iran1_LN_No_Circle_UMAP_Country_Zoom.pdf", device = cairo_pdf, width = 12, height = 6)
 
-# Output dataframe and coordinates for iran cluster and umap full
-
-fwrite(as.data.table(iran_umap), file = "manuscript/data/iran_umap_full.csv", sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
+# Output dataframe and coordinates for iran cluster 
 
 fwrite(as.data.table(iran_umap_sub), file = "manuscript/data/iran_umap_sub.csv", sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
