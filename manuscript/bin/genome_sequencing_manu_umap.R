@@ -8,6 +8,7 @@ library(uwot)
 library(ggplot2)
 library(ggthemes)
 library(Cairo)
+library(data.table)
 
 # Source all functions
 
