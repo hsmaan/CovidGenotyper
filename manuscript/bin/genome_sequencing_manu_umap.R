@@ -115,11 +115,11 @@ save(iran_dist, file = "manuscript/data/iran_dist_aligned.RData")
 
 # Adjust metadata 
 
-new_meta <- data.frame("Accession" = c("Novel_Iran1_LN"), "Region" = c("Novel_Iran1_LN"), "Geo_Location" = c("Novel_Iran1_LN"), "Datetime" = (unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))))
+new_meta <- data.frame("Accession" = c("Novel_Iran1_LN"), "Region" = c("Asia"), "Geo_Location" = c("Iran"), "Datetime" = (unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))))
 
 meta_updated <- rbind(meta, new_meta)
 
-# Get and save umap data
+# Get umap data
 
 iran_umap <- umap_process(iran_dist, meta_updated)
 
@@ -147,9 +147,9 @@ umap_plotter <- function(umap_df) { # Function on hand to adjust
   
   p2 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
-    geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-    scale_fill_manual(name = "", values = qual_vector[1:length(unique(umap_df$Geo_Location))]) +
-    geom_point(data = umap_df[grep("Novel", umap_df$Geo_Location), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+    geom_jitter(aes(fill = Country), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(umap_df$Country))]) +
+    geom_point(data = umap_df[grep("Novel", umap_df$Country), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +
     theme(axis.ticks.y = element_blank()) +
@@ -163,9 +163,9 @@ umap_plotter <- function(umap_df) { # Function on hand to adjust
   
   p3 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
-    geom_jitter(aes(fill = Datetime), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-    scale_fill_gradientn(name = "", colours = c("dodgerblue2", "white", "firebrick1"), breaks = c(min(umap_df$Datetime), median(umap_df$Datetime), max(umap_df$Datetime)), labels = c("Early", "Mid" , "Late")) +
-    geom_point(data = umap_df[grep("Novel", umap_df$Geo_Location), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+    geom_jitter(aes(fill = Date), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+    scale_fill_gradientn(name = "", colours = c("dodgerblue2", "white", "firebrick1"), breaks = c(min(umap_df$Date), median(umap_df$Date), max(umap_df$Date)), labels = c("Early", "Mid" , "Late")) +
+    geom_point(data = umap_df[grep("Novel", umap_df$Country), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +
     theme(axis.ticks.y = element_blank()) +
@@ -210,7 +210,7 @@ ggsave("manuscript/data/figures/Iran1_LN_Raw_UMAP.pdf", device = cairo_pdf, widt
 
 iran_umap$Region <- as.factor(iran_umap$Region)
 
-iran_umap_sub <- iran_umap[(iran_umap$UMAP_1) > -110 & (iran_umap$UMAP_1 < -60) & (iran_umap$UMAP_2 > -30) & (iran_umap$UMAP_2 < 5), ]
+iran_umap_sub <- iran_umap[(iran_umap$UMAP_1) > 10 & (iran_umap$UMAP_1 < 60) & (iran_umap$UMAP_2 > -65) & (iran_umap$UMAP_2 < -15), ]
 
 ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
   theme_few() +
@@ -230,9 +230,9 @@ ggsave("manuscript/data/figures/Iran1_LN_UMAP_Reg_Zoom.pdf", device = cairo_pdf,
 
 ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
   theme_few() +
-  geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-  scale_fill_manual(name = "", values = qual_vector[1:length(unique(iran_umap_sub$Geo_Location))]) +
-  geom_point(data = iran_umap_sub[grep("Novel", iran_umap_sub$Geo_Location), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
+  geom_jitter(aes(fill = Country), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+  scale_fill_manual(name = "", values = qual_vector[1:length(unique(iran_umap_sub$Country))]) +
+  geom_point(data = iran_umap_sub[grep("Novel", iran_umap_sub$Country), ], pch = 21, fill = NA, size = 4, colour = "firebrick1", stroke = 4) +
   labs(x = "UMAP 1", y = "UMAP 2") +
   theme(axis.title.y = element_text(size = 16, face = "bold")) +
   theme(axis.title.x = element_text(size = 16, face = "bold")) +
@@ -247,7 +247,7 @@ ggsave("manuscript/data/figures/Iran1_LN_UMAP_Country_Zoom.pdf", device = cairo_
 # Plots no circle 
 
 ggplot(data = iran_umap, aes(x = UMAP_1, y = UMAP_2)) +
-  theme_few() +
+  theme_classic() +
   geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
   scale_fill_manual(name = "", values = kev_palette[1:length(unique(iran_umap$Region))]) +
   labs(x = "UMAP 1", y = "UMAP 2") +
@@ -262,7 +262,7 @@ ggplot(data = iran_umap, aes(x = UMAP_1, y = UMAP_2)) +
 ggsave("manuscript/data/figures/Iran1_LN_No_Circle_Raw_UMAP.pdf", device = cairo_pdf, width = 12, height = 6)
 
 ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
-  theme_few() +
+  theme_classic() +
   geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
   scale_fill_manual(name = "", values = kev_palette[1:length(unique(iran_umap$Region))], drop = FALSE) +
   labs(x = "UMAP 1", y = "UMAP 2") +
@@ -277,9 +277,9 @@ ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
 ggsave("manuscript/data/figures/Iran1_LN_No_Circle_UMAP_Reg_Zoom.pdf", device = cairo_pdf, width = 12, height = 6)
 
 ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
-  theme_few() +
-  geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-  scale_fill_manual(name = "", values = qual_vector[1:length(unique(iran_umap_sub$Geo_Location))]) +
+  theme_classic() +
+  geom_jitter(aes(fill = Country), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+  scale_fill_manual(name = "", values = qual_vector[1:length(unique(iran_umap_sub$Country))]) +
   labs(x = "UMAP 1", y = "UMAP 2") +
   theme(axis.title.y = element_text(size = 16, face = "bold")) +
   theme(axis.title.x = element_text(size = 16, face = "bold")) +
@@ -313,14 +313,14 @@ ggplot(data = iran_umap_cluster, aes(x = UMAP_1, y = UMAP_2)) +
   theme(legend.text = element_text(size = 14)) +
   theme(aspect.ratio = 0.6)
 
-fwrite(as.data.table(iran_umap_cluster), file = "manuscript/data/iran_umap_cluster.csv", sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
+fwrite(as.data.table(iran_umap_sub), file = "manuscript/data/iran_umap_sub.csv", sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
 # Different palette for iran sub 
 
 ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
-  theme_few() +
-  geom_jitter(aes(fill = Geo_Location), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-  scale_fill_manual(name = "", values = kev_palette[1:length(unique(iran_umap_sub$Geo_Location))]) +
+  theme_classic() +
+  geom_jitter(aes(fill = Country), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+  scale_fill_manual(name = "", values = kev_palette[1:length(unique(iran_umap_sub$Country))]) +
   labs(x = "UMAP 1", y = "UMAP 2") +
   theme(axis.title.y = element_text(size = 16, face = "bold")) +
   theme(axis.title.x = element_text(size = 16, face = "bold")) +
@@ -331,3 +331,28 @@ ggplot(data = iran_umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
   theme(aspect.ratio = 0.6)
 
 ggsave("manuscript/data/figures/Iran1_LN_No_Circle_KevPalette_UMAP_Country_Zoom.pdf", device = cairo_pdf, width = 12, height = 6)
+
+# Get all metadata and concatenate travel history with GISAID ids for sub
+
+iran_umap_sub_iran <- iran_umap_sub[nrow(iran_umap_sub),]
+iran_umap_sub_minus_iran <- iran_umap_sub[-nrow(iran_umap_sub),]
+
+full_meta <- as.data.frame(fread("data/gisaid_metadata_may_14.tsv"))
+
+full_meta_travel_history <- full_meta[, c("gisaid_epi_isl", "country_exposure")]
+colnames(full_meta_travel_history) <- c("Accession", "Travel_history")
+
+iran_umap_travel <- merge(iran_umap_sub_minus_iran, full_meta_travel_history, by = "Accession")
+
+iran_umap_sub_iran$Travel_history <- "Iran"
+
+iran_umap_full <- rbind(iran_umap_travel, iran_umap_sub_iran)
+
+iran_umap_full$Travel_history <- ifelse(iran_umap_full$Country == iran_umap_full$Travel_history, "Not available", iran_umap_full$Travel_history)
+
+iran_umap_full[nrow(iran_umap_full), "Region"] <- "Asia"
+iran_umap_full[nrow(iran_umap_full), "Country"] <- "Canada"
+
+# Save 
+
+fwrite(as.data.table(iran_umap_full), file = "manuscript/data/iran_umap_sub_travel_hist.tsv", sep = "\t", quote = FALSE, col.names = TRUE, row.names = FALSE)
