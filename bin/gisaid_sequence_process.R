@@ -83,7 +83,6 @@ writeXStringSet(fasta_string, file = paste("dec_aligned_fasta_filtered_", as.cha
 # Mask sites 
 
 mask_sites <- c(187, 1059, 2094, 3037, 3130, 6990, 8022, 10323, 10741, 11074, 13408, 14786, 19684, 20148, 21137, 24034, 24378, 25563, 26144, 26461, 26681, 28077, 28826, 28854, 29700, 4050, 13402, 11083, 15324, 21575)
-
 align_mat <- as.matrix(fasta_string)
 align_mat_sub <- align_mat[, -mask_sites]
 align_mat_bin <- as.DNAbin(align_mat_sub)

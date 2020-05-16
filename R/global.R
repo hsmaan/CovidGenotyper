@@ -15,7 +15,7 @@ library(parallel)
 
 # Set core usage
 
-cores <- round(detectCores()/1.5, 0)
+cores <- detectCores()
 
 # Load color palettes    
 
