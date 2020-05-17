@@ -32,7 +32,12 @@ processing time (see below).
 Processed fasta files and metadata of Covid-19 viral genome sequence are
 retrieved from the [GISAID](https://www.gisaid.org/) EpiCoV database,
 which is a public database for sharing of viral genome sequence data.
-Viral genome data and metadata are updated on a weekly basis.
+Viral genome data and metadata are updated on a weekly basis. Sequences
+are filtered for completeness (\>29000 nucleotides) and high coverage
+(\<0.5% N’s). Outlier sequences are also filtered out, defined by
+\>0.05% unique amino acid substitutions compared to all GISAID
+sequences. This criteria is based on the mutation rate of SARS-CoV-2 and
+breadth of the GISAID database.
 
 #### Genome sequence alignment
 
@@ -51,6 +56,15 @@ For both pre-aligned and profile aligned data, DNA distance is
 determined using `ape` and the Kimura-80 model of nucleotide
 substitution. Currently only Kimura-80 is supported, but integrating
 other evolutionary distance metrics will be part of a future release.
+
+The following nucleotide positions are masked post-alignment when
+determining DNA distance due to homoplasy, as per the recommendations
+from [this
+article](http://virological.org/t/issues-with-sars-cov-2-sequencing-data/473):
+
+**187, 1059, 2094, 3037, 3130, 6990, 8022, 10323, 10741, 11074, 13408,
+14786, 19684, 20148, 21137, 24034, 24378, 25563, 26144, 26461, 26681,
+28077, 28826, 28854, 29700, 4050, 13402, 11083, 15324, 21575**
 
 User-uploaded data is aligned and the distance between each user
 uploaded genome and the public genomes from GISAID are calculated first.

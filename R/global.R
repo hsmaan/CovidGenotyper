@@ -15,7 +15,7 @@ library(parallel)
 
 # Set core usage
 
-cores <- round(detectCores()/1.5, 0)
+cores <- detectCores()
 
 # Load color palettes    
 
@@ -61,7 +61,13 @@ align_get <- function(fasta, align) {
 
 dist_get <- function(align) {
   
-  dec_dist <- dist.dna(as.DNAbin(align), model = "K80", as.matrix = TRUE, pairwise.deletion = FALSE)
+  mask_sites <- c(187, 1059, 2094, 3037, 3130, 6990, 8022, 10323, 10741, 11074, 13408, 14786, 19684, 20148, 21137, 24034, 24378, 25563, 26144, 26461, 26681, 28077, 28826, 28854, 29700, 4050, 13402, 11083, 15324, 21575)
+  align_mat <- as.matrix(align)
+  align_mat_sub <- align_mat[, -mask_sites]
+  align_mat_bin <- as.DNAbin(align_mat_sub)
+  align_masked <- align_mat_bin %>% as.list %>% as.character %>% lapply(., paste0, collapse = "") %>% unlist %>% DNAStringSet
+  align_trim <- subseq(align_masked, start = 265, end = 29674)
+  dec_dist <- dist.dna(as.DNAbin(align_trim), model = "K80", as.matrix = TRUE, pairwise.deletion = FALSE)
   colnames(dec_dist) <- (str_split_fixed(colnames(dec_dist), fixed("."), 2)[,1])
   rownames(dec_dist) <- (str_split_fixed(rownames(dec_dist), fixed("."), 2)[,1])
   return(dec_dist)
