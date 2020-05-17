@@ -52,6 +52,15 @@ determined using `ape` and the Kimura-80 model of nucleotide
 substitution. Currently only Kimura-80 is supported, but integrating
 other evolutionary distance metrics will be part of a future release.
 
+The following nucleotide positions are masked post-alignment when
+determining DNA distance due to homoplasy, as per the recommendations
+from [this
+article](http://virological.org/t/issues-with-sars-cov-2-sequencing-data/473):
+
+**187, 1059, 2094, 3037, 3130, 6990, 8022, 10323, 10741, 11074, 13408,
+14786, 19684, 20148, 21137, 24034, 24378, 25563, 26144, 26461, 26681,
+28077, 28826, 28854, 29700, 4050, 13402, 11083, 15324, 21575**
+
 User-uploaded data is aligned and the distance between each user
 uploaded genome and the public genomes from GISAID are calculated first.
 If all user-uploaded sequences are significantly similar to a publicly
