@@ -32,7 +32,12 @@ processing time (see below).
 Processed fasta files and metadata of Covid-19 viral genome sequence are
 retrieved from the [GISAID](https://www.gisaid.org/) EpiCoV database,
 which is a public database for sharing of viral genome sequence data.
-Viral genome data and metadata are updated on a weekly basis.
+Viral genome data and metadata are updated on a weekly basis. Sequences
+are filtered for completeness (\>29000 nucleotides) and high coverage
+(\<0.5% N’s). Outlier sequences are also filtered out, defined by
+\>0.05% unique amino acid substitutions compared to all GISAID
+sequences. This criteria is based on the mutation rate of SARS-CoV-2 and
+breadth of the GISAID database.
 
 #### Genome sequence alignment
 
