@@ -30,9 +30,9 @@ tt1_1 <- Sys.time()
 
 ua_subsets <- split(unaligned, ceiling(seq_along(unaligned)/100))
 
-nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = NULL), mc.cores = cores)
+nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = 2), mc.cores = cores)
 
-align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = NULL), mc.cores = cores)
+align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = 2), mc.cores = cores)
 
 align_comp <- base::Reduce(align_profs, align_subsets)
 
@@ -50,9 +50,9 @@ tt2_1 <- Sys.time()
 
 ua_subsets <- split(unaligned, ceiling(seq_along(unaligned)/50))
 
-nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = NULL), mc.cores = cores)
+nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = 2), mc.cores = cores)
 
-align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = NULL), mc.cores = cores)
+align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = 2), mc.cores = cores)
 
 align_comp <- base::Reduce(align_profs, align_subsets)
 
@@ -70,9 +70,9 @@ tt3_1 <- Sys.time()
 
 ua_subsets <- split(unaligned, ceiling(seq_along(unaligned)/25))
 
-nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = NULL), mc.cores = cores)
+nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = 2), mc.cores = cores)
 
-align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = NULL), mc.cores = cores)
+align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = 2), mc.cores = cores)
 
 align_comp <- base::Reduce(align_profs, align_subsets)
 
@@ -90,9 +90,9 @@ tt4_1 <- Sys.time()
 
 ua_subsets <- split(unaligned, ceiling(seq_along(unaligned)/10))
 
-nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = NULL), mc.cores = cores)
+nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = 2), mc.cores = cores)
 
-align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = NULL), mc.cores = cores)
+align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = 2), mc.cores = cores)
 
 align_comp <- base::Reduce(align_profs, align_subsets)
 
