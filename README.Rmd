@@ -15,6 +15,8 @@ knitr::opts_chunk$set(
 
 # COVID-19 Genotyping Tool (CGT) <img src="www/cgt_logo.png" height="200px" align="right"/>
 
+[![DOI](https://zenodo.org/badge/249085461.svg)](https://zenodo.org/badge/latestdoi/249085461)
+
 ### Please note that the CGT backend and UI are under continuous development.
 
 ## Overview
