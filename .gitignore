@@ -22,4 +22,4 @@
 *.html
 gisaid_cron.sh
 slurm*
-
+manuscript
