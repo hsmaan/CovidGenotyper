@@ -42,7 +42,7 @@ tt1_diff <- tt1_2 - tt1_1
 
 print(tt1_diff)
 
-print(aling_comp)
+print(align_comp)
 
 # Test 2 - Size 50 chunks 
 
@@ -62,7 +62,7 @@ tt2_diff <- tt2_2 - tt2_1
 
 print(tt2_diff)
 
-print(aling_comp)
+print(align_comp)
 
 # Test 3 - Size 25 chunks 
 
@@ -82,7 +82,7 @@ tt3_diff <- tt3_2 - tt3_1
 
 print(tt3_diff)
 
-print(aling_comp)
+print(align_comp)
 
 # Test 4 - Size 10 chunks 
 
@@ -102,4 +102,4 @@ tt4_diff <- tt4_2 - tt4_1
 
 print(tt4_diff)
 
-print(aling_comp)
+print(align_comp)
