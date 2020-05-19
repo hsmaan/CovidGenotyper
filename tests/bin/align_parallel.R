@@ -1,6 +1,8 @@
 library(parallel)
 library(Biostrings)
 library(DECIPHER)
+library(ggplot2)
+library(ggthemes)
 
 # All cores
 
@@ -8,13 +10,13 @@ cores <- detectCores()
 
 # Load raw alignment data
 
-setwd("../data")
+setwd("../../data")
 
 file_list <- list.files()
 gisaid_fastas <- grep("gisaid_cov2020_sequences", file_list, value = TRUE)
 unaligned <- readDNAStringSet(gisaid_fastas)
 
-setwd("../tests")
+setwd("../tests/bin")
 
 # Define profile alignment function
 
@@ -24,82 +26,68 @@ align_profs <- function(x, y) {
   
 }
 
-# Test 1 - Size 100 chunks 
+# Define full alignment function
 
-tt1_1 <- Sys.time()
+align_full <- function(fastas_sub) {
+  
+  all_fastas <- RemoveGaps(fastas_sub, removeGaps = "all", processors = 2)
+  fasta_align <- AlignSeqs(all_fastas, iterations = 0, refinements = 0, processors = 2)
+  fasta_mat <- as.matrix(fasta_align)
+  fasta_bin <- as.DNAbin(fasta_mat)
+  fasta_ungapped <- del.colgapsonly(fasta_bin, threshold = 0.95)
+  fasta_string <- fasta_ungapped %>% as.list %>% as.character %>% lapply(., paste0, collapse = "") %>% unlist %>% DNAStringSet
+  return(fasta_string)
+}
+# Define full alignment test function
 
-ua_subsets <- split(unaligned, ceiling(seq_along(unaligned)/50))
+align_subsets <- function(fastas, div) {
+  
+  t1 <- Sys.time()
+  ua_subsets <- split(fastas, ceiling(seq_along(alinged)/div))
+  subsets_aligned <- mclapply(ua_subsets, align_full, mc.cores = cores)
+  align_comp <- base::Reduce(align_profs, subsets_aligned)
+  t2 <- Sys.time()
+  tdiff <- t2 - t1
+  return(list(align_comp, tdiff))
+  
+}
 
-nogap_subsets <- mclapply(ua_subsets, function(x) RemoveGaps(x, removeGaps = "all", processors = 2), mc.cores = cores)
+# Define chunk sizes to test
 
-align_subsets <- mclapply(nogap_subsets, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = 2), mc.cores = cores)
+chunks <- c(10, 25, 50, 100, 250, 500)
 
-align_comp <- base::Reduce(align_profs, align_subsets)
+# Lapply across all tests
 
-tt1_2 <- Sys.time()
+align_results <- lapply(chunks, function(x) align_subsets(unaligned, x))
 
-tt1_diff <- tt1_2 - tt1_1
+# Get results dataframe
 
-print(tt1_diff)
+align_length <- lapply(align_results[[1]], function(x) mean(width(x)))
+times <- align_results[[2]]
 
-print(align_comp)
+align_df <- data.frame("chunk_size" = chunks, "time" = times, "align_size" = align_length)
 
-# Test 2 - Size 50 chunks 
+# Plot results
 
-#tt2_1 <- Sys.time()
+setwd("../data")
 
-#ua_subsets_2 <- split(unaligned, ceiling(seq_along(unaligned)/50))
+ggplot(data = align_df, aes(x = chunk_size, y = time)) +
+  theme_min() +
+  geom_point() +
+  labs(x = "Chunk size", y = "Time (minutes)")
 
-#nogap_subsets_2 <- mclapply(ua_subsets_2, function(x) RemoveGaps(x, removeGaps = "all", processors = 2), mc.cores = cores)
+ggsave("figures/align_test_size_time.pdf", device = "pdf", height = 7, width = 7, units = "in")
 
-#align_subsets_2 <- mclapply(nogap_subsets_2, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = 2), mc.cores = cores)
+ggplot(data = align_df, aes(x = chunk_size, y = align_length)) +
+  theme_min() +
+  geom_point() +
+  labs(x = "Chunk size", y = "Average sequence length")
 
-#align_comp_2 <- base::Reduce(align_profs, align_subsets_2)
+ggsave("figures/align_test_size_time.pdf", device = "pdf", height = 7, width = 7, units = "in")
 
-#tt2_2 <- Sys.time()
 
-#tt2_diff <- tt2_2 - tt2_1
+  
 
-#print(tt2_diff)
 
-#print(align_comp_2)
 
-# Test 3 - Size 25 chunks 
-
-#tt3_1 <- Sys.time()
-
-#ua_subsets_3 <- split(unaligned, ceiling(seq_along(unaligned)/25))
-
-#nogap_subsets_3 <- mclapply(ua_subsets_3, function(x) RemoveGaps(x, removeGaps = "all", processors = 2), mc.cores = cores)
-
-#align_subsets_3 <- mclapply(nogap_subsets_3, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = 2), mc.cores = cores)
-
-#align_comp_3 <- base::Reduce(align_profs, align_subsets_3)
-
-#tt3_2 <- Sys.time()
-
-#tt3_diff <- tt3_2 - tt3_1
-
-#print(tt3_diff)
-
-#print(align_comp_3)
-
-# Test 4 - Size 10 chunks 
-
-#tt4_1 <- Sys.time()
-
-#ua_subsets_4 <- split(unaligned, ceiling(seq_along(unaligned)/10))
-
-#nogap_subsets_4 <- mclapply(ua_subsets_4, function(x) RemoveGaps(x, removeGaps = "all", processors = 2), mc.cores = cores)
-
-#align_subsets_4 <- mclapply(nogap_subsets_4, function(x) AlignSeqs(x, iterations = 0, refinements = 0, processors = 2), mc.cores = cores)
-
-#align_comp_4 <- base::Reduce(align_profs, align_subsets_4)
-
-#tt4_2 <- Sys.time()
-
-#tt4_diff <- tt4_2 - tt4_1
-
-#print(tt4_diff)
-
-#print(align_comp_4)
+  
