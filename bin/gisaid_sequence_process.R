@@ -40,6 +40,7 @@ file.remove(grep("dec_fasta_dist_", all_files, value = TRUE))
 file.remove(grep("dec_aligned_filtered_", all_files, value = TRUE))
 file.remove(grep("covid_filtered_meta_", all_files, value = TRUE))
 file.remove(grep("dec_aligned_plus_ref_filtered_", all_files, value = TRUE))
+file.remove(grep("signal_aligned_", all_files, value = TRUE))
 
 # Remove sequences with high percentage of ambiguous nucleotides
 
@@ -79,6 +80,7 @@ fasta_string <- fasta_ungapped %>% as.list %>% as.character %>% lapply(., paste0
 fasta_final <- subseq(fasta_string, start = 265, end = 29674)
 
 writeXStringSet(fasta_string, file = paste("dec_aligned_fasta_filtered_", as.character(Sys.Date()), ".fasta", sep = ""))
+writeXStringSet(fasta_string, file = paste("signal_aligned_", as.character(Sys.Date()), ".fasta", sep = ""))
 
 # Mask sites 
 
