@@ -30,8 +30,8 @@ align_profs <- function(x, y) {
 
 align_full <- function(fastas_sub) {
   
-  all_fastas <- RemoveGaps(fastas_sub, removeGaps = "all", processors = 2)
-  fasta_align <- AlignSeqs(all_fastas, iterations = 0, refinements = 0, processors = 2)
+  all_fastas <- RemoveGaps(fastas_sub, removeGaps = "all", processors = NULL)
+  fasta_align <- AlignSeqs(all_fastas, iterations = 0, refinements = 0, processors = NULL)
   fasta_mat <- as.matrix(fasta_align)
   fasta_bin <- as.DNAbin(fasta_mat)
   fasta_ungapped <- del.colgapsonly(fasta_bin, threshold = 0.95)
@@ -43,7 +43,7 @@ align_full <- function(fastas_sub) {
 align_subsets <- function(fastas, div) {
   
   t1 <- Sys.time()
-  ua_subsets <- split(fastas, ceiling(seq_along(alinged)/div))
+  ua_subsets <- split(fastas, ceiling(seq_along(aligned)/div))
   subsets_aligned <- mclapply(ua_subsets, align_full, mc.cores = cores)
   align_comp <- base::Reduce(align_profs, subsets_aligned)
   t2 <- Sys.time()
