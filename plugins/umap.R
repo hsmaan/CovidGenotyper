@@ -196,10 +196,11 @@ align_file <- as.character(args[2])
 dist_file <- as.character(args[3])
 meta_file <- as.character(args[4])
 umap_file <- as.character(args[5])
-cores <- as.numeric(args[6])
-umap_plot_1_path <- as.character(args[7])
-umap_plot_2_path <- as.character(args[8])
-umap_tsv_path <- as.character(args[9])
+sample_hist <- as.character(args[6])
+cores <- as.numeric(args[7])
+umap_plot_1_path <- as.character(args[8])
+umap_plot_2_path <- as.character(args[9])
+umap_tsv_path <- as.character(args[10])
 
 # Load files and format 
 
@@ -218,7 +219,7 @@ meta_dt <- fread(meta_file, stringsAsFactors = FALSE)
 meta_df <- as.data.frame(meta_dt)
 meta_df_sub <- meta_df[,c("Accession", "Region", "Geo_Location", "Datetime")]
 colnames(meta_df_sub) <- c("Accession", "Region", "Country", "Date")
-meta_travel_sub <- meta_df[,c("Accession", "Region
+meta_travel_sub <- meta_df[,c("Accession", "Country_Exposure")]
 umap_dt <- fread(umap_file, stringsAsFactors = FALSE)
 umap_df <- as.data.frame(umap_dt)
 
@@ -305,8 +306,15 @@ print("Step 7 complete - umap plots saved")
 
 # Output umap dataframe
 
-umap_sub_dt <- as.data.table(umap_sub)
-fwrite(umap_sub_dt, umap_tsv_path, quote = FALSE, col.names = TRUE, row.names = FALSE) 
+umap_sub_seq <- umap_sub[1, ]
+umap_sub_minus <- umap_sub[-1, ]
+
+umap_plus_travel <- merge(umap_sub_minus, meta_travel_sub, by = "Accession")
+umap_sub_seq_travel$Country_Exposure <- sample_hist
+
+umap_final_df <- rbind(umap_plus_travel, umap_sub_seq_travel)
+umap_final_dt <- as.data.table(umap_final_df)
+fwrite(umap_final_dt, umap_tsv_path, quote = FALSE, col.names = TRUE, row.names = FALSE) 
 
 print("Step 8 complete - umap data saved as tsv")
 
