@@ -218,7 +218,7 @@ meta_dt <- fread(meta_file, stringsAsFactors = FALSE)
 meta_df <- as.data.frame(meta_dt)
 meta_df_sub <- meta_df[,c("Accession", "Region", "Geo_Location", "Datetime")]
 colnames(meta_df_sub) <- c("Accession", "Region", "Country", "Date")
-
+meta_travel_sub <- meta_df[,c("Accession", "Region
 umap_dt <- fread(umap_file, stringsAsFactors = FALSE)
 umap_df <- as.data.frame(umap_dt)
 
