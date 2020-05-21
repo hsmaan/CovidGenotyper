@@ -3,13 +3,19 @@ channels:
    - bioconda
    - conda-forge
 dependencies:
-   - r-base=3.6.0
+   - libblas=3.8.0
+   - lapack=3.6.1
+   - r-base=3.6.3
+   - r-devtools=2.0.2
+   - r-stringi=1.4.6
    - r-stringr=1.4.0
-   - r-data.table=1.12.2
+   - r-data.table=1.12.8
+   - r-matrix=1.2_18
    - r-uwot=0.1.8
-   - r-ggplot2=3.1.1
+   - r-ggplot2=3.3.0
    - r-ggthemes=4.2.0
    - r-rcolorbrewer=1.1_2
    - r-ape=5.3
-   - bioconductor-decipher=2.16.0
-   - bioconductor-biostrings=2.56.0
+   - r-biocmanager=1.30.10
+   - bioconductor-decipher=2.14.0
+   - bioconductor-biostrings=2.54.0
