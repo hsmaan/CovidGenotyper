@@ -6,6 +6,7 @@ library(data.table)
 library(uwot)
 library(ggplot2)
 library(ggthemes)
+library(RColorBrewer)
 
 # Functions from CovidGenotyper/R/global.R  
 
@@ -154,7 +155,38 @@ umap_process_heur <- function(align, fasta, new_dist, new_meta, old_umap) {
     return(umap_ret)
   }
 }
-    
+
+# Load color palettes    
+
+kev_palette <- c("dodgerblue2", 
+		 "#E31A1C",
+		 "green4",
+		 "#6A3D9A", 
+	         "#FF7F00", 
+		 "black",
+		 "gold1",
+		 "skyblue2",
+		 "#FB9A99", 
+		 "palegreen2",
+		 "#CAB2D6", 
+		 "#FDBF6F", 
+		 "gray70", 
+		 "khaki2",
+		 "maroon",
+		 "orchid1",
+		 "deeppink1",
+		 "blue1",
+		 "steelblue4",
+	         "darkturquoise",
+	       	 "green1",
+		 "yellow4",
+		 "yellow3",
+		 "darkorange4",
+		 "brown")
+
+qual_palettes = brewer.pal.info[brewer.pal.info$category == "qual", ]
+qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_palettes)))
+
 # Read args
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -165,6 +197,9 @@ dist_file <- as.character(args[3])
 meta_file <- as.character(args[4])
 umap_file <- as.character(args[5])
 cores <- as.numeric(args[6])
+umap_plot_1_path <- as.character(args[7])
+umap_plot_2_path <- as.character(args[8])
+umap_tsv_path <- as.character(args[9])
 
 # Load files and format 
 
@@ -181,28 +216,97 @@ gc()
 
 meta_dt <- fread(meta_file, stringsAsFactors = FALSE)
 meta_df <- as.data.frame(meta_dt)
-meta_df_sub <- meta_df[,c("gisaid_epi_isl", "region", "country", "date")]
+meta_df_sub <- meta_df[,c("Accession", "Region", "Geo_Location", "Datetime")]
 colnames(meta_df_sub) <- c("Accession", "Region", "Country", "Date")
 
 umap_dt <- fread(umap_file, stringsAsFactors = FALSE)
-umap_df <- as.data.frame(umap_preloaded)
+umap_df <- as.data.frame(umap_dt)
+
+print("Step 1 complete - files loaded and reformatted")
 
 # Compute updated alignment
 
-align_update <- align_get(con_fasta, align_fasta)
+align_new <- align_get(con_fasta, align_fasta)
+
+print("Step 2 complete - alignment updated with new fasta")
 
 # Compute updated distance matrix
 
-dist_mat_up <- dist_get_heur(align_update, con_fasta, dist_mat)
+dist_mat_up <- dist_get_heur(align_new, con_fasta, dist_mat)
+
+print("Step 3 complete - distance updated with new fasta")
 
 # Process metadata with SIGNAL output
 
 new_accessions <- rownames(dist_mat_up)[(nrow(meta_df_sub)+1):nrow(dist_mat_up)]
-meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)), "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)), "Datetime" = rep((unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))), length(new_accessions)))
+meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)), "Country" = paste("Novel", seq(1, length(new_accessions), 1)), "Date" = rep((unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))), length(new_accessions)))
 new_meta <- rbind(meta_df_sub, meta_new)
+
+print("Step 4 complete - metadata updated with new fasta")
 
 # Get updated umap data
 
-umap_new <- umap_process_heur(align_update, con_fasta, dist_map_up, new_meta, umap_df)
+umap_new <- umap_process_heur(align_new, con_fasta, dist_map_up, new_meta, umap_df)
 
 print(umap_new)
+
+print("Step 5 complete - umap data reprocessed with new fasta")
+
+# Zoom into umap coords and subset
+
+umap_coords_1 <- umap_new[nrow(umap_new), "UMAP_1"]
+umap_coords_2 <- umap_new[nrow(umap_new), "UMAP_2"]
+
+coords_1_high <- umap_coords_1 + 2.5
+coords_1_low <- umap_coords_1 - 2.5
+coords_2_high <- umap_coords_2 + 2.5
+coords_2_low <- umap_coords_2 - 2.5
+
+umap_sub <- umap_new[which((umap_new$UMAP_1 > coords_1_low) & (umap_new$UMAP_1 < coords_1_high) & (umap_new$UMAP_2 > coords_2_low) & (umap_new$UMAP_2 < -15)), ]
+
+print("Step 6 complete - umap data subsetted for proximity to fasta")
+
+# Create and save visualizations
+
+ggplot(data = umap_new, aes(x = UMAP_1, y = UMAP_2)) +
+	    theme_few() +
+	    geom_jitter(aes(fill = Region), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+	    scale_fill_manual(name = "", values = kev_palette[1:length(unique(umap_new$Region))]) +
+	    labs(x = "UMAP 1", y = "UMAP 2") +
+	    theme(axis.ticks.x = element_blank()) +
+	    theme(axis.ticks.y = element_blank()) +
+	    theme(axis.text.y = element_blank()) +
+	    theme(axis.text.x = element_blank()) +
+	    theme(axis.title.y = element_text(size = 16, face = "bold")) +
+	    theme(axis.title.x = element_text(size = 16, face = "bold")) +
+	    theme(legend.title = element_text(size = 15, face = "bold")) +
+	    theme(legend.text = element_text(size = 14)) 
+
+
+ggsave(umap_plot_1_path, device = "pdf", width = 12, height = 6)
+
+ggplot(data = umap_sub, aes(x = UMAP_1, y = UMAP_2)) +
+       theme_few() +
+       geom_jitter(aes(fill = Country), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+       scale_fill_manual(name = "", values = kev_palette[1:length(unique(umap_sub$Country))]) +
+       labs(x = "UMAP 1", y = "UMAP 2") +
+       theme(axis.ticks.x = element_blank()) +
+       theme(axis.ticks.y = element_blank()) +
+       theme(axis.text.y = element_blank()) +
+       theme(axis.text.x = element_blank()) +
+       theme(axis.title.y = element_text(size = 16, face = "bold")) +
+       theme(axis.title.x = element_text(size = 16, face = "bold")) +
+       theme(legend.title = element_text(size = 15, face = "bold")) +
+       theme(legend.text = element_text(size = 14)) 
+
+ggsave(umap_plot_2_path, device = "pdf", width = 12, height = 6)
+
+print("Step 7 complete - umap plots saved")
+
+# Output umap dataframe
+
+umap_sub_dt <- as.data.table(umap_sub)
+fwrite(umap_sub_dt, umap_tsv_path, quote = FALSE, col.names = TRUE, row.names = FALSE) 
+
+print("Step 8 complete - umap data saved as tsv")
+
