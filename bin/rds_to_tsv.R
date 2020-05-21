@@ -12,7 +12,7 @@ loadRData <- function(fileName){
 }
 
 dist_rds <- loadRData(grep("dec_fasta_dist*", files, value = TRUE))
-meta_rds <- loadRData(grep("covid_meta_*", files, value = TRUE))
+meta_rds <- loadRData(grep("covid_filtered_meta_*", files, value = TRUE))
 umap_rds <- loadRData(grep("umap_preloaded*", files, value = TRUE))
 
 
