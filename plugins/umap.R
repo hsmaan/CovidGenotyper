@@ -3,6 +3,7 @@ library(stringr)
 library(DECIPHER)
 library(ape)
 library(data.table)
+library(uwot)
 library(ggplot2)
 library(ggthemes)
 
@@ -118,7 +119,7 @@ umap_process_heur <- function(align, fasta, new_dist, new_meta, old_umap) {
   
   umap_0 <- old_umap
   umap_0$Accession <- as.character(umap_0$Accession)
-  new_length <- length(readDNAStringSet(fasta))
+  new_length <- length(fasta)
   acc_names <- new_meta$Accession
   new_acc_names <- acc_names[(length(acc_names) - new_length + 1):length(acc_names)]
   meta_adds <- new_meta[(length(acc_names) - new_length + 1):length(acc_names),]
@@ -154,7 +155,6 @@ umap_process_heur <- function(align, fasta, new_dist, new_meta, old_umap) {
   }
 }
     
-
 # Read args
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -201,3 +201,8 @@ new_accessions <- rownames(dist_mat_up)[(nrow(meta_df_sub)+1):nrow(dist_mat_up)]
 meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)), "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)), "Datetime" = rep((unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))), length(new_accessions)))
 new_meta <- rbind(meta_df_sub, meta_new)
 
+# Get updated umap data
+
+umap_new <- umap_process_heur(align_update, con_fasta, dist_map_up, new_meta, umap_df)
+
+print(umap_new)
