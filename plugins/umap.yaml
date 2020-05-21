@@ -1,0 +1,15 @@
+channels:
+   - r
+   - bioconda
+   - conda-forge
+dependencies:
+   - r-base=3.6.0
+   - r-stringr=1.4.0
+   - r-data.table=1.12.2
+   - r-uwot=0.1.8
+   - r-ggplot2=3.1.1
+   - r-ggthemes=4.2.0
+   - r-rcolorbrewer=1.1_2
+   - r-ape=5.3
+   - bioconductor-decipher=2.16.0
+   - bioconductor-biostrings=2.56.0
