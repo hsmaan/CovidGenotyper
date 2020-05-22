@@ -32,8 +32,8 @@ file.remove(grep("signal_umap_", files, value = TRUE))
 
 # Output new files
 
-fwrite(dist_dt, file = paste("signal_dist_", Sys.Date(), ".tsv", sep = ""), quote = FALSE, col.names = TRUE, row.names = FALSE)
-fwrite(meta_dt, file = paste("signal_meta_", Sys.Date(), ".tsv", sep = ""), quote = FALSE, col.names = TRUE, row.names = FALSE)
-fwrite(umap_dt, file = paste("signal_umap_", Sys.Date(), ".tsv", sep = ""), quote = FALSE, col.names = TRUE, row.names = FALSE)
+fwrite(dist_dt, file = "signal_dist.tsv", quote = FALSE, col.names = TRUE, row.names = FALSE)
+fwrite(meta_dt, file = "signal_meta.tsv", quote = FALSE, col.names = TRUE, row.names = FALSE)
+fwrite(umap_dt, file = "signal_umap.tsv", quote = FALSE, col.names = TRUE, row.names = FALSE)
 
 
