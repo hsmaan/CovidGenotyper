@@ -1,3 +1,4 @@
+name: umap
 channels:
    - r
    - bioconda
@@ -14,7 +15,7 @@ dependencies:
    - r-ggplot2=3.3.0
    - r-ggthemes=4.2.0
    - r-rcolorbrewer=1.1_2
-   - r-ape=5.3
+   - conda-forge::r-ape=5.3
    - r-biocmanager=1.30.10
    - bioconductor-decipher=2.14.0
    - bioconductor-biostrings=2.54.0
