@@ -2,9 +2,8 @@ channels:
    - r
    - bioconda
    - conda-forge
+   - defaults
 dependencies:
-   - libblas=3.8.0
-   - lapack=3.6.1
    - r-base=3.6.3
    - r-devtools=2.0.2
    - r-stringi=1.4.6

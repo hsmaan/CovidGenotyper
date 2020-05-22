@@ -258,10 +258,10 @@ print("Step 5 complete - umap data reprocessed with new fasta")
 umap_coords_1 <- umap_new[nrow(umap_new), "UMAP_1"]
 umap_coords_2 <- umap_new[nrow(umap_new), "UMAP_2"]
 
-coords_1_high <- umap_coords_1 + 2.5
-coords_1_low <- umap_coords_1 - 2.5
-coords_2_high <- umap_coords_2 + 2.5
-coords_2_low <- umap_coords_2 - 2.5
+coords_1_high <- umap_coords_1 + 5
+coords_1_low <- umap_coords_1 - 5
+coords_2_high <- umap_coords_2 + 5
+coords_2_low <- umap_coords_2 - 5
 
 umap_sub <- umap_new[which((umap_new$UMAP_1 > coords_1_low) & (umap_new$UMAP_1 < coords_1_high) & (umap_new$UMAP_2 > coords_2_low) & (umap_new$UMAP_2 < -15)), ]
 
@@ -306,13 +306,16 @@ print("Step 7 complete - umap plots saved")
 
 # Output umap dataframe
 
-umap_sub_seq <- umap_sub[1, ]
-umap_sub_minus <- umap_sub[-1, ]
+umap_sub_seq <- umap_sub[nrow(umap_sub), ]
+umap_sub_minus <- umap_sub[-nrow(umap_sub), ]
 
 umap_plus_travel <- merge(umap_sub_minus, meta_travel_sub, by = "Accession")
-umap_sub_seq_travel$Country_Exposure <- sample_hist
+colnames(umap_plus_travel)[ncol(umap_plus_travel)] <- "Travel_History"
+umap_plus_travel$Travel_History <- ifelse((umap_plus_travel$Travel_History == umap_plus_travel$Country), "Not available", umap_plus_travel$Travel_History)
 
-umap_final_df <- rbind(umap_plus_travel, umap_sub_seq_travel)
+umap_sub_seq$Travel_History <- sample_hist
+
+umap_final_df <- rbind(umap_plus_travel, umap_sub_seq)
 umap_final_dt <- as.data.table(umap_final_df)
 fwrite(umap_final_dt, umap_tsv_path, quote = FALSE, col.names = TRUE, row.names = FALSE) 
 
