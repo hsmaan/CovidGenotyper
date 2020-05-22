@@ -26,9 +26,9 @@ umap_dt <- as.data.table(umap_rds)
 
 # Remove old files
 
-file.remove(grep("signal_dist_", files, value = TRUE))
-file.remove(grep("signal_meta_", files, value = TRUE))
-file.remove(grep("signal_umap_", files, value = TRUE))
+file.remove(grep("signal_dist", files, value = TRUE))
+file.remove(grep("signal_meta", files, value = TRUE))
+file.remove(grep("signal_umap", files, value = TRUE))
 
 # Output new files
 
