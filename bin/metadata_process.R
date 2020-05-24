@@ -12,8 +12,8 @@ metadata <- fread(meta_file, stringsAsFactors = FALSE)
 # Subset appropriate columns
 
 meta_df <- as.data.frame(metadata)
-meta_sub <- meta_df[,c("date", "gisaid_epi_isl", "region", "country", "length", "age", "sex")]
-colnames(meta_sub) <- c("Date", "Accession", "Region", "Geo_Location", "Genome_Length", "Age", "Sex")
+meta_sub <- meta_df[,c("date", "gisaid_epi_isl", "region", "country", "length", "age", "sex", "country_exposure")]
+colnames(meta_sub) <- c("Date", "Accession", "Region", "Geo_Location", "Genome_Length", "Age", "Sex", "Country_Exposure")
 
 # Define negate 
 

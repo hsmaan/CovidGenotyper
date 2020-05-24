@@ -22,4 +22,6 @@
 *.html
 gisaid_cron.sh
 slurm*
+rds_to_tsv.R
+signal_bucket_upload.sh
 manuscript
