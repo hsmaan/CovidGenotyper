@@ -39,6 +39,8 @@ meta_sub$Datetime <- sample_time
 meta_sub <- meta_sub[(meta_sub$Datetime >= 0), ]
 meta_sub <- meta_sub[(meta_sub$Datetime <= current_orig), ]
 
+meta_sub$Country_Exposure <- ifelse((meta_sub$Geo_Location == meta_sub$Country_Exposure), "Not available", meta_sub$Country_Exposure)
+
 # Subset ack columns
 
 meta_ack <- meta_df[,c("gisaid_epi_isl", "originating_lab", "submitting_lab", "authors", "date_submitted")]
