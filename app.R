@@ -128,6 +128,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
             strong("Country"), "- Country where sample was processed",
             br(),
             strong("Collection date"), "- Sample collection date in terms of days since first case (Dec 1, 2019)",
+            br(),
+            strong("Travel history"), "- Travel history of individual whom sample was collected from (if available)",
           ),
           
           p(
