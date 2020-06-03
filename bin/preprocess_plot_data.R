@@ -16,7 +16,7 @@ file_list <- list.files()
 pre_aligned_filtered <- loadRData(grep("dec_aligned_filtered", file_list, value = TRUE))
 pre_meta <- loadRData(grep("covid_filtered_meta", file_list, value = TRUE))
 pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
-meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime")])
+meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime", "Country_Exposure")])
 vars_freq <- loadRData(grep("var_freq_sub*", file_list, value = TRUE))
 
 setwd("..")
