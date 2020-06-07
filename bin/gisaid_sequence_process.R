@@ -44,7 +44,7 @@ file.remove(grep("signal_aligned", all_files, value = TRUE))
 
 # Remove sequences with high percentage of ambiguous nucleotides
 
-ambg_freq_all <- which(((apply((letterFrequency(fasta_string, c("N", "W", "S", "M", "K", "R", "Y", "B", "D", "H", "V"))), 1, sum))/29000) > 0.001)
+ambg_freq_all <- which(((apply((letterFrequency(all_fastas, c("N", "W", "S", "M", "K", "R", "Y", "B", "D", "H", "V"))), 1, sum))/29000) > 0.001)
 
 all_fastas <- all_fastas[-ambg_freq_all]
 
