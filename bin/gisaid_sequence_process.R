@@ -44,21 +44,9 @@ file.remove(grep("signal_aligned", all_files, value = TRUE))
 
 # Remove sequences with high percentage of ambiguous nucleotides
 
-ambg_freq_N <- which(((letterFrequency(all_fastas, "N"))/29000) > 0.001)
-ambg_freq_W <- which(((letterFrequency(all_fastas, "W"))/29000) > 0.001)
-ambg_freq_S <- which(((letterFrequency(all_fastas, "S"))/29000) > 0.001)
-ambg_freq_M <- which(((letterFrequency(all_fastas, "M"))/29000) > 0.001)
-ambg_freq_K <- which(((letterFrequency(all_fastas, "K"))/29000) > 0.001)
-ambg_freq_R <- which(((letterFrequency(all_fastas, "R"))/29000) > 0.001)
-ambg_freq_Y <- which(((letterFrequency(all_fastas, "Y"))/29000) > 0.001)
-ambg_freq_B <- which(((letterFrequency(all_fastas, "B"))/29000) > 0.001)
-ambg_freq_D <- which(((letterFrequency(all_fastas, "D"))/29000) > 0.001)
-ambg_freq_H <- which(((letterFrequency(all_fastas, "H"))/29000) > 0.001)
-ambg_freq_V <- which(((letterFrequency(all_fastas, "V"))/29000) > 0.001)
+ambg_freq_all <- which(((apply((letterFrequency(all_fastas, c("N", "W", "S", "M", "K", "R", "Y", "B", "D", "H", "V"))), 1, sum))/29000) > 0.001)
 
-ambg_freq_concat <- unique(c(ambg_freq_N, ambg_freq_W, ambg_freq_S, ambg_freq_M, ambg_freq_K, ambg_freq_R, ambg_freq_Y, ambg_freq_B, ambg_freq_D, ambg_freq_H, ambg_freq_V))
-
-all_fastas <- all_fastas[-ambg_freq_concat]
+all_fastas <- all_fastas[-ambg_freq_all]
 
 # Subset all files by available metadata
 
