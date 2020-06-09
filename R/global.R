@@ -141,7 +141,7 @@ umap_process <- function(covid_dist, meta_df) {
   covid_umap_df <- as.data.frame(covid_umap)
   umap_df_final <- data.frame("Accession" = acc_names, "UMAP_1" = covid_umap_df[,1], "UMAP_2" = covid_umap_df[,2])
   umap_df_final <- merge(umap_df_final, meta_df)
-  colnames(umap_df_final) <- c("Accession", "UMAP_1", "UMAP_2", "Region", "Country", "Date", "Country_Exposure")
+  colnames(umap_df_final) <- c("Accession", "UMAP_1", "UMAP_2", "Region", "Country", "Date", "Travel")
   return(umap_df_final)
   
 }
@@ -305,8 +305,8 @@ umap_plotter <- function(umap_df) {
   
   p4 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
-    geom_jitter(aes(fill = Country_Exposure), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-    scale_fill_manual(name = "", values = qual_vector[1:length(unique(umap_df$Country_Exposure))]) +
+    geom_jitter(aes(fill = Travel), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(umap_df$Travel))]) +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +
     theme(axis.ticks.y = element_blank()) +
