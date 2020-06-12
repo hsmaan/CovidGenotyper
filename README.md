@@ -14,6 +14,11 @@ data available on [GISAID](https://www.gisaid.org/). Genomic distance is
 visualized using manifold projection and network analysis, and genotype
 information with respective to high-prevalence SNPs is determined.
 
+A video demonstration of CGT:
+
+[![CGT
+Demo](https://i.imgur.com/hsNZHsQ.jpg)](https://youtu.be/WRD1NOtyhHE)
+
 ## Details and methodology
 
 #### UI and visualizations
