@@ -76,6 +76,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
         
           p("The COVID-19 Genotyping Tool (CGT) is a visualization toolbox for SARS-CoV-2 whole genome sequencing data. Public sequences from GISAID is preloaded for inspection, and users have the option of uploading in-house SARS-CoV-2 sequencing data for concurrent analysis with public data."),
           
+          p("A video tutorial of CGT is available", a("here.", href = "https://www.youtube.com/watch?v=WRD1NOtyhHE")),
+          
           h4(strong("Instructions")), 
           
           p(
