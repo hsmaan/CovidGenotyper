@@ -36,7 +36,8 @@ kev_palette <- c(
 )
 
 qual_palettes = brewer.pal.info[brewer.pal.info$category == "qual", ]
-qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_palettes)))
+gr_colors = colors()[grep('gr(a|e)y', grDevices::colors(), invert = TRUE)]
+qual_vector = sample(gr_colors, 200)
 
 # Functions
 
