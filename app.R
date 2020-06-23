@@ -202,7 +202,14 @@ ui <- fluidPage(theme = shinytheme("flatly"),
 
     
   )
-  )
+  ),
+  
+  hr(),
+  
+    p(
+      strong("Citation:"),
+      a("Maan", em("et al."), "2020. Genotyping SARS-CoV-2 through an Interactive Web Application.", em("The Lancet Digital Health."), "7500 (20): 19–20.", href = "https://www.thelancet.com/journals/landig/article/PIIS2589-7500(20)30140-0/fulltext")
+    )
                   
 )
   
