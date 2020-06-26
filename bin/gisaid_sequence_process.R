@@ -48,7 +48,7 @@ ambg_freq_all <- which(((apply((letterFrequency(all_fastas, c("N", "W", "S", "M"
 
 all_fastas <- all_fastas[-ambg_freq_all]
 
-# Subset all files by available metadata
+# Subset all files by available metadata and sample 10000
 
 all_fastas <- all_fastas[which(names(all_fastas) %in% meta_accession[,1])]
 
@@ -59,6 +59,10 @@ meta_accession <- data.frame("Accession" = as.character(meta_accession))
 accession_order <- base::match(names(all_fastas), meta_accession[,1])
 
 all_fastas <- all_fastas[order(accession_order)]
+
+all_10000 <- sample(names(all_fastas), 10000)
+
+all_fastas <- all_fastas[all_10000]
 
 pre_meta_sub <- pre_meta[which(pre_meta$Accession %in% names(all_fastas)),]
 
