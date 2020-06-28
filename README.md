@@ -45,6 +45,9 @@ are filtered for completeness (\>29000 nucleotides) and high coverage
 are also filtered out, defined by \>0.05% unique amino acid
 substitutions compared to all GISAID sequences. This criteria is based
 on the mutation rate of SARS-CoV-2 and breadth of the GISAID database.
+Due to space and computational limitations, since the June 26th update,
+10000 sequences from those that meet the filtering criteria are randomly
+sampled and analyzed.
 
 #### Genome sequence alignment
 
