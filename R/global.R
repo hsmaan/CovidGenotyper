@@ -55,6 +55,7 @@ align_get <- function(fasta, align) {
   }
   covid_align <- align
   covid_seq <- RemoveGaps(covid_seq, removeGaps = "all", processors = NULL)
+  covid_seq <- AlignSeqs(covid_seq, iterations = 0, refinements = 0, processors = NULL)
   fasta_final <- AlignProfiles(covid_align, covid_seq, processors = NULL)
   return(fasta_final)
   
