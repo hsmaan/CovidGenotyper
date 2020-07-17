@@ -68,14 +68,12 @@ var_overlap_sub$Effect <- gsub("_", " ", var_overlap_sub$Effect)
 
 var_freq_overlap <- merge(var_freq_filtered, var_overlap_sub)
 
-var_freq_overlap_non_syn <- var_freq_overlap[which(var_freq_overlap$Effect != "synonymous variant"), ]
+var_freq_overlap <- var_freq_overlap[,c("Pos", "A1", "AF1", "A2", "AF2", "Gene", "Effect")]
 
-var_freq_overlap_non_syn <- var_freq_overlap_non_syn[,c("Pos", "A1", "AF1", "A2", "AF2", "Gene", "Effect")]
-
-var_freq_overlap_non_syn <- var_freq_overlap_non_syn[order(var_freq_overlap_non_syn$AF2, decreasing = TRUE),]
+var_freq_overlap <- var_freq_overlap[order(var_freq_overlap$AF2, decreasing = TRUE),]
 
 # Output data
 
 file.remove(grep("var_freq_*", file_list, value = TRUE))
-save(var_freq_overlap_non_syn, file = paste("var_freq_", Sys.Date(), ".RData", sep = ""))  
-save(var_freq_overlap_non_syn, file = paste("signal_var_freq_", Sys.Date(). ".RData", sep = "")) 
+save(var_freq_overlap, file = paste("var_freq_", Sys.Date(), ".RData", sep = ""))  
+save(var_freq_overlap, file = paste("signal_var_freq_", Sys.Date(). ".RData", sep = "")) 
