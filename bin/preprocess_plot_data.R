@@ -17,7 +17,7 @@ pre_aligned_filtered <- loadRData(grep("dec_aligned_filtered", file_list, value 
 pre_meta <- loadRData(grep("covid_filtered_meta", file_list, value = TRUE))
 pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
 meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime", "Country_Exposure")])
-vars_freq <- loadRData(grep("var_freq_sub*", file_list, value = TRUE))
+vars_freq <- loadRData(grep("var_freq_*", file_list, value = TRUE))
 
 setwd("..")
 
@@ -54,17 +54,19 @@ setwd("data")
 umap_preloaded <- umap_process(pre_dist, meta)
 
 save(umap_preloaded, file = "umap_preloaded.RData")
+save(umap_preloaded, file = "signal_rds_umap.RData")
 
 # mst
 
 mst_preloaded <- mst_graph(pre_dist, meta)
 
 save(mst_preloaded, file = "mst_preloaded.RData")
+save(mst_preloaded, file = "signal_rds_mst.RData")
 
 # snps
   
 snps_preloaded <- snps_get(pre_aligned_filtered, meta, vars_freq)
 
 save(snps_preloaded, file = "snps_preloaded.RData")
-
+save(snps_preloaded, file = "signal_rds_snps.RData")
 

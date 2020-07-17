@@ -70,24 +70,8 @@ var_freq_overlap <- merge(var_freq_filtered, var_overlap_sub)
 
 var_freq_overlap_non_syn <- var_freq_overlap[which(var_freq_overlap$Effect != "synonymous variant"), ]
 
-# Subset for structural proteins
-
-var_freq_structural <- var_freq_overlap_non_syn[var_freq_overlap_non_syn$Gene %in% c("E", "M", "N", "S"),]
-
-# Subset for top maf
-
-var_freq_sub <- var_freq_structural[which((var_freq_structural$AF2 >= 0.000001) & (var_freq_structural$AF1 >= 0.0000001)), ]
-
-# Select top 9
-
-var_freq_sub_9 <- (var_freq_sub[order(var_freq_sub$AF2, decreasing = TRUE),])[1:9,]
-
-var_freq_sub_9 <- var_freq_sub_9[,c("Pos", "A1", "AF1", "A2", "AF2", "Gene", "Effect")]
-
 # Output data
 
-file.remove(grep("var_freq_sub_9*", file_list, value = TRUE))
-save(var_freq_sub_9, file = paste("var_freq_sub_9_", Sys.Date(), ".RData", sep = "")) 
-  
-
-  
+file.remove(grep("var_freq_*", file_list, value = TRUE))
+save(var_freq_overlap_non_syn, file = paste("var_freq_", Sys.Date(), ".RData", sep = ""))  
+save(var_freq_overlap_non_syn, file = paste("signal_var_freq_", Sys.Date(). ".RData", sep = "")) 

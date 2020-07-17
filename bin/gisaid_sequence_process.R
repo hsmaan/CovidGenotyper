@@ -60,10 +60,6 @@ accession_order <- base::match(names(all_fastas), meta_accession[,1])
 
 all_fastas <- all_fastas[order(accession_order)]
 
-all_10000 <- sample(names(all_fastas), 10000)
-
-all_fastas <- all_fastas[all_10000]
-
 pre_meta_sub <- pre_meta[which(pre_meta$Accession %in% names(all_fastas)),]
 
 # Remove gaps
