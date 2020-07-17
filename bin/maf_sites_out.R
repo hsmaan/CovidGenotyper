@@ -70,6 +70,10 @@ var_freq_overlap <- merge(var_freq_filtered, var_overlap_sub)
 
 var_freq_overlap_non_syn <- var_freq_overlap[which(var_freq_overlap$Effect != "synonymous variant"), ]
 
+var_freq_overlap_non_syn <- var_freq_overlap_non_syn[,c("Pos", "A1", "AF1", "A2", "AF2", "Gene", "Effect")]
+
+var_freq_overlap_non_syn <- var_freq_overlap_non_syn[order(var_freq_overlap_non_syn$AF2, decreasing = TRUE),]
+
 # Output data
 
 file.remove(grep("var_freq_*", file_list, value = TRUE))
