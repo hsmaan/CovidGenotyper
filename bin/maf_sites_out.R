@@ -75,5 +75,4 @@ var_freq_overlap <- var_freq_overlap[order(var_freq_overlap$AF2, decreasing = TR
 # Output data
 
 file.remove(grep("var_freq_*", file_list, value = TRUE))
-save(var_freq_overlap, file = paste("var_freq_", Sys.Date(), ".RData", sep = ""))  
-save(var_freq_overlap, file = paste("signal_var_freq_", Sys.Date(), ".RData", sep = "")) 
+save(var_freq_overlap, file = paste("var_freq_", Sys.Date(), ".RData", sep = ""))   
