@@ -51,17 +51,17 @@ setwd("data")
 
 # umap
 
-umap_preloaded <- umap_process(pre_dist, meta)
+# umap_preloaded <- umap_process(pre_dist, meta)
 
-save(umap_preloaded, file = "umap_preloaded.RData")
-save(umap_preloaded, file = "signal_rds_umap.RData")
+# save(umap_preloaded, file = "umap_preloaded.RData")
+# save(umap_preloaded, file = "signal_rds_umap.RData")
 
 # mst
 
-mst_preloaded <- mst_graph(pre_dist, meta)
+# mst_preloaded <- mst_graph(pre_dist, meta)
 
-save(mst_preloaded, file = "mst_preloaded.RData")
-save(mst_preloaded, file = "signal_rds_mst.RData")
+# save(mst_preloaded, file = "mst_preloaded.RData")
+# save(mst_preloaded, file = "signal_rds_mst.RData")
 
 # snps
   
