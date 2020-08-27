@@ -1,3 +1,4 @@
+# \*\*CGT is currently being moved to a new server and is down for the time being\*\*
 
 # COVID-19 Genotyping Tool (CGT) <img src="www/cgt_logo.png" height="200px" align="right"/>
 
