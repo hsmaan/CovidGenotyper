@@ -137,7 +137,7 @@ dist_get_heur <- function(align, fasta, dist) {
 umap_process <- function(covid_dist, meta_df) {
   
   acc_names = rownames(covid_dist)
-  covid_dist <- dist(covid_dist)
+  covid_dist <- as.dist(covid_dist)
   set.seed(2020)
   covid_umap <- uwot::umap(covid_dist, init = "spectral", metric = "cosine", n_neighbors = 50, min_dist = 0.001, spread = 40, local_connectivity = 10, n_threads = cores*2)
   covid_umap_df <- as.data.frame(covid_umap)
