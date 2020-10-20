@@ -1,5 +1,3 @@
-# \*\*CGT is currently being moved to a new server and is down for the time being\*\*
-
 # COVID-19 Genotyping Tool (CGT) <img src="www/cgt_logo.png" height="200px" align="right"/>
 
 [![DOI](https://zenodo.org/badge/249085461.svg)](https://zenodo.org/badge/latestdoi/249085461)
@@ -47,8 +45,9 @@ are also filtered out, defined by \>0.05% unique amino acid
 substitutions compared to all GISAID sequences. This criteria is based
 on the mutation rate of SARS-CoV-2 and breadth of the GISAID database.
 Due to space and computational limitations, since the June 26th update,
-10000 sequences from those that meet the filtering criteria are randomly
-sampled and analyzed.
+20000 sequences from those that meet the filtering criteria are randomly
+sampled and analyzed. Currently, only sequences with date of upload on 
+June 1st or later are processed. 
 
 #### Genome sequence alignment
 
