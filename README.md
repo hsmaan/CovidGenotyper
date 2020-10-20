@@ -153,10 +153,10 @@ and ensure it’s installed in the right directory <br/>
     unzip snpEff
     mv snpEff /usr/local/bin
 
-Download gb and fasta files of SARS-CoV-2 reference NC\_045512 (rename
-to `covid.gb` and `covid.fa` respectively) from
-[GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and create
-SARS-CoV-2 reference database for snpEff <br/>
+Download genbank (**.gb**) and fasta (**.fa**) files of SARS-CoV-2
+reference NC\_045512 (rename to `genes.gbk` and `covid.fa` respectively)
+from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and
+create SARS-CoV-2 reference database for snpEff <br/>
 
     mkdir -p /usr/local/bin/snpEff/data/COVID
     mv covid.gb covid.fa /usr/local/bin/snpEff/data/COVID
@@ -324,7 +324,7 @@ following <br/>
     <https://CRAN.R-project.org/package=ggthemes>
   - Erich Neuwirth (2014). RColorBrewer: ColorBrewer Palettes. R package
     version 1.1-2. <https://CRAN.R-project.org/package=RColorBrewer>
-  - Lawrence M, Huber W, Pages H, Aboyoun P, Carlson M, et al. (2013)
+  - Lawrence M, Huber W, Pages H, Aboyoun P, Carlson M, et al. (2013)
     Software for Computing and Annotating Genomic Ranges. PLoS Comput
     Biol 9(8): e1003118. <doi:10.1371/journal.pcbi.1003118>
 

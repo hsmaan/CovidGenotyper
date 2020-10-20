@@ -90,7 +90,7 @@ unzip snpEff
 mv snpEff /usr/local/bin
 ```
 
-Download gb and fasta files of SARS-CoV-2 reference NC_045512 (rename to `covid.gb` and `covid.fa` respectively) from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and create SARS-CoV-2 reference database for snpEff <br/>
+Download genbank (**.gb**) and fasta (**.fa**) files of SARS-CoV-2 reference NC_045512 (rename to `genes.gbk` and `covid.fa` respectively) from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and create SARS-CoV-2 reference database for snpEff <br/>
 ```
 mkdir -p /usr/local/bin/snpEff/data/COVID
 mv covid.gb covid.fa /usr/local/bin/snpEff/data/COVID
