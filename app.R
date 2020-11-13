@@ -73,7 +73,7 @@ ui <- fluidPage(theme = shinytheme("flatly"),
     img(src = "mcmaster_logo.png", height = 60, align = "right"), 
     img(src = "vector_logo.png", height = 60, align = "right"), 
     img(src = "pmcc.jpg", height = 40, align = "right"), 
-    img(src = "gcp_logo_2.png", height = 45, align = "right"),
+    img(src = "gcp_logo_2.png", height = 35, align = "right"),
     img(src = "cisco_logo.jpg", height = 45, align = "right")
   ),
   
