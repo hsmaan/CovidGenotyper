@@ -4,6 +4,8 @@
 
 ### Please note that the CGT backend and UI are under continuous development.
 
+### A mirror of CGT is available at: https://bergen.mcmaster.ca/covidgenotyper/
+
 ## Overview
 
 [The Covid-19 Genotyping Tool](https://covidgenotyper.app) (CGT) is an
