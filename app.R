@@ -65,7 +65,17 @@ ui <- fluidPage(theme = shinytheme("flatly"),
   tags$head(tags$link(rel = "shortcut icon", type = "image/png", href = "cgt_icon.png"),
             tags$title("Covid-19 Genotyping Tool")),
                 
-  titlePanel(title = img(height = 80, width = 80, src = "cgt_logo.png", align = "left")), h3(strong("COVID-19 GENOTYPING TOOL", align = "left"), img(src = "sunnybrook.png", height = 35, align = "right"), img(src = "mcmaster_logo.png", height = 60, align = "right"), img(src = "vector_logo.png", height = 60, align = "right"), img(src = "pmcc.jpg", height = 40, align = "right")),
+  titlePanel(title = img(height = 80, width = 80, src = "cgt_logo.png", align = "left")), 
+  
+  h3(
+    strong("COVID-19 GENOTYPING TOOL", align = "left"), 
+    img(src = "sunnybrook.png", height = 35, align = "right"), 
+    img(src = "mcmaster_logo.png", height = 60, align = "right"), 
+    img(src = "vector_logo.png", height = 60, align = "right"), 
+    img(src = "pmcc.jpg", height = 40, align = "right"), 
+    img(src = "gcp_logo.png", height = 45, align = "right"),
+    img(src = "cisco_logo.jpg", height = 45, align = "right")
+  ),
   
   sidebarLayout(fluid = TRUE,
     
@@ -74,6 +84,12 @@ ui <- fluidPage(theme = shinytheme("flatly"),
       tabPanel(strong("Input"), 
       
         sidebarPanel(
+          
+          p(
+            strong("CGT Mirror:"),
+            a("https://bergen.mcmaster.ca/covidgenotyper/", 
+              href = "https://bergen.mcmaster.ca/covidgenotyper/")
+          ),
         
           p("The COVID-19 Genotyping Tool (CGT) is a visualization toolbox for SARS-CoV-2 whole genome sequencing data. Public sequences from GISAID is preloaded for inspection, and users have the option of uploading in-house SARS-CoV-2 sequencing data for concurrent analysis with public data."),
           
