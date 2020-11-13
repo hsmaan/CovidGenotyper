@@ -4,7 +4,7 @@
 
 ### Please note that the CGT backend and UI are under continuous development.
 
-### A mirror of CGT is available at: https://bergen.mcmaster.ca/covidgenotyper/
+#### A mirror of CGT is available at: https://bergen.mcmaster.ca/covidgenotyper/
 
 ## Overview
 
