@@ -15,7 +15,7 @@ library(parallel)
 
 # Set core usage
 
-cores <- detectCores()
+cores <- 2
 
 # Load color palettes    
 
@@ -55,7 +55,9 @@ align_get <- function(fasta, align) {
   }
   covid_align <- align
   covid_seq <- RemoveGaps(covid_seq, removeGaps = "all", processors = NULL)
-  covid_seq <- AlignSeqs(covid_seq, iterations = 0, refinements = 0, processors = NULL)
+  if (length(covid_seq) > 1) {
+    scovid_seq <- AlignSeqs(covid_seq, iterations = 0, refinements = 0, processors = NULL)
+  }
   fasta_final <- AlignProfiles(covid_align, covid_seq, processors = NULL)
   return(fasta_final)
   
@@ -168,7 +170,7 @@ umap_process_heur <- function(align, fasta, new_dist, new_meta, old_umap) {
   split_test_reduced_names <- as.list(names(split_test_reduced_mins))
   
   if (max(unlist(split_test_reduced_mins)) > 1e-4) {
-    umap_ret <- umap_process(new_dist, meta_data)
+    umap_ret <- umap_process(new_dist, new_meta)
     return(umap_ret)
   } else {
     umap_ret <- umap_0

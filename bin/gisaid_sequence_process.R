@@ -55,8 +55,8 @@ meta_accession <- meta_accession[which(meta_accession[,1] %in% names(all_fastas)
 meta_accession <- data.frame("Accession" = as.character(meta_accession))
 accession_order <- base::match(names(all_fastas), meta_accession[,1])
 all_fastas <- all_fastas[order(accession_order)]
-all_1000 <- sample(names(all_fastas), 1000)
-all_fastas <- all_fastas[all_1000]
+all_500 <- sample(names(all_fastas), 500)
+all_fastas <- all_fastas[all_500]
 pre_meta_sub <- pre_meta[which(pre_meta$Accession %in% names(all_fastas)),]
 
 # Remove gaps
