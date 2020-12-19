@@ -2,6 +2,7 @@
 *.Rhistory
 *.RData
 *.Ruserdata
+*.Rprofile
 *.tsv
 *.csv
 *.fa
@@ -24,4 +25,6 @@ gisaid_cron.sh
 rds_to_tsv.R
 signal_bucket_upload.sh
 slurm*
-
+rds_to_tsv.R
+signal_bucket_upload.sh
+manuscript

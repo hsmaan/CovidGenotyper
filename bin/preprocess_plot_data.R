@@ -16,7 +16,7 @@ file_list <- list.files()
 pre_aligned_filtered <- loadRData(grep("dec_aligned_filtered", file_list, value = TRUE))
 pre_meta <- loadRData(grep("covid_filtered_meta", file_list, value = TRUE))
 pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
-meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime")])
+meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime", "Country_Exposure")])
 vars_freq <- loadRData(grep("var_freq_sub*", file_list, value = TRUE))
 
 setwd("..")
@@ -40,7 +40,8 @@ kev_palette <- c(
 )
 
 qual_palettes = brewer.pal.info[brewer.pal.info$category == "qual", ]
-qual_vector = unlist(mapply(brewer.pal, qual_palettes$maxcolors, rownames(qual_palettes)))
+gr_colors = colors()[grep('gr(a|e)y', grDevices::colors(), invert = TRUE)]
+qual_vector = sample(gr_colors, 200)
 
 # Source global
 

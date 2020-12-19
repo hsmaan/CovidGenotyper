@@ -40,14 +40,15 @@ file.remove(grep("dec_fasta_dist_", all_files, value = TRUE))
 file.remove(grep("dec_aligned_filtered_", all_files, value = TRUE))
 file.remove(grep("covid_filtered_meta_", all_files, value = TRUE))
 file.remove(grep("dec_aligned_plus_ref_filtered_", all_files, value = TRUE))
+file.remove(grep("signal_aligned", all_files, value = TRUE))
 
 # Remove sequences with high percentage of ambiguous nucleotides
 
-ambg_freq_sub <- which(((letterFrequency(all_fastas, "N"))/29000) > 0.005)
+ambg_freq_all <- which(((apply((letterFrequency(all_fastas, c("N", "W", "S", "M", "K", "R", "Y", "B", "D", "H", "V"))), 1, sum))/29000) > 0.001)
 
-all_fastas <- all_fastas[-ambg_freq_sub]
+all_fastas <- all_fastas[-ambg_freq_all]
 
-# Subset all files by available metadata
+# Subset all files by available metadata and sample 10000
 
 all_fastas <- all_fastas[which(names(all_fastas) %in% meta_accession[,1])]
 
@@ -58,6 +59,10 @@ meta_accession <- data.frame("Accession" = as.character(meta_accession))
 accession_order <- base::match(names(all_fastas), meta_accession[,1])
 
 all_fastas <- all_fastas[order(accession_order)]
+
+all_10000 <- sample(names(all_fastas), 10000)
+
+all_fastas <- all_fastas[all_10000]
 
 pre_meta_sub <- pre_meta[which(pre_meta$Accession %in% names(all_fastas)),]
 
@@ -79,6 +84,7 @@ fasta_string <- fasta_ungapped %>% as.list %>% as.character %>% lapply(., paste0
 fasta_final <- subseq(fasta_string, start = 265, end = 29674)
 
 writeXStringSet(fasta_string, file = paste("dec_aligned_fasta_filtered_", as.character(Sys.Date()), ".fasta", sep = ""))
+writeXStringSet(fasta_string, file = "signal_aligned.fasta")
 
 # Mask sites 
 

@@ -1,6 +1,8 @@
 
 # COVID-19 Genotyping Tool (CGT) <img src="www/cgt_logo.png" height="200px" align="right"/>
 
+[![DOI](https://zenodo.org/badge/249085461.svg)](https://zenodo.org/badge/latestdoi/249085461)
+
 ### Please note that the CGT backend and UI are under continuous development.
 
 ## Overview
@@ -11,6 +13,11 @@ sequences of Covid-19 viral genomes and compare with public sequence
 data available on [GISAID](https://www.gisaid.org/). Genomic distance is
 visualized using manifold projection and network analysis, and genotype
 information with respective to high-prevalence SNPs is determined.
+
+A video demonstration of CGT:
+
+[![CGT
+Demo](https://i.imgur.com/hsNZHsQ.jpg)](https://youtu.be/WRD1NOtyhHE)
 
 ## Details and methodology
 
@@ -34,10 +41,13 @@ retrieved from the [GISAID](https://www.gisaid.org/) EpiCoV database,
 which is a public database for sharing of viral genome sequence data.
 Viral genome data and metadata are updated on a weekly basis. Sequences
 are filtered for completeness (\>29000 nucleotides) and high coverage
-(\<0.5% N’s). Outlier sequences are also filtered out, defined by
-\>0.05% unique amino acid substitutions compared to all GISAID
-sequences. This criteria is based on the mutation rate of SARS-CoV-2 and
-breadth of the GISAID database.
+(\<0.1% of all ambiguous nucleotides - e.g. N, M, W). Outlier sequences
+are also filtered out, defined by \>0.05% unique amino acid
+substitutions compared to all GISAID sequences. This criteria is based
+on the mutation rate of SARS-CoV-2 and breadth of the GISAID database.
+Due to space and computational limitations, since the June 26th update,
+10000 sequences from those that meet the filtering criteria are randomly
+sampled and analyzed.
 
 #### Genome sequence alignment
 
@@ -143,10 +153,10 @@ and ensure it’s installed in the right directory <br/>
     unzip snpEff
     mv snpEff /usr/local/bin
 
-Download gb and fasta files of SARS-CoV-2 reference NC\_045512 (rename
-to `covid.gb` and `covid.fa` respectively) from
-[GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and create
-SARS-CoV-2 reference database for snpEff <br/>
+Download genbank (**.gb**) and fasta (**.fa**) files of SARS-CoV-2
+reference NC\_045512 (rename to `genes.gbk` and `covid.fa` respectively)
+from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and
+create SARS-CoV-2 reference database for snpEff <br/>
 
     mkdir -p /usr/local/bin/snpEff/data/COVID
     mv covid.gb covid.fa /usr/local/bin/snpEff/data/COVID
@@ -314,7 +324,7 @@ following <br/>
     <https://CRAN.R-project.org/package=ggthemes>
   - Erich Neuwirth (2014). RColorBrewer: ColorBrewer Palettes. R package
     version 1.1-2. <https://CRAN.R-project.org/package=RColorBrewer>
-  - Lawrence M, Huber W, Pages H, Aboyoun P, Carlson M, et al. (2013)
+  - Lawrence M, Huber W, Pages H, Aboyoun P, Carlson M, et al. (2013)
     Software for Computing and Annotating Genomic Ranges. PLoS Comput
     Biol 9(8): e1003118. <doi:10.1371/journal.pcbi.1003118>
 
