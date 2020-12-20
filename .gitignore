@@ -5,6 +5,8 @@
 *.Rprofile
 *.tsv
 *.csv
+*.tar
+*.gz
 *.fa
 *.fasta
 *.aln
