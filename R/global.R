@@ -168,7 +168,7 @@ umap_process_heur <- function(align, fasta, new_dist, new_meta, old_umap) {
   split_test_reduced_names <- as.list(names(split_test_reduced_mins))
   
   if (max(unlist(split_test_reduced_mins)) > 1e-4) {
-    umap_ret <- umap_process(new_dist, meta_data)
+    umap_ret <- umap_process(new_dist, new_meta)
     return(umap_ret)
   } else {
     umap_ret <- umap_0
