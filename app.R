@@ -160,6 +160,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
             strong("Collection date"), "- Sample collection date in terms of days since first case (Dec 1, 2019)",
             br(),
             strong("Travel history"), "- Travel history of individual whom sample was collected from (if available)",
+            br(),
+            strong("Pangolin lineage"), "- Phylogenetic lineage of sample, as determined by", a("Pangolin", href = "https://cov-lineages.org/pangolin.html")
           ),
           
           p(
