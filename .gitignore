@@ -31,3 +31,5 @@ slurm*
 rds_to_tsv.R
 signal_bucket_upload.sh
 manuscript
+plugins 
+tests 
