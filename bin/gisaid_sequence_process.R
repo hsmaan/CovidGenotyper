@@ -48,15 +48,20 @@ ambg_freq_all <- which(((apply((letterFrequency(all_fastas, c("N", "W", "S", "M"
 
 all_fastas <- all_fastas[-ambg_freq_all]
 
-# Subset all files by available metadata and sample 500 sequences 
+# Subset all files by available metadata and sample 10000 sequences (if available)
 
 all_fastas <- all_fastas[which(names(all_fastas) %in% meta_accession[,1])]
 meta_accession <- meta_accession[which(meta_accession[,1] %in% names(all_fastas)),]
 meta_accession <- data.frame("Accession" = as.character(meta_accession))
 accession_order <- base::match(names(all_fastas), meta_accession[,1])
 all_fastas <- all_fastas[order(accession_order)]
-all_500 <- sample(names(all_fastas), 500)
-all_fastas <- all_fastas[all_500]
+if (length(all_fastas) < 10000){
+  all_fastas <- all_fastas
+} else {
+  all_10000 <- sample(names(all_fastas), 10000)
+  all_fastas <- all_fastas[all_10000]
+}
+
 
 # Append refseq (temporary for alignment)
 
