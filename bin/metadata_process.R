@@ -15,6 +15,7 @@ meta_df <- as.data.frame(metadata)
 meta_sub <- meta_df[,c(
     "date",
     "gisaid_epi_isl",
+    "strain",
     "region", 
     "country", 
     "length", 
@@ -25,7 +26,8 @@ meta_sub <- meta_df[,c(
 )]
 colnames(meta_sub) <- c(
     "Date", 
-    "Accession", 
+    "Accession",
+    "Name", 
     "Region", 
     "Geo_Location", 
     "Genome_Length", 

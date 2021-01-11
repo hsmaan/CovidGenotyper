@@ -30,7 +30,7 @@ loadRData <- function(fileName){
 
 pre_meta <- loadRData(grep("covid_meta", all_files, value = TRUE))
 
-meta_name <- data.frame("name" = as.character(pre_meta$names))
+meta_name <- data.frame("name" = as.character(pre_meta$Name))
 
 # Remove old files
 
