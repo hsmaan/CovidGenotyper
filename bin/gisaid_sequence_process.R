@@ -55,7 +55,7 @@ meta_name <- meta_name[which(meta_name[,1] %in% names(all_fastas)),]
 meta_name <- data.frame("name" = as.character(meta_name))
 name_order <- base::match(names(all_fastas), meta_name[,1])
 all_fastas <- all_fastas[order(name_order)]
-if (length(all_fastas) =< 25000){
+if (length(all_fastas) <= 25000){
   all_fastas <- all_fastas
 } else {
   all_10000 <- sample(names(all_fastas), 25000)
