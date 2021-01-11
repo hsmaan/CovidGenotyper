@@ -24,6 +24,7 @@
 *.txt
 *.html
 gisaid_cron.sh
+gisaid_test.sh
 rds_to_tsv.R
 signal_bucket_upload.sh
 slurm*

@@ -27,7 +27,7 @@ file_list <- list.files()
 pre_aligned_filtered <- loadRData(grep("dec_aligned_filtered", file_list, value = TRUE))
 pre_meta <- loadRData(grep("covid_filtered_meta", file_list, value = TRUE))
 pre_dist <- loadRData(grep("dec_fasta_dist", file_list, value = TRUE))
-meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime", "Country_Exposure")])
+meta <- as.data.frame(pre_meta[,c("Accession", "Region", "Geo_Location", "Datetime", "Country_Exposure", "Pangolin_Lineage")])
 pre_umap <- loadRData(grep("umap_preloaded", file_list, value = TRUE))
 pre_mst <- loadRData(grep("mst_preloaded", file_list, value = TRUE))
 pre_snp <- loadRData(grep("snps_preloaded", file_list, value = TRUE))
@@ -103,7 +103,18 @@ ui <- fluidPage(theme = shinytheme("flatly"),
           
           fileInput(inputId = "input_fasta", label = h4(strong("Upload fasta"))),
           
-          radioButtons("metatype", label = h4(strong("Metadata")), choices = list("Region" = 1, "Country" = 2, "Collection date" = 3, "Travel history" = 4), selected = 1),
+          radioButtons(
+            "metatype", 
+            label = h4(strong("Metadata")), 
+            choices = list(
+              "Region" = 1, 
+              "Country" = 2, 
+              "Collection date" = 3, 
+              "Travel history" = 4,
+              "Pangolin lineage" = 5
+            ), 
+            selected = 1
+          ),
           
           p(
             a("Bo Wang Lab", href="https://wanglab.ml/"),
@@ -259,7 +270,14 @@ server <- function(input, output) {
       return(new_meta)
     } else {
       new_accessions <- rownames(dist_reac())[(nrow(meta)+1):nrow(dist_reac())]
-      meta_new <- data.frame("Accession" = new_accessions, "Region" = paste("Novel", seq(1, length(new_accessions), 1)), "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)), "Datetime" = rep((unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))), length(new_accessions)), "Country_Exposure" = paste("Novel", seq(1, length(new_accessions), 1)))
+      meta_new <- data.frame(
+        "Accession" = new_accessions, 
+        "Region" = paste("Novel", seq(1, length(new_accessions), 1)), 
+        "Geo_Location" = paste("Novel", seq(1, length(new_accessions), 1)), 
+        "Datetime" = rep((unclass(Sys.Date()) - unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))), length(new_accessions)), 
+        "Country_Exposure" = paste("Novel", seq(1, length(new_accessions), 1)),
+        "Pangolin_Lineage" = paste("Novel", seq(1, length(new_accessions), 1))
+      )
       new_meta <- rbind(meta, meta_new)
       gc()
       return(new_meta)

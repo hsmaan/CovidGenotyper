@@ -105,7 +105,7 @@ fasta_dist <- dist.dna(as.DNAbin(fasta_masked), model = "K80", as.matrix = TRUE,
 # Save objects as RDS files where appropriate
 
 save(fasta_dist, file = paste("dec_fasta_dist_", as.character(Sys.Date()), ".RData", sep = ""))
-save(fasta_string_noref, file = paste("dec_aligned_filsltered_", as.character(Sys.Date()), ".RData", sep = ""))
+save(fasta_string_noref, file = paste("dec_aligned_filtered_", as.character(Sys.Date()), ".RData", sep = ""))
 save(pre_meta_sub, file = paste("covid_filtered_meta_", as.character(Sys.Date()), ".RData", sep = ""))
 
 
