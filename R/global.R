@@ -56,7 +56,7 @@ align_get <- function(fasta, align) {
   covid_align <- align
   covid_seq <- RemoveGaps(covid_seq, removeGaps = "all", processors = NULL)
   if (length(covid_seq) > 1) {
-    scovid_seq <- AlignSeqs(covid_seq, iterations = 0, refinements = 0, processors = NULL)
+    covid_seq <- AlignSeqs(covid_seq, iterations = 0, refinements = 0, processors = NULL)
   }
   fasta_final <- AlignProfiles(covid_align, covid_seq, processors = NULL)
   return(fasta_final)
@@ -239,6 +239,7 @@ snps_get <- function(alignment, metadata, positions) {
   align_df <- as.data.frame(as.matrix(align))
   meta_order <- match(rownames(align_df), acc)
   align_df <- align_df[order(meta_order),]
+  align_df$m5 <- meta_vars[,5]
   align_df$m4 <- meta_vars[,4]
   align_df$m3 <- meta_vars[,3]
   align_df$m2 <- meta_vars[,2]
@@ -266,7 +267,7 @@ snps_get <- function(alignment, metadata, positions) {
     return(align_final)
   }
   
-  meta_nums <- list(1, 2, 3, 4)
+  meta_nums <- list(1, 2, 3, 4, 5)
   all_tables <- mclapply(meta_nums, function(x) lapply(pos, function(y) table_get(align_df, y, x)), mc.cores = cores)
   table_concat <- lapply(all_tables, function(x) base::Reduce(rbind, x))
   return(table_concat)
@@ -334,7 +335,7 @@ umap_plotter <- function(umap_df) {
   p5 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
     theme_few() +
     geom_jitter(aes(fill = Lineage), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
-    scale_fill_manual(name = "Pangolin lineage", values = qual_vector[1:length(unique(umap_df$Lineage))]) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(umap_df$Lineage))]) +
     labs(x = "UMAP 1", y = "UMAP 2") +
     theme(axis.ticks.x = element_blank()) +
     theme(axis.ticks.y = element_blank()) +
@@ -462,6 +463,9 @@ snp_plotter <- function(snp_list, meta_df) {
   
   snps_4 <- snp_list[[4]]
   colnames(snps_4) <- c("Position", "Travel", "Allele", "Freq")
+
+  snps_5 <- snp_list[[5]]
+  colnames(snps_5) <- c("Position", "Lineage", "Allele", "Freq")
   
   p1 <- ggplot(data = snps_1, aes(x = Allele, y = Freq)) +
     theme_few () +
@@ -491,8 +495,6 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(legend.text = element_text(size = 14)) +
     theme(strip.text = element_text(size = 12, face = "bold"))
   
-  int_text = paste("Functionality currently not supported")
-  
   p3 <- ggplot(data = snps_3, aes(x = Allele, y = Freq)) +
     theme_few () +
     geom_bar(stat = "identity", position = "dodge2", aes(color = Date)) +
@@ -521,7 +523,22 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(legend.text = element_text(size = 14)) +
     theme(strip.text = element_text(size = 12, face = "bold"))
 
-  plot_list <- list(p1, p2, p3, p4)
+  p5 <- ggplot(data = snps_5, aes(x = Allele, y = Freq)) +
+    theme_few () +
+    geom_bar(stat = "identity", position = "dodge2", aes(fill = Lineage), width = 1) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(meta_df$Pangolin_Lineage))]) +
+    facet_wrap(~Position, scales = "free") +
+    labs(x = "Allele", y = "Frequency") + 
+    theme(axis.text.y = element_text(size = 12)) +
+    theme(axis.text.x = element_text(size = 12)) +
+    theme(axis.title.y = element_text(size = 16, face = "bold")) +
+    theme(axis.title.x = element_text(size = 16, face = "bold")) +
+    theme(legend.title = element_text(size = 15, face = "bold")) +
+    theme(legend.text = element_text(size = 14)) +
+    theme(strip.text = element_text(size = 12, face = "bold"))
+
+
+  plot_list <- list(p1, p2, p3, p4, p5)
   return(plot_list)
   
 }
