@@ -15,7 +15,7 @@ library(parallel)
 
 # Set core usage
 
-cores <- detectCores()
+cores <- 2
 
 # Load color palettes    
 
@@ -55,7 +55,9 @@ align_get <- function(fasta, align) {
   }
   covid_align <- align
   covid_seq <- RemoveGaps(covid_seq, removeGaps = "all", processors = NULL)
-  covid_seq <- AlignSeqs(covid_seq, iterations = 0, refinements = 0, processors = NULL)
+  if (length(covid_seq) > 1) {
+    covid_seq <- AlignSeqs(covid_seq, iterations = 0, refinements = 0, processors = NULL)
+  }
   fasta_final <- AlignProfiles(covid_align, covid_seq, processors = NULL)
   return(fasta_final)
   
@@ -143,7 +145,7 @@ umap_process <- function(covid_dist, meta_df) {
   covid_umap_df <- as.data.frame(covid_umap)
   umap_df_final <- data.frame("Accession" = acc_names, "UMAP_1" = covid_umap_df[,1], "UMAP_2" = covid_umap_df[,2])
   umap_df_final <- merge(umap_df_final, meta_df)
-  colnames(umap_df_final) <- c("Accession", "UMAP_1", "UMAP_2", "Region", "Country", "Date", "Travel")
+  colnames(umap_df_final) <- c("Accession", "UMAP_1", "UMAP_2", "Region", "Country", "Date", "Travel", "Lineage")
   return(umap_df_final)
   
 }
@@ -199,26 +201,31 @@ mst_graph <- function(covid_dist, meta_data) {
   g_mst_2 <- g_mst
   g_mst_3 <- g_mst
   g_mst_4 <- g_mst
+  g_mst_5 <- g_mst
   
-  meta_colors_1 <- (kev_palette[1:length(unique(meta_ordered[,(ncol(meta_ordered)-3)]))])[factor(meta_ordered[, (ncol(meta_ordered)-3)])]
-  meta_colors_2 <- (qual_vector[1:length(unique(meta_ordered[,(ncol(meta_ordered)-2)]))])[factor(meta_ordered[, (ncol(meta_ordered)-2)])]
-  color_ramp <- colorRampPalette(c("dodgerblue2", "white", "firebrick1"))(max(meta_ordered[,(ncol(meta_ordered)-1)]))
-  meta_colors_3 <- color_ramp[meta_ordered[,(ncol(meta_ordered)-1)]]
-  meta_colors_4 <- (qual_vector[1:length(unique(meta_ordered[,(ncol(meta_ordered))]))])[factor(meta_ordered[, (ncol(meta_ordered))])]
+  meta_colors_1 <- (kev_palette[1:length(unique(meta_ordered[,(ncol(meta_ordered)-4)]))])[factor(meta_ordered[, (ncol(meta_ordered)-4)])]
+  meta_colors_2 <- (qual_vector[1:length(unique(meta_ordered[,(ncol(meta_ordered)-3)]))])[factor(meta_ordered[, (ncol(meta_ordered)-3)])]
+  color_ramp <- colorRampPalette(c("dodgerblue2", "white", "firebrick1"))(max(meta_ordered[,(ncol(meta_ordered)-2)]))
+  meta_colors_3 <- color_ramp[meta_ordered[,(ncol(meta_ordered)-2)]]
+  meta_colors_4 <- (qual_vector[1:length(unique(meta_ordered[,(ncol(meta_ordered)-1)]))])[factor(meta_ordered[, (ncol(meta_ordered)-1)])]
+  meta_colors_5 <- (qual_vector[1:length(unique(meta_ordered[,(ncol(meta_ordered))]))])[factor(meta_ordered[, (ncol(meta_ordered))])]
+
   
   V(g_mst_1)$color <- meta_colors_1
   V(g_mst_2)$color <- meta_colors_2
   V(g_mst_3)$color <- meta_colors_3
   V(g_mst_4)$color <- meta_colors_4
+  V(g_mst_5)$color <- meta_colors_5
   
-  V(g_mst_1)$Region <- meta_ordered[,(ncol(meta_ordered)-3)]
-  V(g_mst_2)$Country <- meta_ordered[,(ncol(meta_ordered)-2)]
-  V(g_mst_3)$Date <- meta_ordered[,(ncol(meta_ordered)-1)]
-  V(g_mst_4)$Travel <- meta_ordered[,(ncol(meta_ordered))]
+  V(g_mst_1)$Region <- meta_ordered[,(ncol(meta_ordered)-4)]
+  V(g_mst_2)$Country <- meta_ordered[,(ncol(meta_ordered)-3)]
+  V(g_mst_3)$Date <- meta_ordered[,(ncol(meta_ordered)-2)]
+  V(g_mst_4)$Travel <- meta_ordered[,(ncol(meta_ordered)-1)]
+  V(g_mst_5)$Lineage <- meta_ordered[,(ncol(meta_ordered))]
   
   lay <- layout_with_graphopt(g_mst_1, niter = 1000)
   
-  g_mst_list <- list(g_mst_1, g_mst_2, g_mst_3, g_mst_4, lay)
+  g_mst_list <- list(g_mst_1, g_mst_2, g_mst_3, g_mst_4, g_mst_5, lay)
   return(g_mst_list)
   
 }
@@ -232,6 +239,7 @@ snps_get <- function(alignment, metadata, positions) {
   align_df <- as.data.frame(as.matrix(align))
   meta_order <- match(rownames(align_df), acc)
   align_df <- align_df[order(meta_order),]
+  align_df$m5 <- meta_vars[,5]
   align_df$m4 <- meta_vars[,4]
   align_df$m3 <- meta_vars[,3]
   align_df$m2 <- meta_vars[,2]
@@ -250,11 +258,16 @@ snps_get <- function(alignment, metadata, positions) {
     colnames(align_pos) <- c("position", "meta")
     align_grouped <- group_by(.data = align_pos, meta) 
     align_tables <- as.data.frame(do(.data = align_grouped, data.frame(val = freq_pct(.[,1]))))
-    align_final <- data.frame("Position" = rep(pos_full, length(align_tables[,1])), "Meta" = align_tables[,1], "Allele" = align_tables[,2], "Freq" = align_tables[,3])
+    align_final <- data.frame(
+      "Position" = rep(pos_full, length(align_tables[,1])), 
+      "Meta" = align_tables[,1], 
+      "Allele" = align_tables[,2], 
+      "Freq" = align_tables[,3]
+    )
     return(align_final)
   }
   
-  meta_nums <- list(1, 2, 3, 4)
+  meta_nums <- list(1, 2, 3, 4, 5)
   all_tables <- mclapply(meta_nums, function(x) lapply(pos, function(y) table_get(align_df, y, x)), mc.cores = cores)
   table_concat <- lapply(all_tables, function(x) base::Reduce(rbind, x))
   return(table_concat)
@@ -317,9 +330,23 @@ umap_plotter <- function(umap_df) {
     theme(axis.title.y = element_text(size = 16, face = "bold")) +
     theme(axis.title.x = element_text(size = 16, face = "bold")) +
     theme(legend.title = element_text(size = 15, face = "bold")) +
-    theme(legend.text = element_text(size = 14)) 
+    theme(legend.text = element_text(size = 14))
 
-  plot_list <- list(p1, p2, p3, p4)
+  p5 <- ggplot(data = umap_df, aes(x = UMAP_1, y = UMAP_2)) +
+    theme_few() +
+    geom_jitter(aes(fill = Lineage), size = 3, position = "jitter", colour = "black", pch = 21, stroke = 0.25) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(umap_df$Lineage))]) +
+    labs(x = "UMAP 1", y = "UMAP 2") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.ticks.y = element_blank()) +
+    theme(axis.text.y = element_blank()) +
+    theme(axis.text.x = element_blank()) +
+    theme(axis.title.y = element_text(size = 16, face = "bold")) +
+    theme(axis.title.x = element_text(size = 16, face = "bold")) +
+    theme(legend.title = element_text(size = 15, face = "bold")) +
+    theme(legend.text = element_text(size = 14))
+
+  plot_list <- list(p1, p2, p3, p4, p5)
   return(plot_list)
   
 }
@@ -330,7 +357,8 @@ mst_plotter <- function(mst_list, meta_df) {
   graph_m2 <- mst_list[[2]]
   graph_m3 <- mst_list[[3]]
   graph_m4 <- mst_list[[4]]
-  lay <- mst_list[[5]]
+  graph_m5 <- mst_list[[5]]
+  lay <- mst_list[[6]]
   
   ggnet_1 <- ggnetwork(graph_m1, layout = lay)
   p1 <- ggplot(ggnet_1, aes(x = x, y = y, xend = xend, yend = yend)) +
@@ -400,7 +428,24 @@ mst_plotter <- function(mst_list, meta_df) {
     theme(legend.title = element_text(size = 15, face = "bold")) +
     theme(legend.text = element_text(size = 14))
   
-  plot_list <- list(p1, p2, p3, p4)
+  ggnet_5 <- ggnetwork(graph_m5, layout = lay)
+  p5 <- ggplot(ggnet_5, aes(x = x, y = y, xend = xend, yend = yend)) +
+    theme_few() +
+    geom_edges(color = "gray") +
+    geom_nodes(aes(fill = Lineage), size = 3) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(meta_df$Pangolin_Lineage))]) +
+    theme(axis.title.x = element_blank()) +
+    theme(axis.title.y = element_blank()) +
+    theme(axis.text.x = element_blank()) +
+    theme(axis.text.y = element_blank()) +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.ticks.y = element_blank()) +
+    theme(axis.line.x = element_blank()) +
+    theme(axis.line.y = element_blank()) +
+    theme(legend.title = element_text(size = 15, face = "bold")) +
+    theme(legend.text = element_text(size = 14))
+  
+  plot_list <- list(p1, p2, p3, p4, p5)
   return(plot_list)
   
 }
@@ -418,6 +463,9 @@ snp_plotter <- function(snp_list, meta_df) {
   
   snps_4 <- snp_list[[4]]
   colnames(snps_4) <- c("Position", "Travel", "Allele", "Freq")
+
+  snps_5 <- snp_list[[5]]
+  colnames(snps_5) <- c("Position", "Lineage", "Allele", "Freq")
   
   p1 <- ggplot(data = snps_1, aes(x = Allele, y = Freq)) +
     theme_few () +
@@ -447,8 +495,6 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(legend.text = element_text(size = 14)) +
     theme(strip.text = element_text(size = 12, face = "bold"))
   
-  int_text = paste("Functionality currently not supported")
-  
   p3 <- ggplot(data = snps_3, aes(x = Allele, y = Freq)) +
     theme_few () +
     geom_bar(stat = "identity", position = "dodge2", aes(color = Date)) +
@@ -477,7 +523,22 @@ snp_plotter <- function(snp_list, meta_df) {
     theme(legend.text = element_text(size = 14)) +
     theme(strip.text = element_text(size = 12, face = "bold"))
 
-  plot_list <- list(p1, p2, p3, p4)
+  p5 <- ggplot(data = snps_5, aes(x = Allele, y = Freq)) +
+    theme_few () +
+    geom_bar(stat = "identity", position = "dodge2", aes(fill = Lineage), width = 1) +
+    scale_fill_manual(name = "", values = qual_vector[1:length(unique(meta_df$Pangolin_Lineage))]) +
+    facet_wrap(~Position, scales = "free") +
+    labs(x = "Allele", y = "Frequency") + 
+    theme(axis.text.y = element_text(size = 12)) +
+    theme(axis.text.x = element_text(size = 12)) +
+    theme(axis.title.y = element_text(size = 16, face = "bold")) +
+    theme(axis.title.x = element_text(size = 16, face = "bold")) +
+    theme(legend.title = element_text(size = 15, face = "bold")) +
+    theme(legend.text = element_text(size = 14)) +
+    theme(strip.text = element_text(size = 12, face = "bold"))
+
+
+  plot_list <- list(p1, p2, p3, p4, p5)
   return(plot_list)
   
 }

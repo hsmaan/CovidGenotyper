@@ -12,8 +12,28 @@ metadata <- fread(meta_file, stringsAsFactors = FALSE)
 # Subset appropriate columns
 
 meta_df <- as.data.frame(metadata)
-meta_sub <- meta_df[,c("date", "gisaid_epi_isl", "region", "country", "length", "age", "sex", "country_exposure")]
-colnames(meta_sub) <- c("Date", "Accession", "Region", "Geo_Location", "Genome_Length", "Age", "Sex", "Country_Exposure")
+meta_sub <- meta_df[,c(
+    "date",
+    "gisaid_epi_isl",
+    "region", 
+    "country", 
+    "length", 
+    "age", 
+    "sex", 
+    "country_exposure", 
+    "pangolin_lineage"
+)]
+colnames(meta_sub) <- c(
+    "Date", 
+    "Accession", 
+    "Region", 
+    "Geo_Location", 
+    "Genome_Length", 
+    "Age", 
+    "Sex", 
+    "Country_Exposure",
+    "Pangolin_Lineage"
+)
 
 # Define negate 
 
@@ -40,6 +60,10 @@ meta_sub <- meta_sub[(meta_sub$Datetime >= 0), ]
 meta_sub <- meta_sub[(meta_sub$Datetime <= current_orig), ]
 
 meta_sub$Country_Exposure <- ifelse((meta_sub$Geo_Location == meta_sub$Country_Exposure), "Not available", meta_sub$Country_Exposure)
+
+# Subset for dates after Sept 1, 2020
+cutoff_date <- (unclass(as.Date("2020-09-01", format = "%Y-%m-%d")) - (unclass(as.Date("2019-12-01", format = "%Y-%m-%d"))))
+meta_sub <- meta_sub[which(meta_sub$Datetime > cutoff_date), ]
 
 # Subset ack columns
 
