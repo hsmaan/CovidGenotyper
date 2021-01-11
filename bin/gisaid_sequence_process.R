@@ -15,8 +15,6 @@ gisaid_fastas <- grep("gisaid_cov2020_sequences", all_files, value = TRUE)
 
 all_fastas <- readDNAStringSet(gisaid_fastas)
 
-names(all_fastas) <- (str_split_fixed(names(all_fastas), fixed("|"), 3))[,2]
-
 # Load reference fasta
 
 ref_fasta <- readDNAStringSet("ncov_ref_NC_045512.fasta")
