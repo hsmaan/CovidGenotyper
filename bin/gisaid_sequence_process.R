@@ -30,7 +30,7 @@ loadRData <- function(fileName){
 
 pre_meta <- loadRData(grep("covid_meta", all_files, value = TRUE))
 
-meta_accession <- data.frame("Accession" = as.character(pre_meta$Accession))
+meta_name <- data.frame("name" = as.character(pre_meta$names))
 
 # Remove old files
 
@@ -48,20 +48,19 @@ ambg_freq_all <- which(((apply((letterFrequency(all_fastas, c("N", "W", "S", "M"
 
 all_fastas <- all_fastas[-ambg_freq_all]
 
-# Subset all files by available metadata and sample 10000 sequences (if available)
+# Subset all files by available metadata and sample 25000 sequences (if available)
 
-all_fastas <- all_fastas[which(names(all_fastas) %in% meta_accession[,1])]
-meta_accession <- meta_accession[which(meta_accession[,1] %in% names(all_fastas)),]
-meta_accession <- data.frame("Accession" = as.character(meta_accession))
-accession_order <- base::match(names(all_fastas), meta_accession[,1])
-all_fastas <- all_fastas[order(accession_order)]
-if (length(all_fastas) < 10000){
+all_fastas <- all_fastas[which(names(all_fastas) %in% meta_name[,1])]
+meta_name <- meta_name[which(meta_name[,1] %in% names(all_fastas)),]
+meta_name <- data.frame("name" = as.character(meta_name))
+name_order <- base::match(names(all_fastas), meta_name[,1])
+all_fastas <- all_fastas[order(name_order)]
+if (length(all_fastas) =< 25000){
   all_fastas <- all_fastas
 } else {
-  all_10000 <- sample(names(all_fastas), 10000)
+  all_10000 <- sample(names(all_fastas), 25000)
   all_fastas <- all_fastas[all_10000]
 }
-
 
 # Append refseq (temporary for alignment)
 
@@ -82,7 +81,7 @@ fasta_string <- fasta_ungapped %>% as.list %>% as.character %>% lapply(., paste0
 # Subset for sequences with length 29903 and subset metadata appropriately 
 
 fasta_string <- fasta_string[which(width(fasta_string) == 29903)]
-pre_meta_sub <- pre_meta[which(pre_meta$Accession %in% names(fasta_string)),]
+pre_meta_sub <- pre_meta[which(pre_meta$name %in% names(fasta_string)),]
 
 # Save subset sequences with ref
 
