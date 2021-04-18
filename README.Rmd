@@ -93,9 +93,15 @@ mv snpEff /usr/local/bin
 Download genbank (**.gb**) and fasta (**.fa**) files of SARS-CoV-2 reference NC_045512 (rename to `genes.gbk` and `covid.fa` respectively) from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and create SARS-CoV-2 reference database for snpEff <br/>
 ```
 mkdir -p /usr/local/bin/snpEff/data/COVID
-mv covid.gb covid.fa /usr/local/bin/snpEff/data/COVID
+mv genes.gbk covid.fa /usr/local/bin/snpEff/data/COVID
 echo COVID.genome : COVID >> /usr/local/bin/snpEff/snpEff.config
 java -jar /usr/local/bin/snpEff/snpEff.jar build -genbank -v COVID
+```
+
+Download GFF3 file of SARS-CoV-2 reference NC_045512 from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254), and rename to `ncov_NC_045512_Genes.GFF3` and save it in data directory 
+```
+mkdir data
+mv ncov_NC_045512_Genes.GFF3 data
 ```
 
 Ensure R >3.5 is installed, and run the R package installation script. Ensure all packages are installed. Packages may fail due to unmet library depdendencies - check Rscript output and install <br/>

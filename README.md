@@ -1,12 +1,9 @@
-# CGT is currently down for maintenance
 
 # COVID-19 Genotyping Tool (CGT) <img src="www/cgt_logo.png" height="200px" align="right"/>
 
 [![DOI](https://zenodo.org/badge/249085461.svg)](https://zenodo.org/badge/latestdoi/249085461)
 
 ### Please note that the CGT backend and UI are under continuous development.
-
-#### A mirror of CGT is available at: https://bergen.mcmaster.ca/covidgenotyper/
 
 ## Overview
 
@@ -43,15 +40,14 @@ Processed fasta files and metadata of Covid-19 viral genome sequence are
 retrieved from the [GISAID](https://www.gisaid.org/) EpiCoV database,
 which is a public database for sharing of viral genome sequence data.
 Viral genome data and metadata are updated on a weekly basis. Sequences
-are filtered for completeness (\>29000 nucleotides) and high coverage
-(\<0.1% of all ambiguous nucleotides - e.g. N, M, W). Outlier sequences
-are also filtered out, defined by \>0.05% unique amino acid
+are filtered for completeness (&gt;29000 nucleotides) and high coverage
+(&lt;0.1% of all ambiguous nucleotides - e.g. N, M, W). Outlier
+sequences are also filtered out, defined by &gt;0.05% unique amino acid
 substitutions compared to all GISAID sequences. This criteria is based
 on the mutation rate of SARS-CoV-2 and breadth of the GISAID database.
 Due to space and computational limitations, since the June 26th update,
-20000 sequences from those that meet the filtering criteria are randomly
-sampled and analyzed. Currently, only sequences with date of upload on 
-June 1st or later are processed. 
+10000 sequences from those that meet the filtering criteria are randomly
+sampled and analyzed.
 
 #### Genome sequence alignment
 
@@ -83,11 +79,11 @@ article](http://virological.org/t/issues-with-sars-cov-2-sequencing-data/473):
 User-uploaded data is aligned and the distance between each user
 uploaded genome and the public genomes from GISAID are calculated first.
 If all user-uploaded sequences are significantly similar to a publicly
-uploaded genome (min dist \< 1e-4, a lower bound based on distances
+uploaded genome (min dist &lt; 1e-4, a lower bound based on distances
 between public genomes), then the distances for the user-uploaded
 genomes are imputed as the most similar publicly uploaded genome for
 each. Otherwise, if user-uploaded sequences do not meet this criteria
-(min dist \> 1e-4 for any user-uploaded genome), then the entire
+(min dist &gt; 1e-4 for any user-uploaded genome), then the entire
 distance matrix is recomputed. This heuristic allows for significantly
 improved computation time for user-uploaded data, and is based on
 properties of SARS-CoV-2 - Betacoronaviruses have low mutation rates,
@@ -103,14 +99,14 @@ implementation of UMAP is utilized using the pre-computed DNA distance
 matrix. Defaults for the `uwot` implementation are employed, with the
 exception of the following parameters:
 
-`init = "spectral"`<br/> `metric = "cosine"`<br/> `n_neighbors
-= 50`<br/> `min_dist = 0.001`<br/> `spread = 30`<br/>
+`init = "spectral"`<br/> `metric = "cosine"`<br/>
+`n_neighbors = 50`<br/> `min_dist = 0.001`<br/> `spread = 30`<br/>
 `local_connectivity = 10`<br/>
 
 Similar to the DNA distance heuristic outlined above, if the minimum
-distance (\<1e-4) requirements for all user-uploaded sequences are met,
-the UMAP coordinates of the user-uploaded sequences are imputed as the
-coordinates of the minimum distance matched genomes from GISAID.
+distance (&lt;1e-4) requirements for all user-uploaded sequences are
+met, the UMAP coordinates of the user-uploaded sequences are imputed as
+the coordinates of the minimum distance matched genomes from GISAID.
 Otherwise, UMAP is recomputed with the added user-data.
 
 #### Network analysis and minimum spanning tree (MST)
@@ -142,13 +138,13 @@ only been tested on Linux systems including Ubuntu 18.04 LTS and Debian
 9.0 LTS, thus we only provide installation instructions for
 Debian/Ubuntu systems.
 
-#### 1\) Installing CGT dependencies
+#### 1) Installing CGT dependencies
 
-Clone the repository locally <br/> `git clone
-https://github.com/hsmaan/CovidGenotyper`
+Clone the repository locally <br/>
+`git clone https://github.com/hsmaan/CovidGenotyper`
 
-Install snp-sites and vcftools <br/> `sudo apt-get install snp-sites
-vctools`
+Install snp-sites and vcftools <br/>
+`sudo apt-get install snp-sites vctools`
 
 Download and install
 [snpEff](https://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip/download)
@@ -163,18 +159,25 @@ from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and
 create SARS-CoV-2 reference database for snpEff <br/>
 
     mkdir -p /usr/local/bin/snpEff/data/COVID
-    mv covid.gb covid.fa /usr/local/bin/snpEff/data/COVID
+    mv genes.gbk covid.fa /usr/local/bin/snpEff/data/COVID
     echo COVID.genome : COVID >> /usr/local/bin/snpEff/snpEff.config
     java -jar /usr/local/bin/snpEff/snpEff.jar build -genbank -v COVID
 
-Ensure R \>3.5 is installed, and run the R package installation script.
-Ensure all packages are installed. Packages may fail due to unmet
-library depdendencies - check Rscript output and install <br/>
+Download GFF3 file of SARS-CoV-2 reference NC\_045512 from
+[GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254), and rename
+to `ncov_NC_045512_Genes.GFF3` and save it in data directory
+
+    mkdir data
+    mv ncov_NC_045512_Genes.GFF3 data
+
+Ensure R &gt;3.5 is installed, and run the R package installation
+script. Ensure all packages are installed. Packages may fail due to
+unmet library depdendencies - check Rscript output and install <br/>
 
     cd CovidGenotyper/bin
     Rscript --verbose packages_install.R
 
-#### 2\) Run preprocessing scripts
+#### 2) Run preprocessing scripts
 
 CGT relies on pre-processing plot data prior to deployment to ensure
 visualizations can be loaded quickly. Fasta sequences should be
@@ -192,7 +195,7 @@ The order for processing scripts is the following:
     Rscript --verbose maf_sites_out.R
     Rscript --verbose preprocess_plot_data.R
 
-#### 3\) Deploy CGT
+#### 3) Deploy CGT
 
 Now that the shiny application dependencies have been installed and data
 has been preloaded, the shiny app can be deployed in a variety of ways,
@@ -223,116 +226,116 @@ following <br/>
 
 #### R packages
 
-  - shiny v1.4.0.2
-  - shinyWidgets v0.5.1
-  - shinycssloaders v0.3
-  - shinythemes v1.1.2
-  - BiocManager v1.30.10
-  - Biostrings v2.54.0
-  - ape v5.3
-  - DECIPHER v2.14.0
-  - uwot v0.1.8
-  - igraph v1.2.4.2
-  - ggplot2 v3.3.0
-  - ggnetwork v0.5.8
-  - plotly v4.9.2.1
-  - Cairo v1.5.11
-  - intergraph v2.0.2
-  - tidyverse v1.3.0
-  - data.table v1.12.8
-  - stringr v1.4.0
-  - reshape2 v1.4.3
-  - dplyr v0.8.5
-  - parallel v3.6.3
-  - ggthemes v4.2.0
-  - RColorBrewer v1.1.2
-  - GenomicRanges v1.38.0
+-   shiny v1.4.0.2
+-   shinyWidgets v0.5.1
+-   shinycssloaders v0.3
+-   shinythemes v1.1.2
+-   BiocManager v1.30.10
+-   Biostrings v2.54.0
+-   ape v5.3
+-   DECIPHER v2.14.0
+-   uwot v0.1.8
+-   igraph v1.2.4.2
+-   ggplot2 v3.3.0
+-   ggnetwork v0.5.8
+-   plotly v4.9.2.1
+-   Cairo v1.5.11
+-   intergraph v2.0.2
+-   tidyverse v1.3.0
+-   data.table v1.12.8
+-   stringr v1.4.0
+-   reshape2 v1.4.3
+-   dplyr v0.8.5
+-   parallel v3.6.3
+-   ggthemes v4.2.0
+-   RColorBrewer v1.1.2
+-   GenomicRanges v1.38.0
 
 #### Command-line tools
 
-  - snp-sites v2.3.3-2
-  - snpEff v4.3t
-  - VCFtools v0.1.15
+-   snp-sites v2.3.3-2
+-   snpEff v4.3t
+-   VCFtools v0.1.15
 
 ## References
 
-  - Elbe S, Buckland-Merrett G. Data, disease and diplomacy: GISAID’s
+-   Elbe S, Buckland-Merrett G. Data, disease and diplomacy: GISAID’s
     innovative contribution to global health. Glob Challenges.
     2017;1(1):33–46.
-  - Chang W, Cheng J, Allaire JJ, Xie Y, McPherson J. Shiny: Web
+-   Chang W, Cheng J, Allaire JJ, Xie Y, McPherson J. Shiny: Web
     Application Framework for R. R package version 1.4.0.2. 2020.
     Available from: <https://CRAN.R-project.org/package=shiny>
-  - Wickham H. ggplot2: Elegant Graphics for Data Analysis.
+-   Wickham H. ggplot2: Elegant Graphics for Data Analysis.
     Springer-Verlag New York, 2016.
-  - Briatte F. ggnetwork: Geometries to Plot Networks with ‘ggplot2’. R
+-   Briatte F. ggnetwork: Geometries to Plot Networks with ‘ggplot2’. R
     package version 0.5.8. 2020.
-  - C Sievert. Interactive Web-Based Data Visualization with R, plotly,
+-   C Sievert. Interactive Web-Based Data Visualization with R, plotly,
     and shiny. Chapman and Hall/CRC Florida, 2020.
-  - McInnes L, Healy J, Melville J. UMAP: Uniform Manifold Approximation
+-   McInnes L, Healy J, Melville J. UMAP: Uniform Manifold Approximation
     and Projection for Dimension Reduction. arXiv \[Internet\]. 2018;
     Available from: <http://arxiv.org/abs/1802.03426>
-  - Mamun A, Rajasekaran S. An efficient Minimum Spanning Tree
+-   Mamun A, Rajasekaran S. An efficient Minimum Spanning Tree
     algorithm. In: 2016 IEEE Symposium on Computers and Communication
     (ISCC). 2016. p. 1047–52.
-  - Benson DA, Karsch-Mizrachi I, Lipman DJ, Ostell J, Wheeler DL.
+-   Benson DA, Karsch-Mizrachi I, Lipman DJ, Ostell J, Wheeler DL.
     GenBank. Nucleic Acids Res. 2007;35(SUPPL. 1):21–5.
-  - Pagès H, Aboyoun P, Gentleman R, DebRoy S. Biostrings: Efficient
+-   Pagès H, Aboyoun P, Gentleman R, DebRoy S. Biostrings: Efficient
     manipulation of biological strings. R package version 2.54.0. 2019.
-  - Wright ES. Using DECIPHER v2.0 to analyze big biological sequence
+-   Wright ES. Using DECIPHER v2.0 to analyze big biological sequence
     data in R. R J. 2016;8(1):352–9.
-  - Paradis E, Claude J, Strimmer K. APE: Analyses of phylogenetics and
+-   Paradis E, Claude J, Strimmer K. APE: Analyses of phylogenetics and
     evolution in R language. Bioinformatics. 2004;20(2):289–90.
-  - Melville J. uwot: The Uniform Manifold Approximation and Projection
+-   Melville J. uwot: The Uniform Manifold Approximation and Projection
     (UMAP). Method for Dimensionality Reduction. R package version
     0.1.8. 2020.
-  - Csardi G, Nepusz T. The igraph software package for complex network
+-   Csardi G, Nepusz T. The igraph software package for complex network
     research. InterJournal, Complex Systems. 1695. 2006.
     <http://igraph.org>
-  - Page AJ, Taylor B, Delaney AJ, Soares J, Seemann T, Keane JA, et
+-   Page AJ, Taylor B, Delaney AJ, Soares J, Seemann T, Keane JA, et
     al. SNP-sites: rapid efficient extraction of SNPs from multi-FASTA
     alignments. Microb genomics. 2016;2(4):e000056.
-  - Cingolani P, Platts A, Wang LL, Coon M, Nguyen T, Wang L, et al. A
+-   Cingolani P, Platts A, Wang LL, Coon M, Nguyen T, Wang L, et al. A
     program for annotating and predicting the effects of single
     nucleotide polymorphisms, SnpEff: SNPs in the genome of Drosophila
     melanogaster strain w1118; iso-2; iso-3. Fly. 2012.
-  - Danecek P, Auton A, Abecasis G, Albers CA, Banks E, DePristo MA, et
+-   Danecek P, Auton A, Abecasis G, Albers CA, Banks E, DePristo MA, et
     al. The variant call format and VCFtools. Bioinformatics.
     2011;27(15):2156–8.
-  - Simon Urbanek and Jeffrey Horner (2020). Cairo: R Graphics Device
+-   Simon Urbanek and Jeffrey Horner (2020). Cairo: R Graphics Device
     using Cairo Graphics Library for Creating High-Quality Bitmap (PNG,
     JPEG, TIFF), Vector (PDF, SVG, PostScript) and Display (X11 and
     Win32) Output. R package version 1.5-11.
     <https://CRAN.R-project.org/package=Cairo>
-  - Bojanowski, Michal (2015) intergraph: Coercion Routines for Network
+-   Bojanowski, Michal (2015) intergraph: Coercion Routines for Network
     Data Objects. R package version 2.0-2.
     <http://mbojan.github.io/intergraph>
-  - Wickham et al., (2019). Welcome to the tidyverse. Journal of Open
+-   Wickham et al., (2019). Welcome to the tidyverse. Journal of Open
     Source Software, 4(43), 1686, <https://doi.org/10.21105/joss.01686>
-  - Matt Dowle and Arun Srinivasan (2019). data.table: Extension of
+-   Matt Dowle and Arun Srinivasan (2019). data.table: Extension of
     `data.frame`. R package version 1.12.8.
     <https://CRAN.R-project.org/package=data.table>
-  - Hadley Wickham (2019). stringr: Simple, Consistent Wrappers for
+-   Hadley Wickham (2019). stringr: Simple, Consistent Wrappers for
     Common String Operations. R package version 1.4.0.
     <https://CRAN.R-project.org/package=stringr>
-  - Hadley Wickham (2007). Reshaping Data with the reshape Package.
+-   Hadley Wickham (2007). Reshaping Data with the reshape Package.
     Journal of Statistical Software, 21(12), 1-20. URL
     <http://www.jstatsoft.org/v21/i12/>.
-  - Hadley Wickham, Romain François, Lionel Henry and Kirill Müller
+-   Hadley Wickham, Romain François, Lionel Henry and Kirill Müller
     (2020). dplyr: A Grammar of Data Manipulation. R package version
     0.8.5. <https://CRAN.R-project.org/package=dplyr>
-  - R Core Team (2020). R: A language and environment for statistical
+-   R Core Team (2020). R: A language and environment for statistical
     computing. R Foundation for Statistical Computing, Vienna, Austria.
     URL <https://www.R-project.org/>.
-  - Jeffrey B. Arnold (2019). ggthemes: Extra Themes, Scales and Geoms
+-   Jeffrey B. Arnold (2019). ggthemes: Extra Themes, Scales and Geoms
     for ‘ggplot2’. R package version 4.2.0.
     <https://CRAN.R-project.org/package=ggthemes>
-  - Erich Neuwirth (2014). RColorBrewer: ColorBrewer Palettes. R package
+-   Erich Neuwirth (2014). RColorBrewer: ColorBrewer Palettes. R package
     version 1.1-2. <https://CRAN.R-project.org/package=RColorBrewer>
-  - Lawrence M, Huber W, Pages H, Aboyoun P, Carlson M, et al. (2013)
+-   Lawrence M, Huber W, Pages H, Aboyoun P, Carlson M, et al. (2013)
     Software for Computing and Annotating Genomic Ranges. PLoS Comput
     Biol 9(8): e1003118. <doi:10.1371/journal.pcbi.1003118>
 
 ## License
 
-[GNU General Public
-License 3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[GNU General Public License
+3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
