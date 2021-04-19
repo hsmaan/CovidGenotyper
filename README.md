@@ -156,9 +156,12 @@ and ensure it’s installed in the right directory <br/>
 Download genbank (**.gb**) and fasta (**.fa**) files of SARS-CoV-2
 reference NC\_045512 (rename to `genes.gbk` and `covid.fa` respectively)
 from [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254) and
-create SARS-CoV-2 reference database for snpEff <br/>
+create SARS-CoV-2 reference database for snpEff. Save a copy of the
+fasta file for use in downstream processing as
+`ncov_ref_NC_045512.fasta` <br/>
 
     mkdir -p /usr/local/bin/snpEff/data/COVID
+    cp covid.fa data/ncov_ref_NC_045512.fasta
     mv genes.gbk covid.fa /usr/local/bin/snpEff/data/COVID
     echo COVID.genome : COVID >> /usr/local/bin/snpEff/snpEff.config
     java -jar /usr/local/bin/snpEff/snpEff.jar build -genbank -v COVID
