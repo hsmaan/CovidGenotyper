@@ -143,8 +143,13 @@ Debian/Ubuntu systems.
 Clone the repository locally <br/>
 `git clone https://github.com/hsmaan/CovidGenotyper`
 
+Create a data directory within the CovidGenotyper directory <br/>
+
+    cd CovidGenotyper
+    mkdir data
+
 Install snp-sites and vcftools <br/>
-`sudo apt-get install snp-sites vctools`
+`sudo apt-get install snp-sites vcftools`
 
 Download and install
 [snpEff](https://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip/download)
@@ -170,15 +175,15 @@ Download GFF3 file of SARS-CoV-2 reference NC\_045512 from
 [GenBank](https://www.ncbi.nlm.nih.gov/nuccore/1798174254), and rename
 to `ncov_NC_045512_Genes.GFF3` and save it in data directory
 
-    mkdir data
     mv ncov_NC_045512_Genes.GFF3 data
 
 Ensure R &gt;3.5 is installed, and run the R package installation
 script. Ensure all packages are installed. Packages may fail due to
 unmet library depdendencies - check Rscript output and install <br/>
 
-    cd CovidGenotyper/bin
+    cd bin
     Rscript --verbose packages_install.R
+    cd ..
 
 #### 2) Run preprocessing scripts
 
@@ -191,12 +196,13 @@ also in the `data` folder.
 
 The order for processing scripts is the following:
 
-    cd CovidGenotyper/bin
+    cd bin
     Rscript --verbose metadata_process.R
     Rscript --verbose gisaid_sequence_process.R
     sh snp_sites_process.sh
     Rscript --verbose maf_sites_out.R
     Rscript --verbose preprocess_plot_data.R
+    cd ..
 
 #### 3) Deploy CGT
 
@@ -209,7 +215,6 @@ deployed locally and on the cloud. First run the base docker image
 installation, which includes installation of the rocker shiny image,
 system dependencies, and R <br/>
 
-    cd CovidGenotyper
     sudo docker build -t cgt/base -f base.Dockerfile .
 
 Now the shiny app can be routinely rebuilt on top of this image, after
